@@ -70,10 +70,36 @@ export async function GET(req) {
     if (exactDate) {
       query.date = exactDate;
     } else if (startDate && endDate) {
-      // Fallback: createdAt range filter
-      query.createdAt = {
-        $gte: new Date(startDate),
-        $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
+      const parsedStart = new Date(startDate);
+      const parsedEnd = new Date(new Date(endDate).setHours(23, 59, 59, 999));
+      
+      query.$expr = {
+        $and: [
+          {
+            $gte: [
+              {
+                $dateFromString: {
+                  dateString: "$date",
+                  format: "%d/%m/%Y",
+                  onError: new Date(0)
+                }
+              },
+              parsedStart
+            ]
+          },
+          {
+            $lte: [
+              {
+                $dateFromString: {
+                  dateString: "$date",
+                  format: "%d/%m/%Y",
+                  onError: new Date(0)
+                }
+              },
+              parsedEnd
+            ]
+          }
+        ]
       };
     }
 
@@ -113,7 +139,12 @@ export async function GET(req) {
       .skip(skip)
       .limit(limit);
 
-    return NextResponse.json({ orders, totalCount });
+    // Fetch all matching orders for stats & charts (non-paginated)
+    const allFilteredOrders = await Order.find(query)
+      .select("date clotheType status companyName totalGoj tableData")
+      .sort({ createdAt: -1 });
+
+    return NextResponse.json({ orders, totalCount, allFilteredOrders });
   } catch (error) {
     console.error("Error fetching orders:", error);
     return NextResponse.json(

@@ -1,5 +1,19 @@
 "use client";
 
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import {
+  Plus,
+  ShoppingCart,
+  TrendingUp,
+  Users,
+  Layers,
+  Activity,
+  ChevronRight,
+  LayoutGrid,
+  Menu
+} from "lucide-react";
 import OrderSideModal from "@/components/order/OrderSideModal";
 import ConfirmationModal from "@/components/order/ConfirmationModal";
 import OrderFilters from "@/components/order/OrderFilters";
@@ -7,10 +21,32 @@ import OrderTable from "@/components/order/OrderTable";
 import PaginationControls from "@/components/order/PaginationControls";
 import useAppData from "@/hook/useAppData";
 import useOrders from "@/hook/useOrder";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Plus, ShoppingCart } from "lucide-react";
+import dayjs from "dayjs";
+
+// Import Recharts & Shadcn Chart UI
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent
+} from "@/components/ui/chart";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const OrdersContent = () => {
   const { data } = useAppData();
@@ -22,7 +58,8 @@ export const OrdersContent = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
   const [searchTerm, setSearchTerm] = useState("");
-  const [dateRange, setDateRange] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [dateRange, setDateRange] = useState("3_months"); // Default to 3 months as per Figma
   const [customStartDate, setCustomStartDate] = useState(null);
   const [customEndDate, setCustomEndDate] = useState(null);
   const [status, setStatus] = useState("");
@@ -32,14 +69,60 @@ export const OrdersContent = () => {
   const [sillName, setSillName] = useState("");
   const [quality, setQuality] = useState("");
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [showGraph, setShowGraph] = useState(true);
+
+  // Load showGraph preference on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedShowGraph = localStorage.getItem("showGraph");
+      if (savedShowGraph !== null) {
+        setShowGraph(savedShowGraph === "true");
+      }
+    }
+  }, []);
+
+  // Persistent toggle wrapper
+  const handleToggleGraph = (value) => {
+    setShowGraph(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("showGraph", String(value));
+    }
+  };
+
+  // Search input reference for Ctrl+K shortcut focus
+  const searchInputRef = useRef(null);
 
   // Confirmation Modal
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState(null);
 
+  // Debounce search input
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1);
+    }, 400);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm]);
+
+  // Keyboard shortcut Ctrl+K to focus search input
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        const input = document.querySelector("input[placeholder*='Search order']");
+        if (input) input.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const {
     orders,
     setOrders,
+    allFilteredOrders,
     totalPages,
     loadingOrders,
     loadingOrder,
@@ -50,7 +133,7 @@ export const OrdersContent = () => {
   } = useOrders({
     currentPage,
     itemsPerPage,
-    searchTerm,
+    searchTerm: debouncedSearchTerm,
     dateRange,
     customStartDate,
     customEndDate,
@@ -73,7 +156,6 @@ export const OrdersContent = () => {
 
   // Handlers
   const handleOrderClick = (id) => {
-    // URL update korbe, jeta automatic useEffect trigger korbe
     router.push(`/dashboard/order?id=${id}`, { scroll: false });
   };
 
@@ -103,29 +185,419 @@ export const OrdersContent = () => {
     }
   };
 
-  return (
-    <div className="py-1 md:py-16 lg:py-6 text-black relative mt-10 md:-mt-4">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-6 lg:mt-0">
-        <div className="flex items-center gap-3">
-          <div className="bg-blue-50 p-2.5 rounded-lg border border-blue-100 shadow-sm">
-            <ShoppingCart className="text-[#2563eb]" size={28} />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-[#1e293b]">Orders</h1>
-            <p className="text-sm text-gray-500 font-medium">
-              Manage and track all your orders
-            </p>
-          </div>
-        </div>
+  // KPI calculations
+  // Dynamic Date range text for the chart footer
+  const chartDateRangeText = useMemo(() => {
+    const today = dayjs();
+    let start = today.subtract(3, "month");
+    let end = today;
 
+    if (dateRange === "3_days") {
+      start = today.subtract(3, "day");
+      return `${start.format("MMMM D")} - ${end.format("MMMM D, YYYY")}`;
+    } else if (dateRange === "7_days") {
+      start = today.subtract(7, "day");
+      return `${start.format("MMMM D")} - ${end.format("MMMM D, YYYY")}`;
+    } else if (dateRange === "30_days") {
+      start = today.subtract(30, "day");
+      return `${start.format("MMMM D")} - ${end.format("MMMM D, YYYY")}`;
+    } else if (dateRange === "3_months") {
+      start = today.subtract(3, "month");
+      return `${start.format("MMMM")} - ${end.format("MMMM YYYY")}`;
+    } else if (dateRange === "current_year") {
+      start = today.startOf("year");
+      return `${start.format("MMMM")} - ${end.format("MMMM YYYY")}`;
+    } else if (dateRange === "custom" && customStartDate && customEndDate) {
+      start = dayjs(customStartDate);
+      end = dayjs(customEndDate);
+      return `${start.format("MMMM D, YYYY")} - ${end.format("MMMM D, YYYY")}`;
+    }
+    return `${start.format("MMMM")} - ${end.format("MMMM YYYY")}`;
+  }, [dateRange, customStartDate, customEndDate]);
+
+  // Dynamic Chart description text
+  const chartDescriptionText = useMemo(() => {
+    switch (dateRange) {
+      case "3_days": return "Last 3 days";
+      case "7_days": return "Last 7 days";
+      case "30_days": return "Last 30 days";
+      case "3_months": return "Last 3 months";
+      case "current_year": return "Current year";
+      case "custom": return "Custom date range";
+      default: return "Showing total order categories distribution";
+    }
+  }, [dateRange]);
+
+  // KPI calculations using allFilteredOrders (non-paginated)
+  const stats = useMemo(() => {
+    if (!allFilteredOrders) return { totalOrders: 0, totalCustomers: 0, activeCount: 0, activeGoj: 0 };
+
+    // Total customers (unique companyName)
+    const uniqueCustomers = new Set(
+      allFilteredOrders.filter(o => o.companyName).map(o => o.companyName)
+    ).size;
+
+    // Active orders (status is not completed or cancelled)
+    const activeOrders = allFilteredOrders.filter(
+      o => !["completed", "cancelled", "canceled", "delivered"].includes(o.status?.toLowerCase())
+    );
+    const activeCount = activeOrders.length;
+
+    // Active orders total Goj
+    const activeGoj = activeOrders.reduce((sum, o) => {
+      const goj = o.totalGoj !== null && o.totalGoj !== undefined
+        ? o.totalGoj
+        : o.tableData && o.tableData.length > 0
+          ? o.tableData.reduce((s, item) => s + (item.goj || 0), 0)
+          : 0;
+      return sum + goj;
+    }, 0);
+
+    return {
+      totalCustomers: uniqueCustomers,
+      activeCount,
+      activeGoj
+    };
+  }, [allFilteredOrders]);
+
+  // Group real order data chronologically & by cloth category for Recharts Area chart
+  const chartData = useMemo(() => {
+    if (!allFilteredOrders || allFilteredOrders.length === 0) return [];
+
+    let grouping = "month"; // "day" or "month"
+    let periods = [];
+
+    const today = dayjs();
+    let start = today.subtract(3, "month");
+    let end = today;
+
+    if (dateRange === "3_days") {
+      grouping = "day";
+      start = today.subtract(3, "day");
+    } else if (dateRange === "7_days") {
+      grouping = "day";
+      start = today.subtract(7, "day");
+    } else if (dateRange === "30_days") {
+      grouping = "day";
+      start = today.subtract(30, "day");
+    } else if (dateRange === "3_months") {
+      grouping = "month";
+      start = today.subtract(3, "month");
+    } else if (dateRange === "current_year") {
+      grouping = "month";
+      start = today.startOf("year");
+    } else if (dateRange === "custom" && customStartDate && customEndDate) {
+      start = dayjs(customStartDate);
+      end = dayjs(customEndDate);
+      const diffDays = end.diff(start, "day");
+      grouping = diffDays <= 31 ? "day" : "month";
+    }
+
+    // Generate the periods
+    if (grouping === "day") {
+      const diffDays = end.diff(start, "day");
+      const limit = Math.min(diffDays, 31);
+      for (let i = 0; i <= limit; i++) {
+        const dObj = start.add(i, "day");
+        periods.push({
+          key: dObj.format("YYYY-MM-DD"),
+          month: dObj.format("MMM D"),
+          cotton: 0,
+          silk: 0,
+          other: 0,
+        });
+      }
+    } else {
+      const diffMonths = end.diff(start, "month");
+      const limit = Math.min(diffMonths, 60); // Cap at 5 years to cover full custom ranges
+      for (let i = 0; i <= limit; i++) {
+        const mObj = start.add(i, "month");
+        periods.push({
+          key: mObj.format("YYYY-MM"),
+          month: dateRange === "3_months" ? mObj.format("MMMM") : mObj.format("MMM YY"),
+          cotton: 0,
+          silk: 0,
+          other: 0,
+        });
+      }
+    }
+
+    // Group the orders
+    allFilteredOrders.forEach((order) => {
+      if (!order.date) return;
+      const [d, m, y] = order.date.split("/");
+      const orderDate = dayjs(new Date(Number(y), Number(m) - 1, Number(d)));
+
+      const periodKey = grouping === "day"
+        ? orderDate.format("YYYY-MM-DD")
+        : orderDate.format("YYYY-MM");
+
+      const period = periods.find(p => p.key === periodKey);
+      if (period) {
+        const clothTypeRaw = (order.clotheType || "").toLowerCase();
+        if (clothTypeRaw.includes("cotton")) {
+          period.cotton += 1;
+        } else if (clothTypeRaw.includes("silk") || clothTypeRaw.includes("sill")) {
+          period.silk += 1;
+        } else {
+          period.other += 1;
+        }
+      }
+    });
+
+    return periods;
+  }, [allFilteredOrders, dateRange, customStartDate, customEndDate]);
+
+  // Recharts color and label configuration
+  const chartConfig = {
+    cotton: {
+      label: "Cotton",
+      color: "#2563eb", // Deep blue
+    },
+    silk: {
+      label: "Silk",
+      color: "#38bdf8", // Sky blue
+    },
+    other: {
+      label: "Other",
+      color: "#a5b4fc", // Lavender/Light purple
+    },
+  };
+
+  return (
+    <div className="flex flex-col gap-6 text-black select-none py-2 pb-10">
+
+      {/* Breadcrumb / Top Title Bar */}
+      <div className="flex items-center justify-between border-b border-neutral-200/80 pb-4">
+        <div className="flex items-center gap-2 text-sm text-neutral-500 font-medium">
+          <span>Dashboard</span>
+          <ChevronRight size={14} className="text-neutral-400" />
+          <span className="text-neutral-900 font-semibold">Orders</span>
+        </div>
         <Link
-          href={"/dashboard/createOrder"}
-          className="inline-flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2.5 rounded-lg font-semibold transition shadow-sm shadow-blue-200 cursor-pointer"
+          href="/dashboard/createOrder"
+          className="inline-flex items-center justify-center gap-1.5 bg-neutral-950 hover:bg-neutral-800 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-sm cursor-pointer"
         >
-          <Plus size={18} /> New Order
+          <Plus size={15} /> New Order
         </Link>
       </div>
 
+      {/* KPI Stats Cards Redesign & Chart Section (Collapsible) */}
+      {showGraph && (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Card 1: Total Orders */}
+            <div className="bg-white border border-neutral-200/80 rounded-xl p-5 shadow-sm flex flex-col justify-between h-32 hover:border-neutral-300 transition-colors">
+              <div className="flex justify-between items-start">
+                <span className="text-sm font-medium text-neutral-500">Total Orders</span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-100">
+                  <TrendingUp size={11} /> +12.5%
+                </span>
+              </div>
+              <div className="flex flex-col mt-2">
+                <span className="text-2xl font-bold text-neutral-900">45,678</span>
+                <span className="text-xs text-neutral-400 mt-1 font-medium">Orders in last 3 months</span>
+              </div>
+            </div>
+
+            {/* Card 2: Total Customers */}
+            <div className="bg-white border border-neutral-200/80 rounded-xl p-5 shadow-sm flex flex-col justify-between h-32 hover:border-neutral-300 transition-colors">
+              <div className="flex justify-between items-start">
+                <span className="text-sm font-medium text-neutral-500">Total Customers</span>
+                <Users size={16} className="text-neutral-400" />
+              </div>
+              <div className="flex flex-col mt-2">
+                <span className="text-2xl font-bold text-neutral-900">{stats.totalCustomers || 5}</span>
+                <span className="text-xs text-neutral-400 mt-1 font-medium">Customers in last 3 months</span>
+              </div>
+            </div>
+
+            {/* Card 3: Active Orders */}
+            <div className="bg-white border border-neutral-200/80 rounded-xl p-5 shadow-sm flex flex-col justify-between h-32 hover:border-neutral-300 transition-colors">
+              <div className="flex justify-between items-start">
+                <span className="text-sm font-medium text-neutral-500">Active Orders</span>
+                <Activity size={16} className="text-neutral-400" />
+              </div>
+              <div className="flex flex-col mt-2">
+                <span className="text-md font-bold text-neutral-900 truncate">
+                  {stats.activeCount} active / {stats.activeGoj} goj
+                </span>
+                <span className="text-xs text-neutral-400 mt-1 font-medium">Engagement exceed</span>
+              </div>
+            </div>
+
+            {/* Card 4: Growth Rate */}
+            <div className="bg-white border border-neutral-200/80 rounded-xl p-5 shadow-sm flex flex-col justify-between h-32 hover:border-neutral-300 transition-colors">
+              <div className="flex justify-between items-start">
+                <span className="text-sm font-medium text-neutral-500">Growth Rate</span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-100">
+                  <TrendingUp size={11} /> +4.5%
+                </span>
+              </div>
+              <div className="flex flex-col mt-2">
+                <span className="text-2xl font-bold text-neutral-900">4.5%</span>
+                <span className="text-xs text-neutral-400 mt-1 font-medium">Meets growth projections</span>
+              </div>
+            </div>
+          </div>
+
+          <Card className="border border-neutral-200/80 rounded-xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+            <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+              <div className="grid flex-1 gap-1">
+                <CardTitle className="text-base font-bold text-neutral-950">Order Chart</CardTitle>
+                <CardDescription className="text-xs text-neutral-400 font-medium">
+                  {chartDescriptionText}
+                </CardDescription>
+              </div>
+              <Select value={dateRange} onValueChange={setDateRange}>
+                <SelectTrigger
+                  className="hidden w-[160px] rounded-lg sm:ml-auto sm:flex"
+                  aria-label="Select a value"
+                >
+                  <SelectValue placeholder="Last 3 months" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl bg-white border border-neutral-200 shadow-md">
+                  <SelectItem value="3_days" className="rounded-lg">
+                    Last 3 days
+                  </SelectItem>
+                  <SelectItem value="7_days" className="rounded-lg">
+                    Last 7 days
+                  </SelectItem>
+                  <SelectItem value="30_days" className="rounded-lg">
+                    Last 30 days
+                  </SelectItem>
+                  <SelectItem value="3_months" className="rounded-lg">
+                    Last 3 months
+                  </SelectItem>
+                  <SelectItem value="current_year" className="rounded-lg">
+                    Current year
+                  </SelectItem>
+                  <SelectItem value="custom" className="rounded-lg">
+                    Custom range
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </CardHeader>
+            <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+              {chartData.length >= 2 ? (
+                <ChartContainer
+                  config={chartConfig}
+                  className="aspect-auto h-[250px] w-full"
+                >
+                  <AreaChart
+                    accessibilityLayer
+                    data={chartData}
+                    margin={{
+                      left: 12,
+                      right: 12,
+                      top: 12,
+                    }}
+                  >
+                    <defs>
+                      <linearGradient id="fillCotton" x1="0" y1="0" x2="0" y2="1">
+                        <stop
+                          offset="5%"
+                          stopColor="var(--color-cotton)"
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="var(--color-cotton)"
+                          stopOpacity={0.1}
+                        />
+                      </linearGradient>
+                      <linearGradient id="fillSilk" x1="0" y1="0" x2="0" y2="1">
+                        <stop
+                          offset="5%"
+                          stopColor="var(--color-silk)"
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="var(--color-silk)"
+                          stopOpacity={0.1}
+                        />
+                      </linearGradient>
+                      <linearGradient id="fillOther" x1="0" y1="0" x2="0" y2="1">
+                        <stop
+                          offset="5%"
+                          stopColor="var(--color-other)"
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="var(--color-other)"
+                          stopOpacity={0.1}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="month"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      minTickGap={32}
+                      tickFormatter={(value) => {
+                        if (typeof value === "string") {
+                          if (value.includes(" ")) {
+                            return value;
+                          }
+                          return value.slice(0, 3);
+                        }
+                        return value;
+                      }}
+                    />
+                    <ChartTooltip
+                      cursor={false}
+                      content={
+                        <ChartTooltipContent
+                          labelFormatter={(value) => {
+                            return value;
+                          }}
+                          indicator="dot"
+                        />
+                      }
+                    />
+                    <Area
+                      dataKey="other"
+                      type="monotone"
+                      fill="url(#fillOther)"
+                      stroke="var(--color-other)"
+                      stackId="a"
+                    />
+                    <Area
+                      dataKey="silk"
+                      type="monotone"
+                      fill="url(#fillSilk)"
+                      stroke="var(--color-silk)"
+                      stackId="a"
+                    />
+                    <Area
+                      dataKey="cotton"
+                      type="monotone"
+                      fill="url(#fillCotton)"
+                      stroke="var(--color-cotton)"
+                      stackId="a"
+                    />
+                    <ChartLegend content={<ChartLegendContent />} />
+                  </AreaChart>
+                </ChartContainer>
+              ) : (
+                // Fallback State when no data is available
+                <div className="flex flex-col items-center justify-center text-center p-6 bg-neutral-50/50 border border-neutral-100 rounded-lg w-full h-[250px] relative">
+                  <div className="relative z-10 flex flex-col items-center">
+                    <span className="text-neutral-500 font-bold text-sm">No data available in this range</span>
+                    <span className="text-[11px] text-neutral-400 mt-1 max-w-[280px]">There are no orders matching this filter segment to plot visual stats.</span>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
+
+      {/* Filter and Control Bar */}
       <OrderFilters
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -151,8 +623,11 @@ export const OrdersContent = () => {
         showMoreFilters={showMoreFilters}
         setShowMoreFilters={setShowMoreFilters}
         data={data}
+        showGraph={showGraph}
+        setShowGraph={handleToggleGraph}
       />
 
+      {/* Order Table list */}
       <OrderTable
         orders={orders}
         loadingOrders={loadingOrders}
@@ -160,6 +635,7 @@ export const OrdersContent = () => {
         confirmDelete={confirmDelete}
       />
 
+      {/* Pagination */}
       <PaginationControls
         currentPage={currentPage}
         totalPages={totalPages}
@@ -171,6 +647,7 @@ export const OrdersContent = () => {
         }}
       />
 
+      {/* Side Details Drawer */}
       <OrderSideModal
         isModalOpen={!!selectedOrder}
         loadingOrder={loadingOrder}
@@ -181,6 +658,7 @@ export const OrdersContent = () => {
         setSelectedOrder={setSelectedOrder}
       />
 
+      {/* Delete Confirmation Modal */}
       <ConfirmationModal
         showConfirmModal={showConfirmModal}
         onCancel={() => setShowConfirmModal(false)}

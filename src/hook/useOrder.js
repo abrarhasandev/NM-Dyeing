@@ -20,6 +20,7 @@ const useOrders = (filters) => {
   } = filters;
 
   const [orders, setOrders] = useState([]);
+  const [allFilteredOrders, setAllFilteredOrders] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [loadingOrder, setLoadingOrder] = useState(false);
@@ -32,23 +33,23 @@ const useOrders = (filters) => {
     const today = dayjs();
 
     switch (dateRange) {
-      case "last_week":
-        startDate = today.subtract(1, "week").startOf("week").toISOString();
-        endDate = today.subtract(1, "week").endOf("week").toISOString();
+      case "current_year":
+        startDate = today.startOf("year").toISOString();
+        endDate = today.endOf("day").toISOString();
         break;
-      case "last_month":
-        startDate = today.subtract(1, "month").startOf("month").toISOString();
-        endDate = today.subtract(1, "month").endOf("month").toISOString();
+      case "3_months":
+        startDate = today.subtract(3, "month").startOf("day").toISOString();
+        endDate = today.endOf("day").toISOString();
         break;
-      case "this_week":
-        startDate = today.startOf("week").toISOString();
-        endDate = today.endOf("week").toISOString();
+      case "30_days":
+        startDate = today.subtract(30, "day").startOf("day").toISOString();
+        endDate = today.endOf("day").toISOString();
         break;
-      case "this_month":
-        startDate = today.startOf("month").toISOString();
-        endDate = today.endOf("month").toISOString();
+      case "7_days":
+        startDate = today.subtract(7, "day").startOf("day").toISOString();
+        endDate = today.endOf("day").toISOString();
         break;
-      case "last_3_days":
+      case "3_days":
         startDate = today.subtract(3, "day").startOf("day").toISOString();
         endDate = today.endOf("day").toISOString();
         break;
@@ -82,8 +83,9 @@ const useOrders = (filters) => {
       const res = await fetch(`/api/order?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch orders");
 
-      const { orders: fetchedOrders, totalCount } = await res.json();
+      const { orders: fetchedOrders, totalCount, allFilteredOrders: fetchedAllFiltered } = await res.json();
       setOrders(fetchedOrders);
+      setAllFilteredOrders(fetchedAllFiltered || []);
       setTotalPages(Math.ceil(totalCount / itemsPerPage));
     } catch (err) {
       console.error("Error fetching orders:", err);
@@ -144,6 +146,8 @@ const useOrders = (filters) => {
   return {
     orders,
     setOrders,
+    allFilteredOrders,
+    setAllFilteredOrders,
     totalPages,
     loadingOrders,
     loadingOrder,
