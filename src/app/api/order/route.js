@@ -144,7 +144,83 @@ export async function GET(req) {
       .select("date clotheType status companyName totalGoj tableData")
       .sort({ createdAt: -1 });
 
-    return NextResponse.json({ orders, totalCount, allFilteredOrders });
+    // Fetch previous period orders for growth calculation
+    let prevFilteredOrders = [];
+    if (startDate && endDate) {
+      const parsedStart = new Date(startDate);
+      const parsedEnd = new Date(new Date(endDate).setHours(23, 59, 59, 999));
+      const duration = parsedEnd.getTime() - parsedStart.getTime();
+      const prevStart = new Date(parsedStart.getTime() - duration);
+      const prevEnd = new Date(parsedStart.getTime() - 1);
+
+      let prevQuery = {};
+      if (searchRaw) {
+        prevQuery.$or = [
+          { companyName: { $regex: searchRaw, $options: "i" } },
+          { orderId: { $regex: searchRaw, $options: "i" } },
+        ];
+      }
+
+      if (status) {
+        prevQuery.status = status;
+      }
+
+      if (clotheTypes) {
+        const values = clotheTypes.split(",").map((v) => v.trim());
+        prevQuery.clotheType = { $in: values };
+      }
+      if (finishingType) {
+        const values = finishingType.split(",").map((v) => v.trim());
+        prevQuery.finishingType = { $in: values };
+      }
+      if (colour) {
+        const values = colour.split(",").map((v) => v.trim());
+        prevQuery.colour = { $in: values };
+      }
+      if (sillName) {
+        const values = sillName.split(",").map((v) => v.trim());
+        prevQuery.sillName = { $in: values };
+      }
+      if (quality) {
+        const values = quality.split(",").map((v) => v.trim());
+        prevQuery.quality = { $in: values };
+      }
+
+      prevQuery.$expr = {
+        $and: [
+          {
+            $gte: [
+              {
+                $dateFromString: {
+                  dateString: "$date",
+                  format: "%d/%m/%Y",
+                  onError: new Date(0)
+                }
+              },
+              prevStart
+            ]
+          },
+          {
+            $lte: [
+              {
+                $dateFromString: {
+                  dateString: "$date",
+                  format: "%d/%m/%Y",
+                  onError: new Date(0)
+                }
+              },
+              prevEnd
+            ]
+          }
+        ]
+      };
+
+      prevFilteredOrders = await Order.find(prevQuery)
+        .select("date clotheType status companyName totalGoj tableData")
+        .sort({ createdAt: -1 });
+    }
+
+    return NextResponse.json({ orders, totalCount, allFilteredOrders, prevFilteredOrders });
   } catch (error) {
     console.error("Error fetching orders:", error);
     return NextResponse.json(

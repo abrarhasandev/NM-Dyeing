@@ -1,8 +1,11 @@
 "use client";
 import React from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { Search, SlidersHorizontal, ChevronDown, ChevronUp, BarChart3 } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronDown, ChevronUp, BarChart3, Calendar as CalendarIcon, X } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
+import { toast } from "react-toastify";
 
 const OrderFilters = ({
   searchTerm,
@@ -32,6 +35,14 @@ const OrderFilters = ({
   showGraph,
   setShowGraph,
 }) => {
+  const [localStartDate, setLocalStartDate] = React.useState(customStartDate);
+  const [localEndDate, setLocalEndDate] = React.useState(customEndDate);
+
+  React.useEffect(() => {
+    setLocalStartDate(customStartDate);
+    setLocalEndDate(customEndDate);
+  }, [customStartDate, customEndDate]);
+
   // Date range options representing Figma tabs
   const dateTabs = [
     { label: "Custom", value: "custom" },
@@ -132,24 +143,98 @@ const OrderFilters = ({
         <div className="mt-3 flex flex-wrap items-center gap-3 p-4 bg-neutral-50 border border-neutral-200 rounded-xl animate-in fade-in slide-in-from-top-1 duration-200">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
             <span className="text-xs font-medium text-neutral-500">Custom Range:</span>
-            <div className="flex items-center gap-2">
-              <DatePicker
-                selected={customStartDate}
-                onChange={(date) => setCustomStartDate(date)}
-                placeholderText="Start Date"
-                className="w-32 px-3 py-1.5 text-xs bg-white border border-neutral-200 rounded-md focus:outline-none focus:ring-1 focus:ring-neutral-900"
-              />
-              <span className="text-neutral-400 text-xs">to</span>
-              <DatePicker
-                selected={customEndDate}
-                onChange={(date) => setCustomEndDate(date)}
-                placeholderText="End Date"
-                className="w-32 px-3 py-1.5 text-xs bg-white border border-neutral-200 rounded-md focus:outline-none focus:ring-1 focus:ring-neutral-900"
-              />
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Start Date Picker */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    id="date-picker-start"
+                    className="justify-start px-3 py-2 text-xs font-normal bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-50 min-w-[140px] shadow-sm rounded-lg"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4 text-neutral-400" />
+                    {localStartDate ? (
+                      format(localStartDate, "LLL dd, y")
+                    ) : (
+                      <span>Start Date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-white border border-neutral-200 shadow-xl rounded-xl z-[100]" align="start">
+                  <Calendar
+                    initialFocus
+                    mode="single"
+                    selected={localStartDate}
+                    onSelect={(date) => {
+                      setLocalStartDate(date);
+                      if (date && localEndDate && date > localEndDate) {
+                        setLocalEndDate(null);
+                      }
+                    }}
+                    defaultMonth={localStartDate || new Date()}
+                    captionLayout="dropdown"
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <span className="text-xs text-neutral-400 font-semibold">to</span>
+
+              {/* End Date Picker */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    id="date-picker-end"
+                    className="justify-start px-3 py-2 text-xs font-normal bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-50 min-w-[140px] shadow-sm rounded-lg"
+                    disabled={!localStartDate}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4 text-neutral-400" />
+                    {localEndDate ? (
+                      format(localEndDate, "LLL dd, y")
+                    ) : (
+                      <span>End Date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-white border border-neutral-200 shadow-xl rounded-xl z-[100]" align="start">
+                  <Calendar
+                    initialFocus
+                    mode="single"
+                    selected={localEndDate}
+                    onSelect={setLocalEndDate}
+                    defaultMonth={localEndDate || localStartDate || new Date()}
+                    disabled={(date) => (localStartDate ? date < localStartDate : false)}
+                    captionLayout="dropdown"
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {/* Clear button if any date is selected */}
+              {(localStartDate || localEndDate || customStartDate || customEndDate) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLocalStartDate(null);
+                    setLocalEndDate(null);
+                    setCustomStartDate(null);
+                    setCustomEndDate(null);
+                  }}
+                  className="p-1.5 hover:bg-neutral-200 rounded-full transition-colors text-neutral-400 hover:text-neutral-600 cursor-pointer"
+                  title="Clear selection"
+                >
+                  <X size={14} />
+                </button>
+              )}
             </div>
           </div>
           <button
-            onClick={handleCustomApply}
+            onClick={() => {
+              if (!localStartDate || !localEndDate) {
+                toast.error("Please select both start and end date");
+                return;
+              }
+              handleCustomApply(localStartDate, localEndDate);
+            }}
             className="px-4 py-1.5 bg-neutral-900 text-white rounded-md text-xs font-medium hover:bg-neutral-800 transition cursor-pointer"
           >
             Apply
@@ -211,7 +296,7 @@ const OrderFilters = ({
               >
                 <option value="">All Finishings</option>
                 {data?.finishingTypes?.map((item) => (
-                  <option key={item.id} value={item.name}>
+                  <option key={item?._id || item.id} value={item.name}>
                     {item.name}
                   </option>
                 ))}
@@ -228,7 +313,7 @@ const OrderFilters = ({
               >
                 <option value="">All Colours</option>
                 {data?.colours?.map((item) => (
-                  <option key={item.id} value={item.name}>
+                  <option key={item?._id || item.id} value={item.name}>
                     {item.name}
                   </option>
                 ))}
@@ -245,7 +330,7 @@ const OrderFilters = ({
               >
                 <option value="">All Sills</option>
                 {data?.sillNames?.map((item) => (
-                  <option key={item.id} value={item.name}>
+                  <option key={item?._id || item.id} value={item.name}>
                     {item.name}
                   </option>
                 ))}
@@ -262,7 +347,7 @@ const OrderFilters = ({
               >
                 <option value="">All Qualities</option>
                 {data?.qualities?.map((item) => (
-                  <option key={item.id} value={item.name}>
+                  <option key={item?._id || item.id} value={item.name}>
                     {item.name}
                   </option>
                 ))}

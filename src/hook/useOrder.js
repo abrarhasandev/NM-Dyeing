@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
 
@@ -17,17 +17,23 @@ const useOrders = (filters) => {
     colour,
     sillName,
     quality,
+    skip,
   } = filters;
 
   const [orders, setOrders] = useState([]);
   const [allFilteredOrders, setAllFilteredOrders] = useState([]);
+  const [prevFilteredOrders, setPrevFilteredOrders] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
+  const lastRequestId = useRef(0);
+
   const fetchOrders = async () => {
+    if (skip) return;
     setLoadingOrders(true);
+    const requestId = ++lastRequestId.current;
     let startDate = "";
     let endDate = "";
     const today = dayjs();
@@ -83,15 +89,23 @@ const useOrders = (filters) => {
       const res = await fetch(`/api/order?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch orders");
 
-      const { orders: fetchedOrders, totalCount, allFilteredOrders: fetchedAllFiltered } = await res.json();
-      setOrders(fetchedOrders);
-      setAllFilteredOrders(fetchedAllFiltered || []);
-      setTotalPages(Math.ceil(totalCount / itemsPerPage));
+      const { orders: fetchedOrders, totalCount, allFilteredOrders: fetchedAllFiltered, prevFilteredOrders: fetchedPrevFiltered } = await res.json();
+      
+      if (requestId === lastRequestId.current) {
+        setOrders(fetchedOrders);
+        setAllFilteredOrders(fetchedAllFiltered || []);
+        setPrevFilteredOrders(fetchedPrevFiltered || []);
+        setTotalPages(Math.ceil(totalCount / itemsPerPage));
+      }
     } catch (err) {
-      console.error("Error fetching orders:", err);
-      toast.error("Error fetching orders. Please try again.");
+      if (requestId === lastRequestId.current) {
+        console.error("Error fetching orders:", err);
+        toast.error("Error fetching orders. Please try again.");
+      }
     } finally {
-      setLoadingOrders(false);
+      if (requestId === lastRequestId.current) {
+        setLoadingOrders(false);
+      }
     }
   };
 
@@ -108,7 +122,7 @@ const useOrders = (filters) => {
       console.error("Error fetching single order:", err);
       toast.error("Error fetching order details.");
     } finally {
-      setLoadingOrder(false);
+      loadingOrder && setLoadingOrder(false);
     }
   };
 
@@ -128,6 +142,7 @@ const useOrders = (filters) => {
   useEffect(() => {
     fetchOrders();
   }, [
+    skip,
     currentPage,
     itemsPerPage,
     searchTerm,
@@ -148,6 +163,8 @@ const useOrders = (filters) => {
     setOrders,
     allFilteredOrders,
     setAllFilteredOrders,
+    prevFilteredOrders,
+    setPrevFilteredOrders,
     totalPages,
     loadingOrders,
     loadingOrder,

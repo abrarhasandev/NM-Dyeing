@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import OrderSideModal from "@/components/order/OrderSideModal";
 import ConfirmationModal from "@/components/order/ConfirmationModal";
@@ -9,6 +9,7 @@ import PaginationControls from "@/components/order/PaginationControls";
 import useAppData from "@/hook/useAppData";
 import useOrders from "@/hook/useOrder";
 import Link from "next/link";
+import { toast } from "react-toastify";
 
 
 const Orders = () => {
@@ -35,6 +36,74 @@ const Orders = () => {
   const [showMoreFilters, setShowMoreFilters] = useState(false);
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  const isFiltersLoaded = useRef(false);
+
+  // Load filters from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedFilters = localStorage.getItem("orders_filters");
+      if (savedFilters) {
+        try {
+          const parsed = JSON.parse(savedFilters);
+          if (parsed.searchTerm !== undefined) setSearchTerm(parsed.searchTerm);
+          if (parsed.dateRange !== undefined) setDateRange(parsed.dateRange);
+          if (parsed.customStartDate !== undefined) setCustomStartDate(parsed.customStartDate ? new Date(parsed.customStartDate) : null);
+          if (parsed.customEndDate !== undefined) setCustomEndDate(parsed.customEndDate ? new Date(parsed.customEndDate) : null);
+          if (parsed.status !== undefined) setStatus(parsed.status);
+          if (parsed.clotheType !== undefined) setClotheType(parsed.clotheType);
+          if (parsed.finishingType !== undefined) setFinishingType(parsed.finishingType);
+          if (parsed.colour !== undefined) setColour(parsed.colour);
+          if (parsed.sillName !== undefined) setSillName(parsed.sillName);
+          if (parsed.quality !== undefined) setQuality(parsed.quality);
+          if (parsed.showMoreFilters !== undefined) setShowMoreFilters(parsed.showMoreFilters);
+          if (parsed.currentPage !== undefined) setCurrentPage(parsed.currentPage);
+          if (parsed.itemsPerPage !== undefined) setItemsPerPage(parsed.itemsPerPage);
+        } catch (e) {
+          console.error("Failed to parse orders_filters from localStorage", e);
+        }
+      }
+      setTimeout(() => {
+        isFiltersLoaded.current = true;
+      }, 0);
+    }
+  }, []);
+
+  // Save filters to localStorage on change
+  useEffect(() => {
+    if (!isFiltersLoaded.current) return;
+
+    const filtersToSave = {
+      searchTerm,
+      dateRange,
+      customStartDate: customStartDate ? customStartDate.toISOString() : null,
+      customEndDate: customEndDate ? customEndDate.toISOString() : null,
+      status,
+      clotheType,
+      finishingType,
+      colour,
+      sillName,
+      quality,
+      showMoreFilters,
+      currentPage,
+      itemsPerPage,
+    };
+    localStorage.setItem("orders_filters", JSON.stringify(filtersToSave));
+  }, [
+    searchTerm,
+    dateRange,
+    customStartDate,
+    customEndDate,
+    status,
+    clotheType,
+    finishingType,
+    colour,
+    sillName,
+    quality,
+    showMoreFilters,
+    currentPage,
+    itemsPerPage,
+  ]);
   const [orderToDelete, setOrderToDelete] = useState(null);
 
   // Hook থেকে প্রয়োজনীয় ফাংশনগুলো নেওয়া
@@ -100,7 +169,14 @@ const Orders = () => {
       closeModal();
     }
   };
-
+  const handleCustomApply = (startDate, endDate) => {
+    if (!startDate || !endDate) {
+      toast.error("Please select both start and end date");
+      return;
+    }
+    setCustomStartDate(startDate);
+    setCustomEndDate(endDate);
+  };
   return (
     <div className="py-6 text-black relative mt-10 md:-mt-4">
       <div className="flex justify-between items-center mb-4">
@@ -113,6 +189,9 @@ const Orders = () => {
       <OrderFilters
         searchTerm={searchTerm} setSearchTerm={setSearchTerm}
         dateRange={dateRange} handleDateRangeChange={setDateRange}
+        customStartDate={customStartDate} setCustomStartDate={setCustomStartDate}
+        customEndDate={customEndDate} setCustomEndDate={setCustomEndDate}
+        handleCustomApply={handleCustomApply}
         status={status} setStatus={setStatus}
         clotheType={clotheType} setClotheType={setClotheType}
         finishingType={finishingType} setFinishingType={setFinishingType}

@@ -7,6 +7,7 @@ import {
   Plus,
   ShoppingCart,
   TrendingUp,
+  TrendingDown,
   Users,
   Layers,
   Activity,
@@ -22,6 +23,7 @@ import PaginationControls from "@/components/order/PaginationControls";
 import useAppData from "@/hook/useAppData";
 import useOrders from "@/hook/useOrder";
 import dayjs from "dayjs";
+import { toast } from "react-toastify";
 
 // Import Recharts & Shadcn Chart UI
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
@@ -70,6 +72,76 @@ export const OrdersContent = () => {
   const [quality, setQuality] = useState("");
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [showGraph, setShowGraph] = useState(true);
+
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Load filters from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedFilters = localStorage.getItem("orders_filters");
+      if (savedFilters) {
+        try {
+          const parsed = JSON.parse(savedFilters);
+          if (parsed.searchTerm !== undefined) {
+            setSearchTerm(parsed.searchTerm);
+            setDebouncedSearchTerm(parsed.searchTerm);
+          }
+          if (parsed.dateRange !== undefined) setDateRange(parsed.dateRange);
+          if (parsed.customStartDate !== undefined) setCustomStartDate(parsed.customStartDate ? new Date(parsed.customStartDate) : null);
+          if (parsed.customEndDate !== undefined) setCustomEndDate(parsed.customEndDate ? new Date(parsed.customEndDate) : null);
+          if (parsed.status !== undefined) setStatus(parsed.status);
+          if (parsed.clotheType !== undefined) setClotheType(parsed.clotheType);
+          if (parsed.finishingType !== undefined) setFinishingType(parsed.finishingType);
+          if (parsed.colour !== undefined) setColour(parsed.colour);
+          if (parsed.sillName !== undefined) setSillName(parsed.sillName);
+          if (parsed.quality !== undefined) setQuality(parsed.quality);
+          if (parsed.showMoreFilters !== undefined) setShowMoreFilters(parsed.showMoreFilters);
+          if (parsed.currentPage !== undefined) setCurrentPage(parsed.currentPage);
+          if (parsed.itemsPerPage !== undefined) setItemsPerPage(parsed.itemsPerPage);
+        } catch (e) {
+          console.error("Failed to parse orders_filters from localStorage", e);
+        }
+      }
+      setIsInitialized(true);
+    }
+  }, []);
+
+  // Save filters to localStorage on change
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    const filtersToSave = {
+      searchTerm,
+      dateRange,
+      customStartDate: customStartDate ? customStartDate.toISOString() : null,
+      customEndDate: customEndDate ? customEndDate.toISOString() : null,
+      status,
+      clotheType,
+      finishingType,
+      colour,
+      sillName,
+      quality,
+      showMoreFilters,
+      currentPage,
+      itemsPerPage,
+    };
+    localStorage.setItem("orders_filters", JSON.stringify(filtersToSave));
+  }, [
+    isInitialized,
+    searchTerm,
+    dateRange,
+    customStartDate,
+    customEndDate,
+    status,
+    clotheType,
+    finishingType,
+    colour,
+    sillName,
+    quality,
+    showMoreFilters,
+    currentPage,
+    itemsPerPage,
+  ]);
 
   // Load showGraph preference on mount
   useEffect(() => {
@@ -123,6 +195,7 @@ export const OrdersContent = () => {
     orders,
     setOrders,
     allFilteredOrders,
+    prevFilteredOrders,
     totalPages,
     loadingOrders,
     loadingOrder,
@@ -143,6 +216,7 @@ export const OrdersContent = () => {
     colour,
     sillName,
     quality,
+    skip: !isInitialized,
   });
 
   // URL-e ID thakle seta auto load hobe (Refresh korle kaj korbe)
@@ -178,11 +252,13 @@ export const OrdersContent = () => {
     }
   };
 
-  const handleCustomApply = () => {
-    if (!customStartDate || !customEndDate) {
+  const handleCustomApply = (startDate, endDate) => {
+    if (!startDate || !endDate) {
       toast.error("Please select both start and end date");
       return;
     }
+    setCustomStartDate(startDate);
+    setCustomEndDate(endDate);
   };
 
   // KPI calculations
@@ -229,36 +305,79 @@ export const OrdersContent = () => {
   }, [dateRange]);
 
   // KPI calculations using allFilteredOrders (non-paginated)
+  // Helper to calculate total Goj from an order
+  const getOrderGoj = (order) => {
+    return order.totalGoj !== null && order.totalGoj !== undefined
+      ? order.totalGoj
+      : order.tableData && order.tableData.length > 0
+        ? order.tableData.reduce((s, item) => s + (item.goj || 0), 0)
+        : 0;
+  };
+
+  // Helper to format growth label text based on date range
+  const getDateRangeLabel = (range) => {
+    switch (range) {
+      case "3_days": return "last 3 days";
+      case "7_days": return "last 7 days";
+      case "30_days": return "last 30 days";
+      case "3_months": return "last 3 months";
+      case "current_year": return "current year";
+      case "custom": return "custom range";
+      default: return "selected range";
+    }
+  };
+
+  // KPI calculations using allFilteredOrders (non-paginated) and prevFilteredOrders
   const stats = useMemo(() => {
-    if (!allFilteredOrders) return { totalOrders: 0, totalCustomers: 0, activeCount: 0, activeGoj: 0 };
+    const currentOrders = allFilteredOrders || [];
+    const prevOrders = prevFilteredOrders || [];
+
+    const totalOrders = currentOrders.length;
+    const prevTotalOrders = prevOrders.length;
 
     // Total customers (unique companyName)
     const uniqueCustomers = new Set(
-      allFilteredOrders.filter(o => o.companyName).map(o => o.companyName)
+      currentOrders.filter(o => o.companyName).map(o => o.companyName)
     ).size;
 
-    // Active orders (status is not completed or cancelled)
-    const activeOrders = allFilteredOrders.filter(
+    // Active orders (status is not completed or cancelled or delivered)
+    const activeOrders = currentOrders.filter(
       o => !["completed", "cancelled", "canceled", "delivered"].includes(o.status?.toLowerCase())
     );
     const activeCount = activeOrders.length;
 
     // Active orders total Goj
-    const activeGoj = activeOrders.reduce((sum, o) => {
-      const goj = o.totalGoj !== null && o.totalGoj !== undefined
-        ? o.totalGoj
-        : o.tableData && o.tableData.length > 0
-          ? o.tableData.reduce((s, item) => s + (item.goj || 0), 0)
-          : 0;
-      return sum + goj;
-    }, 0);
+    const activeGoj = activeOrders.reduce((sum, o) => sum + getOrderGoj(o), 0);
+
+    // Order Count Growth Rate
+    let orderCountGrowth = 0;
+    if (prevTotalOrders > 0) {
+      orderCountGrowth = ((totalOrders - prevTotalOrders) / prevTotalOrders) * 100;
+    } else if (totalOrders > 0) {
+      orderCountGrowth = 100;
+    }
+
+    // Goj Growth Rate
+    const currentTotalGoj = currentOrders.reduce((sum, o) => sum + getOrderGoj(o), 0);
+    const prevTotalGoj = prevOrders.reduce((sum, o) => sum + getOrderGoj(o), 0);
+    
+    let gojGrowth = 0;
+    if (prevTotalGoj > 0) {
+      gojGrowth = ((currentTotalGoj - prevTotalGoj) / prevTotalGoj) * 100;
+    } else if (currentTotalGoj > 0) {
+      gojGrowth = 100;
+    }
 
     return {
+      totalOrders,
+      totalGoj: currentTotalGoj,
       totalCustomers: uniqueCustomers,
       activeCount,
-      activeGoj
+      activeGoj,
+      orderCountGrowth,
+      gojGrowth
     };
-  }, [allFilteredOrders]);
+  }, [allFilteredOrders, prevFilteredOrders]);
 
   // Group real order data chronologically & by cloth category for Recharts Area chart
   const chartData = useMemo(() => {
@@ -390,13 +509,39 @@ export const OrdersContent = () => {
             <div className="bg-white border border-neutral-200/80 rounded-xl p-5 shadow-sm flex flex-col justify-between h-32 hover:border-neutral-300 transition-colors">
               <div className="flex justify-between items-start">
                 <span className="text-sm font-medium text-neutral-500">Total Orders</span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-100">
-                  <TrendingUp size={11} /> +12.5%
-                </span>
+                {(() => {
+                  const val = stats.orderCountGrowth;
+                  if (val > 0) {
+                    return (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-100">
+                        <TrendingUp size={11} /> +{val.toFixed(1)}%
+                      </span>
+                    );
+                  } else if (val < 0) {
+                    return (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-50 text-rose-700 text-[11px] font-semibold border border-rose-100">
+                        <TrendingDown size={11} /> {val.toFixed(1)}%
+                      </span>
+                    );
+                  } else {
+                    return (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-50 text-neutral-600 text-[11px] font-semibold border border-neutral-100">
+                        0.0%
+                      </span>
+                    );
+                  }
+                })()}
               </div>
-              <div className="flex flex-col mt-2">
-                <span className="text-2xl font-bold text-neutral-900">45,678</span>
-                <span className="text-xs text-neutral-400 mt-1 font-medium">Orders in last 3 months</span>
+              <div className="flex flex-col mt-1">
+                <span className="text-2xl font-bold text-neutral-900 leading-none">
+                  {stats.totalOrders.toLocaleString()} orders
+                </span>
+                <span className="text-sm font-semibold text-neutral-600 mt-1.5 leading-none">
+                  {stats.totalGoj.toLocaleString()} goj total
+                </span>
+                <span className="text-xs text-neutral-400 mt-2 font-medium">
+                  Orders in {getDateRangeLabel(dateRange)}
+                </span>
               </div>
             </div>
 
@@ -407,8 +552,10 @@ export const OrdersContent = () => {
                 <Users size={16} className="text-neutral-400" />
               </div>
               <div className="flex flex-col mt-2">
-                <span className="text-2xl font-bold text-neutral-900">{stats.totalCustomers || 5}</span>
-                <span className="text-xs text-neutral-400 mt-1 font-medium">Customers in last 3 months</span>
+                <span className="text-2xl font-bold text-neutral-900">{stats.totalCustomers}</span>
+                <span className="text-xs text-neutral-400 mt-1 font-medium">
+                  Customers in {getDateRangeLabel(dateRange)}
+                </span>
               </div>
             </div>
 
@@ -420,7 +567,7 @@ export const OrdersContent = () => {
               </div>
               <div className="flex flex-col mt-2">
                 <span className="text-md font-bold text-neutral-900 truncate">
-                  {stats.activeCount} active / {stats.activeGoj} goj
+                  {stats.activeCount} active / {stats.activeGoj.toLocaleString()} goj
                 </span>
                 <span className="text-xs text-neutral-400 mt-1 font-medium">Engagement exceed</span>
               </div>
@@ -430,13 +577,36 @@ export const OrdersContent = () => {
             <div className="bg-white border border-neutral-200/80 rounded-xl p-5 shadow-sm flex flex-col justify-between h-32 hover:border-neutral-300 transition-colors">
               <div className="flex justify-between items-start">
                 <span className="text-sm font-medium text-neutral-500">Growth Rate</span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-100">
-                  <TrendingUp size={11} /> +4.5%
-                </span>
+                {(() => {
+                  const val = stats.gojGrowth;
+                  if (val > 0) {
+                    return (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-100">
+                        <TrendingUp size={11} /> +{val.toFixed(1)}%
+                      </span>
+                    );
+                  } else if (val < 0) {
+                    return (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-50 text-rose-700 text-[11px] font-semibold border border-rose-100">
+                        <TrendingDown size={11} /> {val.toFixed(1)}%
+                      </span>
+                    );
+                  } else {
+                    return (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-50 text-neutral-600 text-[11px] font-semibold border border-neutral-100">
+                        0.0%
+                      </span>
+                    );
+                  }
+                })()}
               </div>
               <div className="flex flex-col mt-2">
-                <span className="text-2xl font-bold text-neutral-900">4.5%</span>
-                <span className="text-xs text-neutral-400 mt-1 font-medium">Meets growth projections</span>
+                <span className="text-2xl font-bold text-neutral-900">
+                  {stats.gojGrowth >= 0 ? "+" : ""}{stats.gojGrowth.toFixed(1)}%
+                </span>
+                <span className="text-xs text-neutral-400 mt-1 font-medium">
+                  {stats.gojGrowth >= 0 ? "Meets growth projections" : "Below growth projections"}
+                </span>
               </div>
             </div>
           </div>

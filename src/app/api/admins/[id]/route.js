@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function DELETE(request, { params }) {
   try {
     await connectDB();
-    const { id } = params;
+    const { id } = await params;
 
     const deletedAdmin = await User.findByIdAndDelete(id);
     if (!deletedAdmin) {
