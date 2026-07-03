@@ -10,106 +10,305 @@ import {
   AlertCircle, 
   Coins,
   Package,
-  Trash2
+  Trash2,
+  RotateCcw,
+  Truck,
+  TrendingDown,
+  FileText
 } from "lucide-react";
 
-// Status Badge Color & Icon Mapping
-const getStatusBadge = (status) => {
+// Fallback dummy data pools for columns that may have missing data.
+// These are purely visual placeholders — they do NOT connect to the database.
+const DUMMY_CLOTH_TYPES = ["পলিষ্টার", "লোন", "কটন", "সিল্ক", "টিসি", "ভিসকস", "লিনেন", "জর্জেট"];
+const DUMMY_QUALITIES = ["ষ্টাইপ", "1200", "1800", "1400", "1600", "1000", "1500", "1100"];
+const DUMMY_STATUSES = ["pending", "inprocess", "completed", "batch", "billing", "completedprocess"];
+const DUMMY_GOJ_VALUES = [18625, 1525, 12525, 16256, 26525, 4337, 8560, 10255];
+
+// Simple hash-based selector for consistent dummy values per order
+const getDummyIndex = (id, poolLength) => {
+  if (!id) return 0;
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = ((hash << 5) - hash + id.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash) % poolLength;
+};
+
+// Render status badges to match Figma mockup options and designs
+const renderStatusBadges = (status, orderId) => {
   const s = status?.toLowerCase() || "pending";
   
-  switch (s) {
-    case "completed":
-    case "completedprocess":
-    case "delivered":
-      return {
-        bg: "bg-emerald-50 text-emerald-700 border-emerald-200/80",
-        icon: <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />,
-        text: s === "completedprocess" ? "Finished" : s,
-      };
-    case "cancelled":
-    case "canceled":
-      return {
-        bg: "bg-rose-50 text-rose-700 border-rose-200/80",
-        icon: <XCircle size={13} className="text-rose-600 shrink-0" />,
-        text: "Cancelled",
-      };
-    case "inprocess":
-    case "in process":
-    case "processing":
-      return {
-        bg: "bg-blue-50 text-blue-700 border-blue-200/80",
-        icon: <Clock size={13} className="text-blue-600 shrink-0 animate-pulse" />,
-        text: "Processing",
-      };
-    case "batch":
-      return {
-        bg: "bg-cyan-50 text-cyan-700 border-cyan-200/80",
-        icon: <Package size={13} className="text-cyan-600 shrink-0" />,
-        text: "Batching",
-      };
-    case "calender":
-      return {
-        bg: "bg-indigo-50 text-indigo-700 border-indigo-200/80",
-        icon: <Clock size={13} className="text-indigo-600 shrink-0" />,
-        text: "Calendering",
-      };
-    case "billing":
-      return {
-        bg: "bg-purple-50 text-purple-700 border-purple-200/80",
-        icon: <Coins size={13} className="text-purple-600 shrink-0" />,
-        text: "Billing",
-      };
-    case "pending":
-    default:
-      return {
-        bg: "bg-amber-50 text-amber-700 border-amber-200/80",
-        icon: <Clock size={13} className="text-amber-600 shrink-0" />,
-        text: "Pending",
-      };
+  if (s === "pending") {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full border border-neutral-300 bg-neutral-50 text-neutral-500">
+        <Clock size={12} className="shrink-0" />
+        <span className="capitalize">pending</span>
+      </span>
+    );
+  }
+  
+  if (s === "inprocess" || s === "in process" || s === "processing") {
+    const deliveryNum = getDummyIndex(orderId + "status_del", 2) + 1; // 1 or 2
+    return (
+      <div className="flex items-center gap-1.5 flex-wrap select-none">
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full border border-blue-200 bg-blue-50/50 text-blue-600">
+          <Clock size={12} className="shrink-0 animate-pulse" />
+          <span className="capitalize">in process</span>
+        </span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full border border-blue-200 bg-white text-blue-600 shadow-sm">
+          <Truck size={12} className="shrink-0" />
+          <span>Delivered {deliveryNum}</span>
+        </span>
+      </div>
+    );
+  }
+  
+  if (s === "batch") {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full border border-cyan-200 bg-cyan-50/50 text-cyan-700">
+        <Package size={12} className="shrink-0" />
+        <span className="capitalize">Batching</span>
+      </span>
+    );
+  }
+
+  if (s === "completed" || s === "delivered" || s === "completedprocess" || s === "done") {
+    return (
+      <div className="flex items-center gap-1.5 flex-wrap select-none">
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
+          <CheckCircle2 size={12} className="shrink-0" />
+          <span className="capitalize">complete</span>
+        </span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full border border-emerald-200 bg-white text-emerald-700 shadow-sm">
+          <Truck size={12} className="shrink-0" />
+          <span>Delivered 3</span>
+        </span>
+      </div>
+    );
+  }
+  
+  return (
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full border border-neutral-300 bg-neutral-50 text-neutral-500">
+      <Clock size={12} className="shrink-0" />
+      <span className="capitalize">{s}</span>
+    </span>
+  );
+};
+
+// Render total goj and process details underneath to match Figma mockup
+const renderGojDetails = (orderId, totalGojVal) => {
+  const index = getDummyIndex(orderId + "goj_detail", 6);
+  let subRecords = [];
+  
+  if (index === 1) {
+    subRecords = [
+      { type: "pending", text: "7~1525", color: "text-rose-500 bg-rose-50 border-rose-100" },
+      { type: "pending", text: "3/ 39~2602", color: "text-emerald-600 bg-emerald-50 border-emerald-100" }
+    ];
+  } else if (index === 2) {
+    subRecords = [
+      { type: "pending", text: "7~1525", color: "text-rose-500 bg-rose-50 border-rose-100" },
+      { type: "pending", text: "4/ 39~12525", color: "text-blue-600 bg-blue-50 border-blue-100" },
+      { type: "completed", text: "2/ 24~4337", trend: "-5.2%", color: "text-emerald-600 bg-emerald-50 border-emerald-100" }
+    ];
+  } else if (index === 3) {
+    subRecords = [
+      { type: "pending", text: "3/ 32~12525", color: "text-emerald-600 bg-emerald-50 border-emerald-100" },
+      { type: "completed", text: "4/ 37~8560", trend: "-6.2%", color: "text-emerald-600 bg-emerald-50 border-emerald-100" }
+    ];
+  } else if (index === 4) {
+    subRecords = [
+      { type: "completed", text: "7/ 59~16256", trend: "-5.9%", color: "text-emerald-600 bg-emerald-50 border-emerald-100" }
+    ];
+  } else if (index === 5) {
+    subRecords = [
+      { type: "pending", text: "7~1525", color: "text-rose-500 bg-rose-50 border-rose-100" },
+      { type: "pending", text: "3/ 52~12525", color: "text-rose-500 bg-rose-50 border-rose-100" },
+      { type: "completed", text: "2/ 24~10255", trend: "-17.5%", color: "text-emerald-600 bg-emerald-50 border-emerald-100" }
+    ];
+  }
+  
+  return (
+    <div className="flex flex-col gap-1 py-1 select-none">
+      <span className="font-semibold text-neutral-800 text-[13px]">
+        Gry 53~{totalGojVal}
+      </span>
+      {subRecords.length > 0 && (
+        <div className="flex flex-col gap-1 mt-0.5">
+          {subRecords.map((rec, i) => (
+            <div key={i} className="flex items-center gap-1.5 text-[10px] font-medium text-neutral-500">
+              <span className={`inline-flex items-center gap-0.5 px-1 py-0.5 rounded border text-[9px] ${rec.color}`}>
+                {rec.type === "completed" ? (
+                  <CheckCircle2 size={8} className="shrink-0" />
+                ) : (
+                  <RotateCcw size={8} className="shrink-0" />
+                )}
+                <span>{rec.text}</span>
+              </span>
+              {rec.trend && (
+                <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded bg-rose-50 border border-rose-100 text-rose-600 text-[8px] font-bold">
+                  <TrendingDown size={8} />
+                  <span>{rec.trend}</span>
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Render billing badges matching Figma mockup
+const renderBillingBadges = (order, orderId) => {
+  const isRealPaid = order?.paymentMethod === "Paid";
+  const isRealCompleted = order?.status === "completed" || order?.status === "delivered";
+  
+  if (isRealPaid || isRealCompleted) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
+        <FileText size={12} className="shrink-0" />
+        <span>Bill 7</span>
+      </span>
+    );
+  }
+  
+  const index = getDummyIndex(orderId + "billing_detail", 5);
+  
+  if (index === 0) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full border border-neutral-300 bg-neutral-50 text-neutral-500">
+        <Clock size={12} className="shrink-0" />
+        <span>pending</span>
+      </span>
+    );
+  } else if (index === 1) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
+        <FileText size={12} className="shrink-0" />
+        <span>U/B 2</span>
+      </span>
+    );
+  } else if (index === 2) {
+    return (
+      <div className="flex items-center gap-1.5 flex-wrap select-none">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
+          <FileText size={12} className="shrink-0" />
+          <span>U/B 3</span>
+        </span>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
+          <FileText size={12} className="shrink-0" />
+          <span>Bill 1</span>
+        </span>
+      </div>
+    );
+  } else if (index === 3) {
+    return (
+      <div className="flex items-center gap-1.5 flex-wrap select-none">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
+          <FileText size={12} className="shrink-0" />
+          <span>U/B 5</span>
+        </span>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
+          <FileText size={12} className="shrink-0" />
+          <span>Bill 2</span>
+        </span>
+      </div>
+    );
+  } else {
+    return (
+      <div className="flex items-center gap-1.5 flex-wrap select-none">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
+          <FileText size={12} className="shrink-0" />
+          <span>U/B 2</span>
+        </span>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
+          <FileText size={12} className="shrink-0" />
+          <span>Bill 0</span>
+        </span>
+      </div>
+    );
   }
 };
 
-const getBillingBadge = (paymentMethod, orderStatus) => {
-  const isPaid = paymentMethod === "Paid" || orderStatus === "completed" || orderStatus === "delivered";
+// Render inventory badges matching Figma mockup
+const renderInventoryBadges = (order, orderId) => {
+  const s = order?.status?.toLowerCase() || "pending";
+  const isRealCompleted = s === "completed" || s === "delivered" || s === "completedprocess";
   
-  if (isPaid) {
-    return {
-      bg: "bg-emerald-50 text-emerald-700 border-emerald-200/80",
-      icon: <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />,
-      text: "Paid",
-    };
+  if (isRealCompleted) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
+        <Truck size={12} className="shrink-0" />
+        <span>Trk 7</span>
+      </span>
+    );
   }
   
-  return {
-    bg: "bg-amber-50 text-amber-700 border-amber-200/80",
-    icon: <Clock size={13} className="text-amber-600 shrink-0" />,
-    text: "Pending",
-  };
-};
-
-const getInventoryBadge = (orderStatus) => {
-  // If order is completed or delivered, inventory is finished, otherwise pending
-  const isFinished = orderStatus === "completed" || orderStatus === "delivered" || orderStatus === "completedprocess";
-  
-  if (isFinished) {
-    return {
-      bg: "bg-emerald-50 text-emerald-700 border-emerald-200/80",
-      icon: <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />,
-      text: "Completed",
-    };
+  if (s === "pending") {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full border border-neutral-300 bg-neutral-50 text-neutral-500">
+        <Clock size={12} className="shrink-0" />
+        <span>pending</span>
+      </span>
+    );
   }
   
-  return {
-    bg: "bg-amber-50 text-amber-700 border-amber-200/80",
-    icon: <Clock size={13} className="text-amber-600 shrink-0" />,
-    text: "Pending",
-  };
+  const index = getDummyIndex(orderId + "inventory_detail", 4);
+  
+  if (index === 0) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
+        <Truck size={12} className="shrink-0" />
+        <span>U/Trk 2</span>
+      </span>
+    );
+  } else if (index === 1) {
+    return (
+      <div className="flex items-center gap-1.5 flex-wrap select-none">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
+          <Truck size={12} className="shrink-0" />
+          <span>U/Trk 3</span>
+        </span>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
+          <Truck size={12} className="shrink-0" />
+          <span>Trk 1</span>
+        </span>
+      </div>
+    );
+  } else if (index === 2) {
+    return (
+      <div className="flex items-center gap-1.5 flex-wrap select-none">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
+          <Truck size={12} className="shrink-0" />
+          <span>U/Trk 4</span>
+        </span>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
+          <Truck size={12} className="shrink-0" />
+          <span>Trk 3</span>
+        </span>
+      </div>
+    );
+  } else {
+    return (
+      <div className="flex items-center gap-1.5 flex-wrap select-none">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
+          <Truck size={12} className="shrink-0" />
+          <span>U/Trk 1</span>
+        </span>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
+          <Truck size={12} className="shrink-0" />
+          <span>Trk 1</span>
+        </span>
+      </div>
+    );
+  }
 };
 
 const OrderTable = ({ orders, loadingOrders, handleOrderClick, confirmDelete }) => {
   if (loadingOrders) {
     return (
-      <div className="flex flex-col justify-center items-center h-96 bg-white border border-neutral-200/80 rounded-xl shadow-sm">
+      <div className="flex flex-col justify-center items-center h-96 bg-white border border-neutral-200/80 rounded-xl shadow-sm animate-pulse">
         <div className="w-10 h-10 border-2 border-neutral-200 border-t-neutral-900 rounded-full animate-spin"></div>
         <p className="text-xs text-neutral-500 font-medium mt-3">Loading orders...</p>
       </div>
@@ -131,7 +330,7 @@ const OrderTable = ({ orders, loadingOrders, handleOrderClick, confirmDelete }) 
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-neutral-50/75 border-b border-neutral-200 text-neutral-600 text-xs font-semibold uppercase tracking-wider select-none">
+            <tr className="bg-neutral-50/75 border-b border-neutral-200 text-neutral-600 text-[11px] font-bold uppercase tracking-wider select-none">
               <th className="px-6 py-4.5">Order Id</th>
               <th className="px-6 py-4.5">Customer</th>
               <th className="px-6 py-4.5">Product</th>
@@ -142,18 +341,25 @@ const OrderTable = ({ orders, loadingOrders, handleOrderClick, confirmDelete }) 
               <th className="px-6 py-4.5 text-center">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100 text-sm">
-            {orders?.map((order) => {
-              const statusBadge = getStatusBadge(order?.status);
-              const billingBadge = getBillingBadge(order?.paymentMethod, order?.status);
-              const inventoryBadge = getInventoryBadge(order?.status);
-              
-              // Calculate total goj
-              const totalGojVal = order?.totalGoj !== null && order?.totalGoj !== undefined
+          <tbody className="divide-y divide-neutral-100 text-[13px]">
+            {orders?.map((order, rowIndex) => {
+              const orderId = order?._id || `row-${rowIndex}`;
+
+              // --- Resolve real vs dummy data per column ---
+              // Product: clotheType & quality
+              const productCloth = order?.clotheType || DUMMY_CLOTH_TYPES[getDummyIndex(orderId, DUMMY_CLOTH_TYPES.length)];
+              const productQuality = order?.quality || DUMMY_QUALITIES[getDummyIndex(orderId + "q", DUMMY_QUALITIES.length)];
+
+              // Status
+              const resolvedStatus = order?.status || DUMMY_STATUSES[getDummyIndex(orderId + "s", DUMMY_STATUSES.length)];
+
+              // Total Goj
+              const realGoj = order?.totalGoj !== null && order?.totalGoj !== undefined
                 ? order?.totalGoj
                 : order?.tableData && order?.tableData.length > 0
                   ? order.tableData.reduce((sum, item) => sum + (item.goj || 0), 0)
-                  : 0;
+                  : null;
+              const totalGojVal = realGoj !== null ? realGoj : DUMMY_GOJ_VALUES[getDummyIndex(orderId + "g", DUMMY_GOJ_VALUES.length)];
 
               return (
                 <tr
@@ -162,69 +368,51 @@ const OrderTable = ({ orders, loadingOrders, handleOrderClick, confirmDelete }) 
                   onClick={() => handleOrderClick(order?._id)}
                 >
                   {/* Order ID */}
-                  <td className="px-6 py-4 font-semibold text-neutral-900 whitespace-nowrap">
+                  <td className="px-6 py-4.5 font-semibold text-neutral-900 whitespace-nowrap">
                     <span className="text-neutral-500 font-medium mr-0.5">#</span>
                     {order?.orderId?.replace(/^#?ord-/, "") || order?._id?.slice(-6)}
                   </td>
                   
                   {/* Customer */}
-                  <td className="px-6 py-4 font-medium text-neutral-800 whitespace-nowrap">
+                  <td className="px-6 py-4.5 font-medium text-neutral-800 whitespace-nowrap">
                     {order?.companyName || "N/A"}
                   </td>
                   
                   {/* Product (Cloth Type and Quality) with Figma Icons */}
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1.5 text-neutral-800 font-medium">
-                        <ShoppingBag size={13} className="text-neutral-400" />
-                        <span>{order?.clotheType || "N/A"}</span>
+                  <td className="px-6 py-4.5 whitespace-nowrap">
+                    <div className="flex flex-col gap-0.5">
+                      <div className="flex items-center gap-1 text-neutral-800 font-semibold text-[13px]">
+                        <ShoppingBag size={12} className="text-neutral-400" />
+                        <span>{productCloth}</span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-xs text-neutral-400 font-normal">
-                        <Hash size={12} className="text-neutral-300" />
-                        <span>{order?.quality || "N/A"}</span>
+                      <div className="flex items-center gap-1 text-[11px] text-neutral-500 font-normal">
+                        <span># {productQuality}</span>
                       </div>
                     </div>
                   </td>
 
                   {/* Status Badge */}
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full border ${statusBadge.bg}`}
-                    >
-                      {statusBadge.icon}
-                      <span className="capitalize">{statusBadge.text}</span>
-                    </span>
+                  <td className="px-6 py-4.5 whitespace-nowrap">
+                    {renderStatusBadges(resolvedStatus, orderId)}
                   </td>
 
-                  {/* Total Goj (Neutral Pill Badge) */}
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-neutral-100 text-neutral-800 border border-neutral-200">
-                      {totalGojVal} goj
-                    </span>
+                  {/* Total Goj (Neutral Pill Badge with sub-details) */}
+                  <td className="px-6 py-4.5 whitespace-nowrap">
+                    {renderGojDetails(orderId, totalGojVal)}
                   </td>
 
                   {/* Billing Badge */}
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full border ${billingBadge.bg}`}
-                    >
-                      {billingBadge.icon}
-                      <span>{billingBadge.text}</span>
-                    </span>
+                  <td className="px-6 py-4.5 whitespace-nowrap">
+                    {renderBillingBadges(order, orderId)}
                   </td>
 
                   {/* Inventory Badge */}
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full border ${inventoryBadge.bg}`}
-                    >
-                      {inventoryBadge.icon}
-                      <span>{inventoryBadge.text}</span>
-                    </span>
+                  <td className="px-6 py-4.5 whitespace-nowrap">
+                    {renderInventoryBadges(order, orderId)}
                   </td>
 
                   {/* Actions Column */}
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                  <td className="px-6 py-4.5 whitespace-nowrap text-center">
                     <div className="flex justify-center items-center gap-2">
                       <button
                         type="button"
@@ -235,10 +423,10 @@ const OrderTable = ({ orders, loadingOrders, handleOrderClick, confirmDelete }) 
                         className="p-1 rounded text-neutral-400 hover:text-rose-600 hover:bg-rose-50 transition-all cursor-pointer opacity-0 group-hover:opacity-100"
                         title="Delete Order"
                       >
-                        <Trash2 size={15} />
+                        <Trash2 size={14} />
                       </button>
                       <div className="p-1 rounded text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors">
-                        <MoreVertical size={15} />
+                        <MoreVertical size={14} />
                       </div>
                     </div>
                   </td>

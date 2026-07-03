@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Stepper from "./Stepper";
 import StatusModal from "./StatusModal";
@@ -43,6 +43,12 @@ export default function OrderStatus({
   );
   const [selectedStep, setSelectedStep] = useState(null);
   const [showModal, setShowModal] = useState(false);
+
+  // Sync currentStep when selected order status changes
+  useEffect(() => {
+    const stepId = steps.find((s) => statusMap[s.title] === currentStatus)?.id || 1;
+    setCurrentStep(stepId);
+  }, [currentStatus, orderId]);
 
   const [usedRowIndexes, setUsedRowIndexes] = useState([]);
   const [createdBatches, setCreatedBatches] = useState([]);

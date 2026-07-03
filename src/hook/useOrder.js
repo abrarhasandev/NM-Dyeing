@@ -122,7 +122,7 @@ const useOrders = (filters) => {
       console.error("Error fetching single order:", err);
       toast.error("Error fetching order details.");
     } finally {
-      loadingOrder && setLoadingOrder(false);
+      setLoadingOrder(false);
     }
   };
 

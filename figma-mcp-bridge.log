@@ -34,3 +34,589 @@ Stdio Error: [INFO] Successfully extracted data: 25 nodes
 Stdio Error: [INFO] Sending result to client
 
 <- Stdio Response: 3 
+POST /mcp
+-> HTTP Request: 4 tools/call
+Stdio Error: [INFO] Fetching 8 layers deep of node 2:132 from file 92hcblzrFIvFiknm7Kf9TB
+
+Stdio Error: [INFO] Retrieving raw Figma node: 2:132 from 92hcblzrFIvFiknm7Kf9TB (depth: 8)
+
+<- Stdio Response: undefined notifications/progress
+Stdio Error: [INFO] Calling https://api.figma.com/v1/files/92hcblzrFIvFiknm7Kf9TB/nodes?ids=2:132&depth=8
+[INFO] Using Personal Access Token for authentication
+
+<- Stdio Response: undefined notifications/progress
+<- Stdio Response: undefined notifications/progress
+Stdio Error: [INFO] Successfully extracted data: 274 nodes
+[INFO] Sending result to client
+
+<- Stdio Response: 4 
+Stdio Error: Error while flushing PostHog PostHogFetchNetworkError: Network error while fetching PostHog
+    at retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:767:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+    at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+    at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+  error: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  },
+  [cause]: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  }
+}
+
+POST /mcp
+-> HTTP Request: 5 tools/call
+Stdio Error: [INFO] Fetching 8 layers deep of node 36:480 from file 92hcblzrFIvFiknm7Kf9TB
+
+Stdio Error: [INFO] Retrieving raw Figma node: 36:480 from 92hcblzrFIvFiknm7Kf9TB (depth: 8)
+[INFO] Calling https://api.figma.com/v1/files/92hcblzrFIvFiknm7Kf9TB/nodes?ids=36:480&depth=8
+[INFO] Using Personal Access Token for authentication
+
+<- Stdio Response: undefined notifications/progress
+<- Stdio Response: undefined notifications/progress
+<- Stdio Response: undefined notifications/progress
+Stdio Error: [INFO] Successfully extracted data: 297 nodes
+[INFO] Sending result to client
+
+<- Stdio Response: 5 
+Stdio Error: Error while flushing PostHog PostHogFetchNetworkError: Network error while fetching PostHog
+    at retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:767:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+    at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+    at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+  error: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  },
+  [cause]: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  }
+}
+
+POST /mcp
+-> HTTP Request: 6 tools/call
+<- Stdio Response: 6 
+POST /mcp
+-> HTTP Request: 7 tools/call
+<- Stdio Response: 7 
+POST /mcp
+-> HTTP Request: 8 tools/call
+<- Stdio Response: undefined notifications/progress
+<- Stdio Response: undefined notifications/progress
+Stdio Error: [INFO] Calling https://api.figma.com/v1/images/92hcblzrFIvFiknm7Kf9TB?ids=16:1477,36:1637&format=png&scale=2
+[INFO] Using Personal Access Token for authentication
+
+<- Stdio Response: undefined notifications/progress
+Stdio Error: [INFO] Downloaded original image: /home/abrar/MN/NM-Dyeing/scratch/pagination-page2.png
+
+Stdio Error: [INFO] Original dimensions: 1944x80
+
+Stdio Error: [INFO] Final dimensions: 1944x80
+
+Stdio Error: [INFO] Downloaded original image: /home/abrar/MN/NM-Dyeing/scratch/pagination-page1.png
+
+Stdio Error: [INFO] Original dimensions: 1944x80
+
+Stdio Error: [INFO] Final dimensions: 1944x80
+
+<- Stdio Response: undefined notifications/progress
+<- Stdio Response: 8 
+Stdio Error: Error while flushing PostHog PostHogFetchNetworkError: Network error while fetching PostHog
+    at retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:767:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+    at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+    at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+  error: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  },
+  [cause]: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  }
+}
+
+POST /mcp
+-> HTTP Request: 9 tools/call
+Stdio Error: [INFO] Fetching 10 layers deep of node 16:1477 from file 92hcblzrFIvFiknm7Kf9TB
+
+Stdio Error: [INFO] Retrieving raw Figma node: 16:1477 from 92hcblzrFIvFiknm7Kf9TB (depth: 10)
+[INFO] Calling https://api.figma.com/v1/files/92hcblzrFIvFiknm7Kf9TB/nodes?ids=16:1477&depth=10
+[INFO] Using Personal Access Token for authentication
+
+<- Stdio Response: undefined notifications/progress
+Stdio Error: Error while flushing PostHog PostHogFetchNetworkError: Network error while fetching PostHog
+    at retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:767:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+    at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+    at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+  error: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  },
+  [cause]: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  }
+}
+
+<- Stdio Response: undefined notifications/progress
+<- Stdio Response: undefined notifications/progress
+Stdio Error: [INFO] Successfully extracted data: 22 nodes
+[INFO] Sending result to client
+
+<- Stdio Response: 9 
+Stdio Error: Error while flushing PostHog PostHogFetchNetworkError: Network error while fetching PostHog
+    at retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:767:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+    at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+    at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+  error: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  },
+  [cause]: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  }
+}
+
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: 10 tools/call
+Stdio Error: [INFO] Fetching 2 layers deep of node 0:1 from file 92hcblzrFIvFiknm7Kf9TB
+
+Stdio Error: [INFO] Retrieving raw Figma node: 0:1 from 92hcblzrFIvFiknm7Kf9TB (depth: 2)
+[INFO] Calling https://api.figma.com/v1/files/92hcblzrFIvFiknm7Kf9TB/nodes?ids=0:1&depth=2
+[INFO] Using Personal Access Token for authentication
+
+<- Stdio Response: undefined notifications/progress
+Stdio Error: [ERROR] Error fetching file 92hcblzrFIvFiknm7Kf9TB: Figma API rate limit hit (429). Retry after 289112 seconds. Your Figma seat type (Viewer or Collaborator) has a lower API rate limit. Your starter plan has limited API access. Upgrade: https://www.figma.com/files?api_paywall=true See https://developers.figma.com/docs/rest-api/rate-limits/
+
+<- Stdio Response: 10 
+Stdio Error: Error while flushing PostHog PostHogFetchNetworkError: Network error while fetching PostHog
+    at retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:767:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+    at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+    at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+  error: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  },
+  [cause]: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  }
+}
+
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: 11 tools/call
+Stdio Error: [INFO] Fetching 2 layers deep of node 0:1 from file 92hcblzrFIvFiknm7Kf9TB
+
+Stdio Error: [INFO] Retrieving raw Figma node: 0:1 from 92hcblzrFIvFiknm7Kf9TB (depth: 2)
+[INFO] Calling https://api.figma.com/v1/files/92hcblzrFIvFiknm7Kf9TB/nodes?ids=0:1&depth=2
+[INFO] Using Personal Access Token for authentication
+
+<- Stdio Response: undefined notifications/progress
+Stdio Error: [ERROR] Error fetching file 92hcblzrFIvFiknm7Kf9TB: Figma API rate limit hit (429). Retry after 288792 seconds. Your Figma seat type (Viewer or Collaborator) has a lower API rate limit. Your starter plan has limited API access. Upgrade: https://www.figma.com/files?api_paywall=true See https://developers.figma.com/docs/rest-api/rate-limits/
+
+<- Stdio Response: 11 
+Stdio Error: Error while flushing PostHog PostHogFetchNetworkError: Network error while fetching PostHog
+    at retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:767:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+    at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+    at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+  error: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  },
+  [cause]: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  }
+}
+
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: 12 tools/call
+Stdio Error: [INFO] Fetching all layers of node 0:1 from file 92hcblzrFIvFiknm7Kf9TB
+
+Stdio Error: [INFO] Retrieving raw Figma node: 0:1 from 92hcblzrFIvFiknm7Kf9TB (depth: default)
+[INFO] Calling https://api.figma.com/v1/files/92hcblzrFIvFiknm7Kf9TB/nodes?ids=0:1
+[INFO] Using Personal Access Token for authentication
+
+<- Stdio Response: undefined notifications/progress
+Stdio Error: [ERROR] Error fetching file 92hcblzrFIvFiknm7Kf9TB: Figma API rate limit hit (429). Retry after 288612 seconds. Your Figma seat type (Viewer or Collaborator) has a lower API rate limit. Your starter plan has limited API access. Upgrade: https://www.figma.com/files?api_paywall=true See https://developers.figma.com/docs/rest-api/rate-limits/
+
+<- Stdio Response: 12 
+Stdio Error: Error while flushing PostHog PostHogFetchNetworkError: Network error while fetching PostHog
+    at retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:767:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+    at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+    at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+  error: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  },
+  [cause]: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  }
+}
+
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: 13 tools/call
+Stdio Error: [INFO] Fetching all layers of node 0:1 from file 92hcblzrFIvFiknm7Kf9TB
+
+Stdio Error: [INFO] Retrieving raw Figma node: 0:1 from 92hcblzrFIvFiknm7Kf9TB (depth: default)
+[INFO] Calling https://api.figma.com/v1/files/92hcblzrFIvFiknm7Kf9TB/nodes?ids=0:1
+
+<- Stdio Response: undefined notifications/progress
+Stdio Error: [INFO] Using Personal Access Token for authentication
+
+<- Stdio Response: undefined notifications/progress
+Stdio Error: [ERROR] Error fetching file 92hcblzrFIvFiknm7Kf9TB: Figma API rate limit hit (429). Retry after 287997 seconds. Your Figma seat type (Viewer or Collaborator) has a lower API rate limit. Your starter plan has limited API access. Upgrade: https://www.figma.com/files?api_paywall=true See https://developers.figma.com/docs/rest-api/rate-limits/
+
+<- Stdio Response: 13 
+Stdio Error: Error while flushing PostHog PostHogFetchNetworkError: Network error while fetching PostHog
+    at retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:767:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+    at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+    at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+  error: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  },
+  [cause]: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  }
+}
+
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: 14 tools/call
+Stdio Error: [INFO] Fetching all layers of node 0:1 from file 92hcblzrFIvFiknm7Kf9TB
+
+Stdio Error: [INFO] Retrieving raw Figma node: 0:1 from 92hcblzrFIvFiknm7Kf9TB (depth: default)
+[INFO] Calling https://api.figma.com/v1/files/92hcblzrFIvFiknm7Kf9TB/nodes?ids=0:1
+[INFO] Using Personal Access Token for authentication
+
+<- Stdio Response: undefined notifications/progress
+Stdio Error: [ERROR] Error fetching file 92hcblzrFIvFiknm7Kf9TB: Figma API rate limit hit (429). Retry after 287867 seconds. Your Figma seat type (Viewer or Collaborator) has a lower API rate limit. Your starter plan has limited API access. Upgrade: https://www.figma.com/files?api_paywall=true See https://developers.figma.com/docs/rest-api/rate-limits/
+
+<- Stdio Response: 14 
+Stdio Error: Error while flushing PostHog PostHogFetchNetworkError: Network error while fetching PostHog
+    at retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:767:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+    at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+    at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+  error: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  },
+  [cause]: TypeError: fetch failed
+      at node:internal/deps/undici/undici:16381:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:762:23)
+      at async retriable (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/utils/index.mjs:36:25)
+      at async PostHog.fetchWithRetry (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:756:16)
+      at async PostHog._flush (file:///home/abrar/MN/NM-Dyeing/node_modules/@posthog/core/dist/posthog-core-stateless.mjs:684:34) {
+    [cause]: AggregateError [ETIMEDOUT]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1736:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ETIMEDOUT',
+      [errors]: [Array]
+    }
+  }
+}
+
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed

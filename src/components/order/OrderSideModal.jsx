@@ -111,9 +111,16 @@ const OrderSideModal = ({
                       <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
                         <CiGrid41 className="text-2xl" />
                       </div>
-                      <p className="text-base uppercase font-medium">
-                        {selectedOrder?.clotheType || "N/A"}
-                      </p>
+                      <div className="flex flex-col">
+                        <p className="text-base uppercase font-semibold text-gray-800 leading-tight">
+                          {selectedOrder?.clotheType || "N/A"}
+                        </p>
+                        {selectedOrder?.quality && (
+                          <p className="text-xs text-gray-500 font-normal mt-0.5">
+                            # {selectedOrder?.quality}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -145,7 +152,7 @@ const OrderSideModal = ({
                             </div>
 
                             <div>
-                              <p className="text-xs text-gray-500">Quantity</p>
+                              <p className="text-xs text-gray-500">Cloth Code / Quality</p>
                               <p className="font-semibold">
                                 {selectedOrder?.quality || "N/A"}
                               </p>
