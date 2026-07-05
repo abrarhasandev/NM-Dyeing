@@ -620,3 +620,7 @@ POST /mcp
 -> HTTP Request: undefined notifications/roots/list_changed
 POST /mcp
 -> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed
+POST /mcp
+-> HTTP Request: undefined notifications/roots/list_changed

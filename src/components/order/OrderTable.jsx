@@ -34,15 +34,15 @@ const getDummyIndex = (id, poolLength) => {
   return Math.abs(hash) % poolLength;
 };
 
-// Render status badges to match Figma mockup options and designs
+// Render status badges to match Figma mockup options and designs (white bg, grey border, #737373 text)
 const renderStatusBadges = (status, orderId) => {
   const s = status?.toLowerCase() || "pending";
   
   if (s === "pending") {
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full border border-neutral-300 bg-neutral-50 text-neutral-500">
-        <Clock size={12} className="shrink-0" />
-        <span className="capitalize">pending</span>
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-lg border border-[#E5E5E5] bg-white text-[#737373] shadow-sm select-none">
+        <Clock size={11} className="shrink-0 text-neutral-400" />
+        <span>pending</span>
       </span>
     );
   }
@@ -51,13 +51,16 @@ const renderStatusBadges = (status, orderId) => {
     const deliveryNum = getDummyIndex(orderId + "status_del", 2) + 1; // 1 or 2
     return (
       <div className="flex items-center gap-1.5 flex-wrap select-none">
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full border border-blue-200 bg-blue-50/50 text-blue-600">
-          <Clock size={12} className="shrink-0 animate-pulse" />
-          <span className="capitalize">in process</span>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-lg border border-[#E5E5E5] bg-white text-[#737373] shadow-sm">
+          <Clock size={11} className="shrink-0 text-neutral-400 animate-pulse" />
+          <span>in process</span>
         </span>
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full border border-blue-200 bg-white text-blue-600 shadow-sm">
-          <Truck size={12} className="shrink-0" />
-          <span>Delivered {deliveryNum}</span>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-lg border border-[#E5E5E5] bg-white text-[#737373] shadow-sm">
+          <Truck size={11} className="shrink-0 text-neutral-400" />
+          <span>Delivered</span>
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#8E8E93] border border-[rgba(34,43,89,0.4)] rounded-full">
+            {deliveryNum}
+          </span>
         </span>
       </div>
     );
@@ -65,9 +68,9 @@ const renderStatusBadges = (status, orderId) => {
   
   if (s === "batch") {
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full border border-cyan-200 bg-cyan-50/50 text-cyan-700">
-        <Package size={12} className="shrink-0" />
-        <span className="capitalize">Batching</span>
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-lg border border-[#E5E5E5] bg-white text-[#737373] shadow-sm select-none">
+        <Package size={11} className="shrink-0 text-neutral-400" />
+        <span>Batching</span>
       </span>
     );
   }
@@ -75,22 +78,25 @@ const renderStatusBadges = (status, orderId) => {
   if (s === "completed" || s === "delivered" || s === "completedprocess" || s === "done") {
     return (
       <div className="flex items-center gap-1.5 flex-wrap select-none">
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
-          <CheckCircle2 size={12} className="shrink-0" />
-          <span className="capitalize">complete</span>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-lg border border-[#E5E5E5] bg-white text-[#737373] shadow-sm">
+          <CheckCircle2 size={11} className="shrink-0 text-neutral-400" />
+          <span>complete</span>
         </span>
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full border border-emerald-200 bg-white text-emerald-700 shadow-sm">
-          <Truck size={12} className="shrink-0" />
-          <span>Delivered 3</span>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-lg border border-[#E5E5E5] bg-white text-[#737373] shadow-sm">
+          <Truck size={11} className="shrink-0 text-neutral-400" />
+          <span>Delivered</span>
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#8E8E93] border border-[rgba(34,43,89,0.4)] rounded-full">
+            3
+          </span>
         </span>
       </div>
     );
   }
   
   return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full border border-neutral-300 bg-neutral-50 text-neutral-500">
-      <Clock size={12} className="shrink-0" />
-      <span className="capitalize">{s}</span>
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-lg border border-[#E5E5E5] bg-white text-[#737373] shadow-sm select-none">
+      <Clock size={11} className="shrink-0 text-neutral-400" />
+      <span>{s}</span>
     </span>
   );
 };
@@ -102,14 +108,14 @@ const renderGojDetails = (orderId, totalGojVal) => {
   
   if (index === 1) {
     subRecords = [
-      { type: "pending", text: "7~1525", color: "text-rose-500 bg-rose-50 border-rose-100" },
-      { type: "pending", text: "3/ 39~2602", color: "text-emerald-600 bg-emerald-50 border-emerald-100" }
+      { type: "pending", text: "22~1525", color: "text-rose-500 bg-rose-50 border-rose-100" },
+      { type: "pending", text: "3/ 52~12525", color: "text-emerald-600 bg-emerald-50 border-emerald-100" }
     ];
   } else if (index === 2) {
     subRecords = [
-      { type: "pending", text: "7~1525", color: "text-rose-500 bg-rose-50 border-rose-100" },
-      { type: "pending", text: "4/ 39~12525", color: "text-blue-600 bg-blue-50 border-blue-100" },
-      { type: "completed", text: "2/ 24~4337", trend: "-5.2%", color: "text-emerald-600 bg-emerald-50 border-emerald-100" }
+      { type: "pending", text: "22~1525", color: "text-rose-500 bg-rose-50 border-rose-100" },
+      { type: "pending", text: "3/ 52~12525", color: "text-blue-600 bg-blue-50 border-blue-100" },
+      { type: "completed", text: "2/ 24~10255", trend: "-5.2%", color: "text-emerald-600 bg-emerald-50 border-emerald-100" }
     ];
   } else if (index === 3) {
     subRecords = [
@@ -122,7 +128,7 @@ const renderGojDetails = (orderId, totalGojVal) => {
     ];
   } else if (index === 5) {
     subRecords = [
-      { type: "pending", text: "7~1525", color: "text-rose-500 bg-rose-50 border-rose-100" },
+      { type: "pending", text: "22~1525", color: "text-rose-500 bg-rose-50 border-rose-100" },
       { type: "pending", text: "3/ 52~12525", color: "text-rose-500 bg-rose-50 border-rose-100" },
       { type: "completed", text: "2/ 24~10255", trend: "-17.5%", color: "text-emerald-600 bg-emerald-50 border-emerald-100" }
     ];
@@ -136,7 +142,7 @@ const renderGojDetails = (orderId, totalGojVal) => {
       {subRecords.length > 0 && (
         <div className="flex flex-col gap-1 mt-0.5">
           {subRecords.map((rec, i) => (
-            <div key={i} className="flex items-center gap-1.5 text-[10px] font-medium text-neutral-500">
+            <div key={i} className="flex items-center gap-1 text-[10px] font-medium text-neutral-500">
               <span className={`inline-flex items-center gap-0.5 px-1 py-0.5 rounded border text-[9px] ${rec.color}`}>
                 {rec.type === "completed" ? (
                   <CheckCircle2 size={8} className="shrink-0" />
@@ -146,9 +152,9 @@ const renderGojDetails = (orderId, totalGojVal) => {
                 <span>{rec.text}</span>
               </span>
               {rec.trend && (
-                <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded bg-rose-50 border border-rose-100 text-rose-600 text-[8px] font-bold">
-                  <TrendingDown size={8} />
-                  <span>{rec.trend}</span>
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded border border-[#CB5254] bg-white text-rose-600 text-[8px] font-semibold">
+                  <TrendingDown size={8} className="text-[#CB5254] shrink-0" />
+                  <span className="text-[8px] font-bold text-neutral-900">{rec.trend}</span>
                 </span>
               )}
             </div>
@@ -159,16 +165,19 @@ const renderGojDetails = (orderId, totalGojVal) => {
   );
 };
 
-// Render billing badges matching Figma mockup
+// Render billing badges matching Figma mockup (outline style, nested numeric circles)
 const renderBillingBadges = (order, orderId) => {
   const isRealPaid = order?.paymentMethod === "Paid";
   const isRealCompleted = order?.status === "completed" || order?.status === "delivered";
   
   if (isRealPaid || isRealCompleted) {
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
-        <FileText size={12} className="shrink-0" />
-        <span>Bill 7</span>
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm select-none">
+        <FileText size={11} className="shrink-0 text-neutral-500" />
+        <span>Billed</span>
+        <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#595959] border border-[rgba(34,43,89,0.4)] rounded-full">
+          7
+        </span>
       </span>
     );
   }
@@ -177,78 +186,102 @@ const renderBillingBadges = (order, orderId) => {
   
   if (index === 0) {
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full border border-neutral-300 bg-neutral-50 text-neutral-500">
-        <Clock size={12} className="shrink-0" />
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#E5E5E5] bg-white text-[#737373] shadow-sm select-none">
+        <Clock size={11} className="shrink-0 text-neutral-400" />
         <span>pending</span>
       </span>
     );
   } else if (index === 1) {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
-        <FileText size={12} className="shrink-0" />
-        <span>U/B 2</span>
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm select-none">
+        <FileText size={11} className="shrink-0 text-neutral-500" />
+        <span>U/B</span>
+        <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#737373] border border-[rgba(34,43,89,0.4)] rounded-full">
+          2
+        </span>
       </span>
     );
   } else if (index === 2) {
     return (
       <div className="flex items-center gap-1.5 flex-wrap select-none">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
-          <FileText size={12} className="shrink-0" />
-          <span>U/B 3</span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm">
+          <FileText size={11} className="shrink-0 text-neutral-500" />
+          <span>U/B</span>
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#737373] border border-[rgba(34,43,89,0.4)] rounded-full">
+            3
+          </span>
         </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
-          <FileText size={12} className="shrink-0" />
-          <span>Bill 1</span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm">
+          <FileText size={11} className="shrink-0 text-neutral-500" />
+          <span>Bill</span>
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#737373] border border-[rgba(34,43,89,0.4)] rounded-full">
+            1
+          </span>
         </span>
       </div>
     );
   } else if (index === 3) {
     return (
       <div className="flex items-center gap-1.5 flex-wrap select-none">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
-          <FileText size={12} className="shrink-0" />
-          <span>U/B 5</span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm">
+          <FileText size={11} className="shrink-0 text-neutral-500" />
+          <span>U/B</span>
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#737373] border border-[rgba(34,43,89,0.4)] rounded-full">
+            5
+          </span>
         </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
-          <FileText size={12} className="shrink-0" />
-          <span>Bill 2</span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm">
+          <FileText size={11} className="shrink-0 text-neutral-500" />
+          <span>Bill</span>
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#737373] border border-[rgba(34,43,89,0.4)] rounded-full">
+            2
+          </span>
         </span>
       </div>
     );
   } else {
     return (
       <div className="flex items-center gap-1.5 flex-wrap select-none">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
-          <FileText size={12} className="shrink-0" />
-          <span>U/B 2</span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm">
+          <FileText size={11} className="shrink-0 text-neutral-500" />
+          <span>U/B</span>
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#737373] border border-[rgba(34,43,89,0.4)] rounded-full">
+            2
+          </span>
         </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
-          <FileText size={12} className="shrink-0" />
-          <span>Bill 0</span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm">
+          <FileText size={11} className="shrink-0 text-neutral-500" />
+          <span>Bill</span>
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#737373] border border-[rgba(34,43,89,0.4)] rounded-full">
+            0
+          </span>
         </span>
       </div>
     );
   }
 };
 
-// Render inventory badges matching Figma mockup
+// Render inventory badges matching Figma mockup (outline style, nested numeric circles, kick scooter/delivery icon)
 const renderInventoryBadges = (order, orderId) => {
   const s = order?.status?.toLowerCase() || "pending";
   const isRealCompleted = s === "completed" || s === "delivered" || s === "completedprocess";
   
   if (isRealCompleted) {
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
-        <Truck size={12} className="shrink-0" />
-        <span>Trk 7</span>
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm select-none">
+        <Truck size={11} className="shrink-0 text-neutral-500" />
+        <span>Trk</span>
+        <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#595959] border border-[rgba(34,43,89,0.4)] rounded-full">
+          7
+        </span>
       </span>
     );
   }
   
   if (s === "pending") {
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full border border-neutral-300 bg-neutral-50 text-neutral-500">
-        <Clock size={12} className="shrink-0" />
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#E5E5E5] bg-white text-[#737373] shadow-sm select-none">
+        <Clock size={11} className="shrink-0 text-neutral-400" />
         <span>pending</span>
       </span>
     );
@@ -258,47 +291,68 @@ const renderInventoryBadges = (order, orderId) => {
   
   if (index === 0) {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
-        <Truck size={12} className="shrink-0" />
-        <span>U/Trk 2</span>
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm select-none">
+        <Truck size={11} className="shrink-0 text-neutral-500" />
+        <span>U/Trk</span>
+        <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#595959] border border-[rgba(34,43,89,0.4)] rounded-full">
+          2
+        </span>
       </span>
     );
   } else if (index === 1) {
     return (
       <div className="flex items-center gap-1.5 flex-wrap select-none">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
-          <Truck size={12} className="shrink-0" />
-          <span>U/Trk 3</span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm">
+          <Truck size={11} className="shrink-0 text-neutral-500" />
+          <span>U/Trk</span>
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#595959] border border-[rgba(34,43,89,0.4)] rounded-full">
+            3
+          </span>
         </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
-          <Truck size={12} className="shrink-0" />
-          <span>Trk 1</span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm">
+          <Truck size={11} className="shrink-0 text-neutral-500" />
+          <span>Trk</span>
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#595959] border border-[rgba(34,43,89,0.4)] rounded-full">
+            1
+          </span>
         </span>
       </div>
     );
   } else if (index === 2) {
     return (
       <div className="flex items-center gap-1.5 flex-wrap select-none">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
-          <Truck size={12} className="shrink-0" />
-          <span>U/Trk 4</span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm">
+          <Truck size={11} className="shrink-0 text-neutral-500" />
+          <span>U/Trk</span>
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#595959] border border-[rgba(34,43,89,0.4)] rounded-full">
+            4
+          </span>
         </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
-          <Truck size={12} className="shrink-0" />
-          <span>Trk 3</span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm">
+          <Truck size={11} className="shrink-0 text-neutral-500" />
+          <span>Trk</span>
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#595959] border border-[rgba(34,43,89,0.4)] rounded-full">
+            3
+          </span>
         </span>
       </div>
     );
   } else {
     return (
       <div className="flex items-center gap-1.5 flex-wrap select-none">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-rose-200 bg-rose-50 text-rose-600">
-          <Truck size={12} className="shrink-0" />
-          <span>U/Trk 1</span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm">
+          <Truck size={11} className="shrink-0 text-neutral-500" />
+          <span>U/Trk</span>
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#595959] border border-[rgba(34,43,89,0.4)] rounded-full">
+            1
+          </span>
         </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-emerald-200 bg-emerald-50/50 text-emerald-700">
-          <Truck size={12} className="shrink-0" />
-          <span>Trk 1</span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg border border-[#8E8E93] bg-white text-black shadow-sm">
+          <Truck size={11} className="shrink-0 text-neutral-500" />
+          <span>Trk</span>
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 text-[9px] font-bold bg-white text-[#595959] border border-[rgba(34,43,89,0.4)] rounded-full">
+            1
+          </span>
         </span>
       </div>
     );
