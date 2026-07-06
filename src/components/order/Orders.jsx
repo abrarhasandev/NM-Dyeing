@@ -178,46 +178,101 @@ const Orders = () => {
     setCustomEndDate(endDate);
   };
   return (
-    <div className="py-6 text-black relative mt-10 md:-mt-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Orders</h1>
-        <Link href="/dashboard/createOrder" className="bg-black text-white px-4 py-2 rounded hover:opacity-90">
-          + New Order
-        </Link>
+    <div
+      className="relative text-black"
+      style={{
+        fontFamily: "var(--mn-font-primary)",
+        paddingTop: "0",
+      }}
+    >
+      {/* ── Page Header Bar — Figma: 1068×64, gap 10, breadcrumb pill ── */}
+      <div
+        className="flex items-center justify-between sticky top-0 z-10 bg-white border-b mt-10 md:mt-0"
+        style={{
+          minHeight: "64px",
+          padding: "0 0",
+          borderColor: "var(--mn-surface)",
+          boxShadow: "var(--mn-elevation-1)",
+        }}
+      >
+        {/* Breadcrumb pill — Figma: Frame 24, 235×28, padding 0/16 */}
+        <div
+          className="flex items-center gap-2 text-[13px] font-medium"
+          style={{ padding: "0 24px", color: "var(--mn-text-primary)" }}
+        >
+          <span style={{ color: "var(--mn-text-tertiary)" }}>Dashboard</span>
+          <span style={{ color: "var(--mn-text-tertiary)" }}>/</span>
+          <span
+            className="font-semibold"
+            style={{ color: "var(--mn-accent)" }}
+          >
+            Orders
+          </span>
+        </div>
+
+        {/* New Order CTA */}
+        <div style={{ padding: "0 24px" }}>
+          <Link
+            href="/dashboard/createOrder"
+            id="new-order-btn"
+            className="inline-flex items-center gap-1.5 text-white text-[13px] font-semibold transition-all duration-150 active:scale-95"
+            style={{
+              backgroundColor: "var(--mn-accent)",
+              borderRadius: "var(--mn-radius-md)",
+              padding: "8px 16px",
+              boxShadow: "var(--mn-elevation-1)",
+              textDecoration: "none",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--mn-accent-4)")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--mn-accent)")}
+          >
+            <span className="text-[16px] font-bold leading-none">+</span>
+            New Order
+          </Link>
+        </div>
       </div>
 
-      <OrderFilters
-        searchTerm={searchTerm} setSearchTerm={setSearchTerm}
-        dateRange={dateRange} handleDateRangeChange={setDateRange}
-        customStartDate={customStartDate} setCustomStartDate={setCustomStartDate}
-        customEndDate={customEndDate} setCustomEndDate={setCustomEndDate}
-        handleCustomApply={handleCustomApply}
-        status={status} setStatus={setStatus}
-        clotheType={clotheType} setClotheType={setClotheType}
-        finishingType={finishingType} setFinishingType={setFinishingType}
-        colour={colour} setColour={setColour}
-        sillName={sillName} setSillName={setSillName}
-        quality={quality} setQuality={setQuality}
-        showMoreFilters={showMoreFilters} setShowMoreFilters={setShowMoreFilters}
-        data={data}
-      />
+      {/* ── Main Content — Figma: Frame 28, padding 24/0/24/0, gap 24 ── */}
+      <div
+        className="flex flex-col"
+        style={{ padding: "24px 0", gap: "16px" }}
+      >
+        {/* Wrapper — Figma: padding 0/24/0/24 */}
+        <div style={{ padding: "0 24px", display: "flex", flexDirection: "column", gap: "16px" }}>
+          <OrderFilters
+            searchTerm={searchTerm} setSearchTerm={setSearchTerm}
+            dateRange={dateRange} handleDateRangeChange={setDateRange}
+            customStartDate={customStartDate} setCustomStartDate={setCustomStartDate}
+            customEndDate={customEndDate} setCustomEndDate={setCustomEndDate}
+            handleCustomApply={handleCustomApply}
+            status={status} setStatus={setStatus}
+            clotheType={clotheType} setClotheType={setClotheType}
+            finishingType={finishingType} setFinishingType={setFinishingType}
+            colour={colour} setColour={setColour}
+            sillName={sillName} setSillName={setSillName}
+            quality={quality} setQuality={setQuality}
+            showMoreFilters={showMoreFilters} setShowMoreFilters={setShowMoreFilters}
+            data={data}
+          />
 
-      <OrderTable
-        orders={orders}
-        handleOrderClick={handleOrderClick}
-        confirmDelete={confirmDelete}
-      />
+          <OrderTable
+            orders={orders}
+            handleOrderClick={handleOrderClick}
+            confirmDelete={confirmDelete}
+          />
 
-      <PaginationControls
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-        itemsPerPage={itemsPerPage}
-        onItemsPerPageChange={(value) => {
-          setItemsPerPage(value);
-          setCurrentPage(1);
-        }}
-      />
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            itemsPerPage={itemsPerPage}
+            onItemsPerPageChange={(value) => {
+              setItemsPerPage(value);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
+      </div>
 
       {/* Side Modal */}
       <OrderSideModal

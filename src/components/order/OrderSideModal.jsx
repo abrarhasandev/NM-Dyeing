@@ -1,9 +1,6 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
-import { IoClose } from "react-icons/io5";
-import { FaPencilAlt, FaPrint } from "react-icons/fa";
-import { LuTrash2 } from "react-icons/lu";
-import { CiGrid41 } from "react-icons/ci";
+import { X, Pencil, Printer, Trash2, Grid2x2, ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import OrderStatus from "../OrderStatus/OrderStatus";
@@ -19,11 +16,10 @@ const OrderSideModal = ({
   setSelectedOrder,
 }) => {
   const router = useRouter();
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false); // Default open rakhle dekhte bhalo lage
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const printRef = useRef();
 
-  // Client side check to avoid Hydration Error
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -36,8 +32,7 @@ const OrderSideModal = ({
         .then((res) => res.json())
         .then((data) => {
           if (Array.isArray(data) && data.length > 0) setHasBatch(true);
-          else if (data && data.batches && data.batches.length > 0)
-            setHasBatch(true);
+          else if (data && data.batches && data.batches.length > 0) setHasBatch(true);
           else setHasBatch(false);
         })
         .catch(() => setHasBatch(false));
@@ -45,9 +40,13 @@ const OrderSideModal = ({
   }, [selectedOrder]);
 
   const formatDate = (dateString) => {
-    if (!isClient || !dateString) return "Loading...";
+    if (!isClient || !dateString) return "—";
     try {
-      return new Date(dateString).toLocaleDateString();
+      return new Date(dateString).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
     } catch (e) {
       return "Invalid Date";
     }
@@ -65,140 +64,193 @@ const OrderSideModal = ({
     }, 500);
   };
 
+  // Detail rows configuration
+  const detailRows = [
+    { label: "Created At",           value: formatDate(selectedOrder?.createdAt) },
+    { label: "Invoice No.",          value: selectedOrder?.invoiceNumber || "—" },
+    { label: "Cloth Code / Quality", value: selectedOrder?.quality || "—" },
+    { label: "Colour",               value: selectedOrder?.colour || "—" },
+    { label: "Sill Name",            value: selectedOrder?.sillName || "—" },
+    { label: "Finishing Type",       value: selectedOrder?.finishingType || "—" },
+    { label: "Dyeing",               value: selectedOrder?.dyeingName || "—" },
+    { label: "Transporter",          value: selectedOrder?.transporterName || "—" },
+  ];
+
   return (
     <AnimatePresence>
       {isModalOpen && (
         <div className="no-print fixed inset-0 flex justify-end z-50">
+          {/* Backdrop */}
           <motion.div
-            className="absolute inset-0 bg-black/30"
+            className="absolute inset-0"
+            style={{ backgroundColor: "rgba(28,39,76,0.25)", backdropFilter: "blur(2px)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closeModal}
           />
 
+          {/* Drawer panel */}
           <motion.div
-            className="relative w-full sm:w-[350px] md:w-[450px] h-full bg-white shadow-lg border-l border-gray-200 flex flex-col"
+            className="relative flex flex-col"
+            style={{
+              width: "100%",
+              maxWidth: 440,
+              height: "100%",
+              backgroundColor: "#ffffff",
+              borderLeft: "1px solid var(--mn-surface)",
+              boxShadow: "-4px 0 32px rgba(28,39,76,0.15)",
+              fontFamily: "var(--mn-font-primary)",
+            }}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
+            transition={{ duration: 0.35, ease: "easeInOut" }}
           >
-            {/* Header */}
-            <div className="flex justify-between items-center px-6 py-4 border-b">
-              <h2 className="text-xl font-bold">
-                {selectedOrder?.orderId || "N/A"}
-              </h2>
-              <IoClose
-                className="w-6 h-6 text-gray-500 hover:text-black cursor-pointer"
+            {/* ── Header — Figma accent bg ── */}
+            <div
+              className="flex items-center justify-between flex-shrink-0"
+              style={{
+                backgroundColor: "var(--mn-accent)",
+                padding: "16px 20px",
+                minHeight: "64px",
+              }}
+            >
+              <div>
+                <p className="text-white text-[11px] font-medium opacity-60 uppercase tracking-widest mb-0.5">
+                  Order Details
+                </p>
+                <h2 className="text-white text-[15px] font-bold leading-tight">
+                  {selectedOrder?.orderId || selectedOrder?._id?.slice(-10) || "N/A"}
+                </h2>
+              </div>
+              <button
                 onClick={closeModal}
-              />
+                className="flex items-center justify-center transition-all cursor-pointer"
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: "var(--mn-radius-md)",
+                  backgroundColor: "rgba(255,255,255,0.12)",
+                  color: "#ffffff",
+                  border: "none",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.22)")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.12)")}
+              >
+                <X size={16} />
+              </button>
             </div>
 
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            {/* ── Scrollable Content ── */}
+            <div className="flex-1 overflow-y-auto" style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: "12px" }}>
               {loadingOrder ? (
                 <div className="flex justify-center items-center h-full">
-                  <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-600"></div>
+                  <div
+                    className="w-10 h-10 rounded-full animate-spin"
+                    style={{ border: "3px solid var(--mn-surface)", borderTopColor: "var(--mn-accent)" }}
+                  />
                 </div>
               ) : (
                 <>
+                  {/* ── Product Card ── */}
                   <div
-                    className="p-4 bg-gray-100 rounded-lg flex items-center justify-between cursor-pointer"
+                    className="cursor-pointer transition-all"
+                    style={{
+                      backgroundColor: "var(--mn-background-3)",
+                      borderRadius: "var(--mn-radius-md)",
+                      border: "1px solid var(--mn-surface)",
+                      boxShadow: "var(--mn-elevation-1)",
+                      padding: "12px 16px",
+                    }}
                     onClick={() => setIsDetailsOpen(!isDetailsOpen)}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                        <CiGrid41 className="text-2xl" />
-                      </div>
-                      <div className="flex flex-col">
-                        <p className="text-base uppercase font-semibold text-gray-800 leading-tight">
-                          {selectedOrder?.clotheType || "N/A"}
-                        </p>
-                        {selectedOrder?.quality && (
-                          <p className="text-xs text-gray-500 font-normal mt-0.5">
-                            # {selectedOrder?.quality}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="flex items-center justify-center shrink-0"
+                          style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: "var(--mn-radius-md)",
+                            backgroundColor: "#ffffff",
+                            border: "1px solid var(--mn-surface)",
+                            boxShadow: "var(--mn-elevation-1)",
+                          }}
+                        >
+                          <Grid2x2 size={18} style={{ color: "var(--mn-accent)" }} />
+                        </div>
+                        <div>
+                          <p
+                            className="text-[14px] font-semibold uppercase leading-tight"
+                            style={{ color: "var(--mn-text-primary)" }}
+                          >
+                            {selectedOrder?.clotheType || "N/A"}
                           </p>
-                        )}
+                          {selectedOrder?.quality && (
+                            <p className="text-[12px] mt-0.5" style={{ color: "var(--mn-text-tertiary)" }}>
+                              # {selectedOrder.quality}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div style={{ color: "var(--mn-text-tertiary)" }}>
+                        {isDetailsOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                       </div>
                     </div>
                   </div>
 
+                  {/* ── Collapsible Details ── */}
                   <AnimatePresence initial={false}>
                     {isDetailsOpen && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        <div className="space-y-6 pt-2">
-                          <div className="grid grid-cols-2 gap-4 text-gray-700">
-                            <div>
-                              <p className="text-xs text-gray-500">
-                                Created at
-                              </p>
-                              <p className="font-semibold">
-                                {formatDate(selectedOrder?.createdAt)}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-gray-500">
-                                DInvoice No.
-                              </p>
-                              <p className="font-semibold">
-                                {selectedOrder?.invoiceNumber}
-                              </p>
-                            </div>
-
-                            <div>
-                              <p className="text-xs text-gray-500">Cloth Code / Quality</p>
-                              <p className="font-semibold">
-                                {selectedOrder?.quality || "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-gray-500">Colour</p>
-                              <p className="font-semibold">
-                                {selectedOrder?.colour || "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-gray-500">Sill Name</p>
-                              <p className="font-semibold">
-                                {selectedOrder?.sillName || "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-gray-500">
-                                Finishing Type
-                              </p>
-                              <p className="font-semibold">
-                                {selectedOrder?.finishingType || "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-gray-500">Dyeing</p>
-                              <p className="font-semibold">
-                                {selectedOrder?.dyeingName || "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-gray-500">
-                                Transporter
-                              </p>
-                              <p className="font-semibold">
-                                {selectedOrder?.transporterName || "N/A"}
-                              </p>
-                            </div>
+                        <div
+                          style={{
+                            backgroundColor: "#ffffff",
+                            borderRadius: "var(--mn-radius-md)",
+                            border: "1px solid var(--mn-surface)",
+                            boxShadow: "var(--mn-elevation-1)",
+                            padding: "16px",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          {/* Detail grid */}
+                          <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                            {detailRows.map(({ label, value }) => (
+                              <div key={label}>
+                                <p className="text-[11px] font-medium uppercase tracking-wider mb-1" style={{ color: "var(--mn-text-tertiary)" }}>
+                                  {label}
+                                </p>
+                                <p className="text-[13px] font-semibold" style={{ color: "var(--mn-text-primary)" }}>
+                                  {value}
+                                </p>
+                              </div>
+                            ))}
                           </div>
 
-                          <div className="border-t pt-4 flex gap-2">
+                          {/* Print action */}
+                          <div style={{ borderTop: "1px solid var(--mn-surface)", paddingTop: "12px", marginTop: "16px" }}>
                             <button
                               onClick={handlePrint}
-                              className="flex items-center gap-2 px-3 py-1.5 bg-green-500 text-white rounded hover:bg-green-600 transition cursor-pointer text-sm"
+                              className="inline-flex items-center gap-2 text-white text-[13px] font-semibold transition-all cursor-pointer"
+                              style={{
+                                backgroundColor: "var(--mn-accent-3)",
+                                borderRadius: "var(--mn-radius-md)",
+                                padding: "8px 14px",
+                                border: "none",
+                                boxShadow: "var(--mn-elevation-1)",
+                              }}
+                              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.88")}
+                              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
                             >
-                              <FaPrint size={16} /> Print
+                              <Printer size={14} />
+                              Print Invoice
                             </button>
                             <div style={{ display: "none" }}>
                               <div ref={printRef}>
@@ -206,63 +258,104 @@ const OrderSideModal = ({
                               </div>
                             </div>
                           </div>
-
-                          <div className="pt-4 border-t flex justify-between gap-4">
-                            <button
-                              disabled={hasBatch}
-                              onClick={() =>
-                                router.push(
-                                  `/dashboard/order/update/${selectedOrder?._id}`
-                                )
-                              }
-                              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition ${
-                                hasBatch
-                                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                  : "bg-blue-600 text-white hover:bg-blue-700"
-                              }`}
-                            >
-                              <FaPencilAlt className="inline-block mr-2" /> Edit
-                            </button>
-                            <button
-                              onClick={() => confirmDelete(selectedOrder?._id)}
-                              className="flex-1 py-3 px-4 bg-red-100 text-red-700 rounded-lg font-semibold hover:bg-red-200 transition"
-                            >
-                              <LuTrash2 className="inline-block mr-2" /> Delete
-                            </button>
-                          </div>
                         </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
 
-                  <OrderStatus
-                    selectedOrder={selectedOrder}
-                    orderId={selectedOrder?._id}
-                    currentStatus={selectedOrder?.status || "Pending"}
-                    tableData={selectedOrder?.tableData || []}
-                    onStatusChange={(newStatus) => {
-                      if (selectedOrder) {
-                        if (setSelectedOrder) {
-                          setSelectedOrder({
-                            ...selectedOrder,
-                            status: newStatus,
-                          });
-                        }
-                        if (setOrders) {
-                          setOrders((prev) =>
-                            prev.map((order) =>
-                              order._id === selectedOrder._id
-                                ? { ...order, status: newStatus }
-                                : order
-                            )
-                          );
-                        }
-                      }
+                  {/* ── Order Status Section ── */}
+                  <div
+                    style={{
+                      backgroundColor: "#ffffff",
+                      borderRadius: "var(--mn-radius-md)",
+                      border: "1px solid var(--mn-surface)",
+                      boxShadow: "var(--mn-elevation-1)",
+                      padding: "16px",
                     }}
-                  />
+                  >
+                    <p
+                      className="text-[11px] font-semibold uppercase tracking-widest mb-3"
+                      style={{ color: "var(--mn-text-tertiary)" }}
+                    >
+                      Order Status
+                    </p>
+                    <OrderStatus
+                      selectedOrder={selectedOrder}
+                      orderId={selectedOrder?._id}
+                      currentStatus={selectedOrder?.status || "Pending"}
+                      tableData={selectedOrder?.tableData || []}
+                      onStatusChange={(newStatus) => {
+                        if (selectedOrder) {
+                          if (setSelectedOrder) {
+                            setSelectedOrder({ ...selectedOrder, status: newStatus });
+                          }
+                          if (setOrders) {
+                            setOrders((prev) =>
+                              prev.map((order) =>
+                                order._id === selectedOrder._id
+                                  ? { ...order, status: newStatus }
+                                  : order
+                              )
+                            );
+                          }
+                        }
+                      }}
+                    />
+                  </div>
                 </>
               )}
             </div>
+
+            {/* ── Footer Action Buttons ── */}
+            {!loadingOrder && (
+              <div
+                className="flex-shrink-0 flex gap-3"
+                style={{
+                  padding: "14px 20px",
+                  borderTop: "1px solid var(--mn-surface)",
+                  backgroundColor: "var(--mn-background-3)",
+                }}
+              >
+                {/* Edit */}
+                <button
+                  disabled={hasBatch}
+                  onClick={() => router.push(`/dashboard/order/update/${selectedOrder?._id}`)}
+                  className="flex-1 inline-flex items-center justify-center gap-2 text-[13px] font-semibold transition-all cursor-pointer"
+                  style={{
+                    backgroundColor: hasBatch ? "var(--mn-surface)" : "var(--mn-accent)",
+                    color: hasBatch ? "var(--mn-text-tertiary)" : "#ffffff",
+                    borderRadius: "var(--mn-radius-md)",
+                    padding: "10px 16px",
+                    border: "none",
+                    cursor: hasBatch ? "not-allowed" : "pointer",
+                    boxShadow: hasBatch ? "none" : "var(--mn-elevation-1)",
+                  }}
+                  onMouseEnter={(e) => { if (!hasBatch) e.currentTarget.style.backgroundColor = "var(--mn-accent-4)"; }}
+                  onMouseLeave={(e) => { if (!hasBatch) e.currentTarget.style.backgroundColor = "var(--mn-accent)"; }}
+                >
+                  <Pencil size={14} />
+                  Edit Order
+                </button>
+
+                {/* Delete */}
+                <button
+                  onClick={() => confirmDelete(selectedOrder?._id)}
+                  className="flex-1 inline-flex items-center justify-center gap-2 text-[13px] font-semibold transition-all cursor-pointer"
+                  style={{
+                    backgroundColor: "rgba(146,37,37,0.08)",
+                    color: "var(--mn-accent-alt)",
+                    borderRadius: "var(--mn-radius-md)",
+                    padding: "10px 16px",
+                    border: "1px solid rgba(146,37,37,0.18)",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(146,37,37,0.15)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(146,37,37,0.08)")}
+                >
+                  <Trash2 size={14} />
+                  Delete
+                </button>
+              </div>
+            )}
           </motion.div>
         </div>
       )}

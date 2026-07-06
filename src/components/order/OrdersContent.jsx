@@ -484,48 +484,48 @@ export const OrdersContent = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 text-black select-none py-2 pb-10">
+    <div className="flex flex-col gap-5 text-[#09090B] select-none py-2 pb-10">
 
       {/* Breadcrumb / Top Title Bar */}
-      <div className="flex items-center justify-between border-b border-neutral-200/80 pb-4">
-        <div className="flex items-center gap-2 text-sm text-neutral-500 font-medium">
+      <div className="flex items-center justify-between border-b border-[#E4E4E7] pb-4">
+        <div className="flex items-center gap-2 text-sm text-[#71717A] font-medium">
           <span>Dashboard</span>
-          <ChevronRight size={14} className="text-neutral-400" />
-          <span className="text-neutral-900 font-semibold">Orders</span>
+          <ChevronRight size={14} className="text-[#A1A1AA]" />
+          <span className="text-[#09090B] font-semibold">Orders</span>
         </div>
         <Link
           href="/dashboard/createOrder"
-          className="inline-flex items-center justify-center gap-1.5 bg-neutral-950 hover:bg-neutral-800 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-sm cursor-pointer"
+          className="inline-flex items-center justify-center gap-1.5 bg-[#09090B] hover:bg-[#27272A] text-white text-[12px] font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer"
         >
-          <Plus size={15} /> New Order
+          <Plus size={14} /> New Order
         </Link>
       </div>
 
-      {/* KPI Stats Cards Redesign & Chart Section (Collapsible) */}
+      {/* KPI Stats Cards & Chart Section (Collapsible) */}
       {showGraph && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Card 1: Total Orders */}
-            <div className="bg-white border border-neutral-200/80 rounded-xl p-5 shadow-sm flex flex-col justify-between h-32 hover:border-neutral-300 transition-colors">
+            <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[#D4D4D8] transition-colors">
               <div className="flex justify-between items-start">
-                <span className="text-sm font-medium text-neutral-500">Total Orders</span>
+                <span className="text-[13px] font-medium text-[#71717A]">Total Orders</span>
                 {(() => {
                   const val = stats.orderCountGrowth;
                   if (val > 0) {
                     return (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-100">
-                        <TrendingUp size={11} /> +{val.toFixed(1)}%
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F0FDF4] text-[#16A34A] text-[11px] font-semibold border border-[#BBF7D0]">
+                        <TrendingUp size={10} /> +{val.toFixed(1)}%
                       </span>
                     );
                   } else if (val < 0) {
                     return (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-50 text-rose-700 text-[11px] font-semibold border border-rose-100">
-                        <TrendingDown size={11} /> {val.toFixed(1)}%
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FEF2F2] text-[#DC2626] text-[11px] font-semibold border border-[#FECACA]">
+                        <TrendingDown size={10} /> {val.toFixed(1)}%
                       </span>
                     );
                   } else {
                     return (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-50 text-neutral-600 text-[11px] font-semibold border border-neutral-100">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F4F4F5] text-[#71717A] text-[11px] font-semibold border border-[#E4E4E7]">
                         0.0%
                       </span>
                     );
@@ -533,67 +533,68 @@ export const OrdersContent = () => {
                 })()}
               </div>
               <div className="flex flex-col mt-1">
-                <span className="text-2xl font-bold text-neutral-900 leading-none">
-                  {stats.totalOrders.toLocaleString()} orders
+                <span className="text-[22px] font-bold text-[#09090B] leading-none">
+                  {stats.totalOrders.toLocaleString()} <span className="text-[14px] font-semibold text-[#71717A]">orders</span>
                 </span>
-                <span className="text-sm font-semibold text-neutral-600 mt-1.5 leading-none">
+                <span className="text-[12px] font-medium text-[#71717A] mt-1.5 leading-none">
                   {stats.totalGoj.toLocaleString()} goj total
                 </span>
-                <span className="text-xs text-neutral-400 mt-2 font-medium">
+                <span className="text-[11px] text-[#A1A1AA] mt-1.5 font-medium">
                   Orders in {getDateRangeLabel(dateRange)}
                 </span>
               </div>
             </div>
 
             {/* Card 2: Total Customers */}
-            <div className="bg-white border border-neutral-200/80 rounded-xl p-5 shadow-sm flex flex-col justify-between h-32 hover:border-neutral-300 transition-colors">
+            <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[#D4D4D8] transition-colors">
               <div className="flex justify-between items-start">
-                <span className="text-sm font-medium text-neutral-500">Total Customers</span>
-                <Users size={16} className="text-neutral-400" />
+                <span className="text-[13px] font-medium text-[#71717A]">Total Customers</span>
+                <Users size={15} className="text-[#A1A1AA]" />
               </div>
               <div className="flex flex-col mt-2">
-                <span className="text-2xl font-bold text-neutral-900">{stats.totalCustomers}</span>
-                <span className="text-xs text-neutral-400 mt-1 font-medium">
+                <span className="text-[22px] font-bold text-[#09090B]">{stats.totalCustomers}</span>
+                <span className="text-[11px] text-[#A1A1AA] mt-1.5 font-medium">
                   Customers in {getDateRangeLabel(dateRange)}
                 </span>
               </div>
             </div>
 
             {/* Card 3: Active Orders */}
-            <div className="bg-white border border-neutral-200/80 rounded-xl p-5 shadow-sm flex flex-col justify-between h-32 hover:border-neutral-300 transition-colors">
+            <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[#D4D4D8] transition-colors">
               <div className="flex justify-between items-start">
-                <span className="text-sm font-medium text-neutral-500">Active Orders</span>
-                <Activity size={16} className="text-neutral-400" />
+                <span className="text-[13px] font-medium text-[#71717A]">Active Orders</span>
+                <Activity size={15} className="text-[#A1A1AA]" />
               </div>
               <div className="flex flex-col mt-2">
-                <span className="text-md font-bold text-neutral-900 truncate">
-                  {stats.activeCount} active / {stats.activeGoj.toLocaleString()} goj
+                <span className="text-[16px] font-bold text-[#09090B] leading-tight">
+                  {stats.activeCount} active
                 </span>
-                <span className="text-xs text-neutral-400 mt-1 font-medium">Engagement exceed</span>
+                <span className="text-[12px] font-medium text-[#71717A] mt-0.5">{stats.activeGoj.toLocaleString()} goj</span>
+                <span className="text-[11px] text-[#A1A1AA] mt-1.5 font-medium">In-progress orders</span>
               </div>
             </div>
 
             {/* Card 4: Growth Rate */}
-            <div className="bg-white border border-neutral-200/80 rounded-xl p-5 shadow-sm flex flex-col justify-between h-32 hover:border-neutral-300 transition-colors">
+            <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[#D4D4D8] transition-colors">
               <div className="flex justify-between items-start">
-                <span className="text-sm font-medium text-neutral-500">Growth Rate</span>
+                <span className="text-[13px] font-medium text-[#71717A]">Growth Rate</span>
                 {(() => {
                   const val = stats.gojGrowth;
                   if (val > 0) {
                     return (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-100">
-                        <TrendingUp size={11} /> +{val.toFixed(1)}%
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F0FDF4] text-[#16A34A] text-[11px] font-semibold border border-[#BBF7D0]">
+                        <TrendingUp size={10} /> +{val.toFixed(1)}%
                       </span>
                     );
                   } else if (val < 0) {
                     return (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-50 text-rose-700 text-[11px] font-semibold border border-rose-100">
-                        <TrendingDown size={11} /> {val.toFixed(1)}%
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FEF2F2] text-[#DC2626] text-[11px] font-semibold border border-[#FECACA]">
+                        <TrendingDown size={10} /> {val.toFixed(1)}%
                       </span>
                     );
                   } else {
                     return (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-50 text-neutral-600 text-[11px] font-semibold border border-neutral-100">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F4F4F5] text-[#71717A] text-[11px] font-semibold border border-[#E4E4E7]">
                         0.0%
                       </span>
                     );
@@ -601,21 +602,21 @@ export const OrdersContent = () => {
                 })()}
               </div>
               <div className="flex flex-col mt-2">
-                <span className="text-2xl font-bold text-neutral-900">
+                <span className="text-[22px] font-bold text-[#09090B]">
                   {stats.gojGrowth >= 0 ? "+" : ""}{stats.gojGrowth.toFixed(1)}%
                 </span>
-                <span className="text-xs text-neutral-400 mt-1 font-medium">
+                <span className="text-[11px] text-[#A1A1AA] mt-1.5 font-medium">
                   {stats.gojGrowth >= 0 ? "Meets growth projections" : "Below growth projections"}
                 </span>
               </div>
             </div>
           </div>
 
-          <Card className="border border-neutral-200/80 rounded-xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
-            <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
-              <div className="grid flex-1 gap-1">
-                <CardTitle className="text-base font-bold text-neutral-950">Order Chart</CardTitle>
-                <CardDescription className="text-xs text-neutral-400 font-medium">
+          <Card className="border border-[#E4E4E7] rounded-xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+            <CardHeader className="flex items-center gap-2 space-y-0 border-b border-[#E4E4E7] py-4 sm:flex-row">
+              <div className="grid flex-1 gap-0.5">
+                <CardTitle className="text-[14px] font-bold text-[#09090B]">Order Chart</CardTitle>
+                <CardDescription className="text-[11px] text-[#A1A1AA] font-medium">
                   {chartDescriptionText}
                 </CardDescription>
               </div>
@@ -755,11 +756,9 @@ export const OrdersContent = () => {
                 </ChartContainer>
               ) : (
                 // Fallback State when no data is available
-                <div className="flex flex-col items-center justify-center text-center p-6 bg-neutral-50/50 border border-neutral-100 rounded-lg w-full h-[250px] relative">
-                  <div className="relative z-10 flex flex-col items-center">
-                    <span className="text-neutral-500 font-bold text-sm">No data available in this range</span>
-                    <span className="text-[11px] text-neutral-400 mt-1 max-w-[280px]">There are no orders matching this filter segment to plot visual stats.</span>
-                  </div>
+                <div className="flex flex-col items-center justify-center text-center p-6 bg-[#FAFAFA] border border-[#F4F4F5] rounded-lg w-full h-[250px]">
+                  <span className="text-[#71717A] font-bold text-[13px]">No data available in this range</span>
+                  <span className="text-[11px] text-[#A1A1AA] mt-1 max-w-[280px]">There are no orders matching this filter segment to plot visual stats.</span>
                 </div>
               )}
             </CardContent>

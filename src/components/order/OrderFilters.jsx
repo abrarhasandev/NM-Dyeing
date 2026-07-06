@@ -54,35 +54,45 @@ const OrderFilters = ({
   ];
 
   return (
-    <div className="w-full mb-1">
+    <div className="w-full mb-1" style={{ fontFamily: "var(--mn-font-primary)" }}>
       {/* Figma Control Bar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-2 rounded-xl border border-neutral-200/80 shadow-sm">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white p-2 rounded-xl border shadow-sm" style={{ borderColor: "var(--mn-surface)" }}>
         {/* Left: Search box */}
         <div className="relative flex-1 min-w-[280px] lg:max-w-md">
-          <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-neutral-400">
-            <Search size={18} />
+          <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none" style={{ color: "var(--mn-text-tertiary)" }}>
+            <Search size={16} />
           </span>
           <input
             type="text"
             placeholder="Search order or company name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-16 py-2 bg-neutral-50/50 border border-neutral-200 rounded-lg text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-900 transition-all"
+            className="w-full pl-9 pr-16 py-2 rounded-lg text-[13px] transition-all focus:outline-none"
+            style={{
+              backgroundColor: "var(--mn-background-3)",
+              border: "1px solid var(--mn-surface)",
+              color: "var(--mn-text-primary)",
+            }}
+            onFocus={(e) => (e.target.style.borderColor = "var(--mn-accent)")}
+            onBlur={(e) => (e.target.style.borderColor = "var(--mn-surface)")}
           />
           <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none gap-0.5">
-            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded border border-neutral-200 bg-white text-[10px] font-medium text-neutral-400 shadow-sm">
+            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded bg-white text-[10px] font-medium shadow-sm" style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-tertiary)" }}>
               Ctrl
             </kbd>
-            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded border border-neutral-200 bg-white text-[10px] font-medium text-neutral-400 shadow-sm">
+            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded bg-white text-[10px] font-medium shadow-sm" style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-tertiary)" }}>
               K
             </kbd>
           </div>
         </div>
 
         {/* Right: Date tabs + Graph toggle + Advanced Filters Button */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Segmented Date Range Tabs */}
-          <div className="inline-flex p-1 bg-neutral-100 rounded-lg border border-neutral-200 text-xs font-medium">
+          <div
+            className="inline-flex p-1 rounded-lg text-[11px] font-medium"
+            style={{ backgroundColor: "var(--mn-surface)", border: "1px solid var(--mn-surface-alt)" }}
+          >
             {dateTabs.map((tab) => {
               const isActive = dateRange === tab.value;
               return (
@@ -90,11 +100,14 @@ const OrderFilters = ({
                   key={tab.value}
                   type="button"
                   onClick={() => handleDateRangeChange(tab.value)}
-                  className={`px-3 py-1.5 rounded-md transition-all duration-200 cursor-pointer capitalize ${
-                    isActive
-                      ? "bg-neutral-900 text-white shadow-sm"
-                      : "text-neutral-600 hover:text-neutral-950 hover:bg-neutral-200/50"
-                  }`}
+                  className="px-2.5 py-1.5 rounded-md transition-all duration-200 cursor-pointer capitalize"
+                  style={{
+                    backgroundColor: isActive ? "var(--mn-accent)" : "transparent",
+                    color: isActive ? "#ffffff" : "var(--mn-text-secondary)",
+                    boxShadow: isActive ? "var(--mn-elevation-1)" : "none",
+                  }}
+                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "rgba(28,39,76,0.08)"; }}
+                  onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "transparent"; }}
                 >
                   {tab.label}
                 </button>
@@ -103,20 +116,21 @@ const OrderFilters = ({
           </div>
 
           {/* Graph Toggle Switch */}
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-neutral-50 border border-neutral-200 rounded-lg text-xs font-medium text-neutral-700 select-none">
-            <BarChart3 size={14} className="text-neutral-500" />
+          <div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-medium select-none"
+            style={{ backgroundColor: "var(--mn-background-3)", border: "1px solid var(--mn-surface)", color: "var(--mn-text-secondary)" }}
+          >
+            <BarChart3 size={13} style={{ color: "var(--mn-text-tertiary)" }} />
             <span>Graph</span>
             <button
               type="button"
-              onClick={() => setShowGraph(!showGraph)}
-              className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                showGraph ? "bg-neutral-900" : "bg-neutral-200"
-              }`}
+              onClick={() => setShowGraph && setShowGraph(!showGraph)}
+              className="relative inline-flex h-[18px] w-8 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+              style={{ backgroundColor: showGraph ? "var(--mn-accent)" : "var(--mn-surface-alt)" }}
             >
               <span
-                className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                  showGraph ? "translate-x-4" : "translate-x-0"
-                }`}
+                className="pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                style={{ transform: showGraph ? "translateX(14px)" : "translateX(0px)", marginTop: "1px" }}
               />
             </button>
           </div>
@@ -124,25 +138,28 @@ const OrderFilters = ({
           {/* Advanced Filters Toggle Button */}
           <button
             onClick={() => setShowMoreFilters(!showMoreFilters)}
-            className={`inline-flex items-center gap-1.5 px-3 py-2 border rounded-lg text-xs font-medium cursor-pointer transition-all ${
-              showMoreFilters
-                ? "bg-neutral-900 border-neutral-900 text-white"
-                : "bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-50"
-            }`}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-medium cursor-pointer transition-all"
+            style={{
+              backgroundColor: showMoreFilters ? "var(--mn-accent)" : "white",
+              border: showMoreFilters ? "1px solid var(--mn-accent)" : "1px solid var(--mn-surface)",
+              color: showMoreFilters ? "#ffffff" : "var(--mn-text-secondary)",
+            }}
             type="button"
+            onMouseEnter={(e) => { if (!showMoreFilters) e.currentTarget.style.backgroundColor = "var(--mn-background-alt)"; }}
+            onMouseLeave={(e) => { if (!showMoreFilters) e.currentTarget.style.backgroundColor = "white"; }}
           >
-            <SlidersHorizontal size={14} />
+            <SlidersHorizontal size={13} />
             <span>Filters</span>
-            {showMoreFilters ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            {showMoreFilters ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
           </button>
         </div>
       </div>
 
       {/* Custom Date Pickers Drawer (when 'custom' range is active) */}
       {dateRange === "custom" && (
-        <div className="mt-3 flex flex-wrap items-center gap-3 p-4 bg-neutral-50 border border-neutral-200 rounded-xl animate-in fade-in slide-in-from-top-1 duration-200">
+        <div className="mt-2 flex flex-wrap items-center gap-3 p-3 rounded-xl animate-in fade-in slide-in-from-top-1 duration-200" style={{ backgroundColor: "var(--mn-background-3)", border: "1px solid var(--mn-surface)" }}>
           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <span className="text-xs font-medium text-neutral-500">Custom Range:</span>
+            <span className="text-[11px] font-medium" style={{ color: "var(--mn-text-secondary)" }}>Custom Range:</span>
             <div className="flex items-center gap-2 flex-wrap">
               {/* Start Date Picker */}
               <Popover>
@@ -150,9 +167,9 @@ const OrderFilters = ({
                   <Button
                     variant="outline"
                     id="date-picker-start"
-                    className="justify-start px-3 py-2 text-xs font-normal bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-50 min-w-[140px] shadow-sm rounded-lg"
+                    className="justify-start px-3 py-2 text-[11px] font-normal bg-white border-[#E4E4E7] text-[#71717A] hover:bg-[#FAFAFA] min-w-[140px] shadow-sm rounded-lg"
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4 text-neutral-400" />
+                    <CalendarIcon className="mr-2 h-3.5 w-3.5 text-[#A1A1AA]" />
                     {localStartDate ? (
                       format(localStartDate, "LLL dd, y")
                     ) : (
@@ -160,7 +177,7 @@ const OrderFilters = ({
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-white border border-neutral-200 shadow-xl rounded-xl z-[100]" align="start">
+                <PopoverContent className="w-auto p-0 bg-white border border-[#E4E4E7] shadow-xl rounded-xl z-[100]" align="start">
                   <Calendar
                     initialFocus
                     mode="single"
@@ -177,7 +194,7 @@ const OrderFilters = ({
                 </PopoverContent>
               </Popover>
 
-              <span className="text-xs text-neutral-400 font-semibold">to</span>
+              <span className="text-[11px] text-[#A1A1AA] font-semibold">to</span>
 
               {/* End Date Picker */}
               <Popover>
@@ -185,10 +202,10 @@ const OrderFilters = ({
                   <Button
                     variant="outline"
                     id="date-picker-end"
-                    className="justify-start px-3 py-2 text-xs font-normal bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-50 min-w-[140px] shadow-sm rounded-lg"
+                    className="justify-start px-3 py-2 text-[11px] font-normal bg-white border-[#E4E4E7] text-[#71717A] hover:bg-[#FAFAFA] min-w-[140px] shadow-sm rounded-lg"
                     disabled={!localStartDate}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4 text-neutral-400" />
+                    <CalendarIcon className="mr-2 h-3.5 w-3.5 text-[#A1A1AA]" />
                     {localEndDate ? (
                       format(localEndDate, "LLL dd, y")
                     ) : (
@@ -196,7 +213,7 @@ const OrderFilters = ({
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-white border border-neutral-200 shadow-xl rounded-xl z-[100]" align="start">
+                <PopoverContent className="w-auto p-0 bg-white border border-[#E4E4E7] shadow-xl rounded-xl z-[100]" align="start">
                   <Calendar
                     initialFocus
                     mode="single"
@@ -219,10 +236,10 @@ const OrderFilters = ({
                     setCustomStartDate(null);
                     setCustomEndDate(null);
                   }}
-                  className="p-1.5 hover:bg-neutral-200 rounded-full transition-colors text-neutral-400 hover:text-neutral-600 cursor-pointer"
+                  className="p-1.5 hover:bg-[#F4F4F5] rounded-full transition-colors text-[#A1A1AA] hover:text-[#71717A] cursor-pointer"
                   title="Clear selection"
                 >
-                  <X size={14} />
+                  <X size={13} />
                 </button>
               )}
             </div>
@@ -235,7 +252,11 @@ const OrderFilters = ({
               }
               handleCustomApply(localStartDate, localEndDate);
             }}
-            className="px-4 py-1.5 bg-neutral-900 text-white rounded-md text-xs font-medium hover:bg-neutral-800 transition cursor-pointer"
+            className="px-4 py-1.5 text-white rounded-md text-[11px] font-medium transition cursor-pointer"
+            style={{ backgroundColor: "var(--mn-accent)", borderRadius: "var(--mn-radius-sm-3)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--mn-accent-4)")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--mn-accent)")}
+            suppressHydrationWarning
           >
             Apply
           </button>
@@ -245,18 +266,19 @@ const OrderFilters = ({
       {/* Collapsible Advanced Filters Drawer */}
       <div
         className={`grid transition-all duration-300 ease-in-out ${
-          showMoreFilters ? "grid-rows-[1fr] opacity-100 mt-3" : "grid-rows-[0fr] opacity-0 pointer-events-none"
+          showMoreFilters ? "grid-rows-[1fr] opacity-100 mt-2" : "grid-rows-[0fr] opacity-0 pointer-events-none"
         }`}
       >
         <div className="overflow-hidden">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 p-4 bg-neutral-50 border border-neutral-200 rounded-xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 p-3 rounded-xl" style={{ backgroundColor: "var(--mn-background-3)", border: "1px solid var(--mn-surface)" }}>
             {/* Status Select */}
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Status</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--mn-text-tertiary)" }}>Status</label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full px-2.5 py-2 bg-white border border-neutral-200 rounded-lg text-xs font-medium text-neutral-700 focus:outline-none focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900"
+                className="w-full px-2.5 py-2 bg-white rounded-lg text-[12px] font-medium focus:outline-none"
+                style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-primary)" }}
               >
                 <option value="">All Statuses</option>
                 <option value="pending">Pending</option>
@@ -271,11 +293,12 @@ const OrderFilters = ({
 
             {/* Cloth Type Select */}
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Cloth Type</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--mn-text-tertiary)" }}>Cloth Type</label>
               <select
                 value={clotheType}
                 onChange={(e) => setClotheType(e.target.value)}
-                className="w-full px-2.5 py-2 bg-white border border-neutral-200 rounded-lg text-xs font-medium text-neutral-700 focus:outline-none focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900"
+                className="w-full px-2.5 py-2 bg-white rounded-lg text-[12px] font-medium focus:outline-none"
+                style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-primary)" }}
               >
                 <option value="">All Cloth Types</option>
                 {data?.clotheTypes?.map((item) => (
@@ -288,11 +311,12 @@ const OrderFilters = ({
 
             {/* Finishing Type Select */}
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Finishing Type</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--mn-text-tertiary)" }}>Finishing Type</label>
               <select
                 value={finishingType}
                 onChange={(e) => setFinishingType(e.target.value)}
-                className="w-full px-2.5 py-2 bg-white border border-neutral-200 rounded-lg text-xs font-medium text-neutral-700 focus:outline-none focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900"
+                className="w-full px-2.5 py-2 bg-white rounded-lg text-[12px] font-medium focus:outline-none"
+                style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-primary)" }}
               >
                 <option value="">All Finishings</option>
                 {data?.finishingTypes?.map((item) => (
@@ -305,11 +329,12 @@ const OrderFilters = ({
 
             {/* Colour Select */}
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Colour</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--mn-text-tertiary)" }}>Colour</label>
               <select
                 value={colour}
                 onChange={(e) => setColour(e.target.value)}
-                className="w-full px-2.5 py-2 bg-white border border-neutral-200 rounded-lg text-xs font-medium text-neutral-700 focus:outline-none focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900"
+                className="w-full px-2.5 py-2 bg-white rounded-lg text-[12px] font-medium focus:outline-none"
+                style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-primary)" }}
               >
                 <option value="">All Colours</option>
                 {data?.colours?.map((item) => (
@@ -322,11 +347,12 @@ const OrderFilters = ({
 
             {/* Sill Name Select */}
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Sill Name</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--mn-text-tertiary)" }}>Sill Name</label>
               <select
                 value={sillName}
                 onChange={(e) => setSillName(e.target.value)}
-                className="w-full px-2.5 py-2 bg-white border border-neutral-200 rounded-lg text-xs font-medium text-neutral-700 focus:outline-none focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900"
+                className="w-full px-2.5 py-2 bg-white rounded-lg text-[12px] font-medium focus:outline-none"
+                style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-primary)" }}
               >
                 <option value="">All Sills</option>
                 {data?.sillNames?.map((item) => (
@@ -339,11 +365,12 @@ const OrderFilters = ({
 
             {/* Quality Select */}
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Quality</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--mn-text-tertiary)" }}>Quality</label>
               <select
                 value={quality}
                 onChange={(e) => setQuality(e.target.value)}
-                className="w-full px-2.5 py-2 bg-white border border-neutral-200 rounded-lg text-xs font-medium text-neutral-700 focus:outline-none focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900"
+                className="w-full px-2.5 py-2 bg-white rounded-lg text-[12px] font-medium focus:outline-none"
+                style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-primary)" }}
               >
                 <option value="">All Qualities</option>
                 {data?.qualities?.map((item) => (
