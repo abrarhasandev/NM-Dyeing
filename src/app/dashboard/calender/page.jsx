@@ -56,23 +56,23 @@ export default function CalenderPage() {
   );
 
   return (
-    <div className="min-h-screen pt-10 md:pt-10 p-4 md:p-8">
+    <div className="min-h-screen pt-10 md:pt-10 p-4 md:p-8 bg-[#f7f7f4] text-[#26251e]">
       <div className="max-w-7xl mx-auto">
         
         {/* HEADER SECTION */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-6 lg:mt-0">
           <div className="flex items-center gap-3">
-            <div className="bg-[#e0fcf6] p-2.5 rounded-lg border border-[#c6f6eb]">
-              <CalendarIcon className="text-[#0694a2]" size={28} />
+            <div className="bg-[#f2f1ed] p-2.5 rounded-sm border border-[#26251e]/10">
+              <CalendarIcon className="text-[#26251e]" size={28} />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-[#1e293b]">Calendar</h1>
-              <p className="text-sm text-gray-500 font-medium">Manage schedules and events</p>
+              <h1 className="text-2xl font-normal text-[#26251e] tracking-tight">Calendar</h1>
+              <p className="text-sm text-[#26251e]/60 font-normal">Manage schedules and events</p>
             </div>
           </div>
           <Link 
             href="/dashboard/calender/createCalender" 
-            className="inline-flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2.5 rounded-lg font-semibold transition shadow-sm shadow-blue-200"
+            className="inline-flex items-center justify-center gap-2 bg-[#26251e] hover:bg-[#3b3a33] text-[#f7f7f4] px-5 py-2.5 rounded-sm font-normal transition"
           >
             <Plus size={18} /> Add Event
           </Link>
@@ -80,70 +80,70 @@ export default function CalenderPage() {
 
         {/* SEARCH BAR */}
         <div className="relative mb-6 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#26251e]/40" size={18} />
           <input
             type="text"
             placeholder="Search events..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition shadow-sm"
+            className="w-full pl-10 pr-4 py-2 bg-[#f2f1ed] border border-[#26251e]/10 rounded-sm focus:outline-none focus:border-[#26251e] focus:ring-1 focus:ring-[#26251e] text-[#26251e] transition"
           />
         </div>
 
         {/* STATS CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider">Total Events</p>
-            <p className="text-3xl font-extrabold text-gray-900 mt-1">{calenders.length}</p>
+          <div className="bg-[#f2f1ed] p-6 rounded-sm border border-[#26251e]/10 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <p className="text-xs font-medium text-[#26251e]/60 uppercase tracking-wide">Total Events</p>
+            <p className="text-3xl font-normal text-[#26251e] mt-1">{calenders.length}</p>
           </div>
-          <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider">Active</p>
-            <p className="text-3xl font-extrabold text-[#0694a2] mt-1">{calenders.length}</p>
+          <div className="bg-[#f2f1ed] p-6 rounded-sm border border-[#26251e]/10 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <p className="text-xs font-medium text-[#26251e]/60 uppercase tracking-wide">Active</p>
+            <p className="text-3xl font-normal text-[#1f8a65] mt-1">{calenders.length}</p>
           </div>
         </div>
 
         {/* TABLE SECTION */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-[#f2f1ed] rounded-sm border border-[#26251e]/10 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)] overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#f8fafc] border-b border-gray-200">
-                  <th className="px-6 py-4 text-xs font-bold text-[#475569] uppercase tracking-wider">Event Name</th>
-                  <th className="px-6 py-4 text-xs font-bold text-[#475569] uppercase tracking-wider">Location</th>
-                  <th className="px-6 py-4 text-xs font-bold text-[#475569] uppercase tracking-wider text-right">Action</th>
+                <tr className="border-b border-[#26251e]/10">
+                  <th className="px-6 py-4 text-xs font-medium text-[#26251e]/60 uppercase tracking-wide">Event Name</th>
+                  <th className="px-6 py-4 text-xs font-medium text-[#26251e]/60 uppercase tracking-wide">Location</th>
+                  <th className="px-6 py-4 text-xs font-medium text-[#26251e]/60 uppercase tracking-wide text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-[#26251e]/5">
                 {loading ? (
                    <tr>
                     <td colSpan={3} className="py-20">
-                      <div className="flex justify-center"><div className="animate-spin rounded-full h-10 w-10 border-t-2 border-blue-600"></div></div>
+                      <div className="flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#26251e]"></div></div>
                     </td>
                   </tr>
                 ) : filteredData.length > 0 ? (
                   filteredData.map((c) => (
-                    <tr key={c._id} className="hover:bg-gray-50 transition-colors group">
-                      <td className="px-6 py-4 text-sm font-semibold text-[#1e293b]">{c.name}</td>
-                      <td className="px-6 py-4 text-sm text-[#475569] font-medium">{c.location || "N/A"}</td>
+                    <tr key={c._id} className="hover:bg-[#ebeae5] transition-colors group">
+                      <td className="px-6 py-4 text-sm font-medium text-[#26251e]">{c.name}</td>
+                      <td className="px-6 py-4 text-sm text-[#26251e]/70">{c.location || "N/A"}</td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
                           <Link
                             href={`/dashboard/calender/profile/${c._id}`}
-                            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition"
+                            className="p-1.5 text-[#26251e]/40 hover:text-[#26251e] hover:bg-[#26251e]/5 rounded-sm transition"
                           >
-                            <Eye size={19} />
+                            <Eye size={18} />
                           </Link>
                           <Link
                             href={`/dashboard/calender/edit/${c._id}`}
-                            className="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-md transition"
+                            className="p-1.5 text-[#26251e]/40 hover:text-[#f54e00] hover:bg-[#f54e00]/10 rounded-sm transition"
                           >
-                            <Pencil size={19} />
+                            <Pencil size={18} />
                           </Link>
                           <button
                             onClick={() => handleDelete(c._id)}
-                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition cursor-pointer"
+                            className="p-1.5 text-[#26251e]/40 hover:text-[#cf2d56] hover:bg-[#cf2d56]/10 rounded-sm transition cursor-pointer"
                           >
-                            <Trash2 size={19} />
+                            <Trash2 size={18} />
                           </button>
                         </div>
                       </td>
@@ -151,7 +151,7 @@ export default function CalenderPage() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={3} className="text-center py-12 text-gray-400 font-medium">No events found</td>
+                    <td colSpan={3} className="text-center py-12 text-[#26251e]/40 text-sm font-normal">No events found</td>
                   </tr>
                 )}
               </tbody>

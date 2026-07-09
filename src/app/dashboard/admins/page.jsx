@@ -17,18 +17,18 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, message }) => {
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full border border-gray-100">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">{message}</h2>
+      <div className="bg-[#f2f1ed] p-6 rounded-sm shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] max-w-sm w-full border border-[#26251e]/10">
+        <h2 className="text-lg font-normal text-[#26251e] mb-5">{message}</h2>
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="bg-gray-100 hover:bg-gray-200 text-gray-600 px-5 py-2 rounded-lg font-medium transition cursor-pointer"
+            className="bg-transparent border border-[#26251e]/20 hover:bg-[#26251e]/5 text-[#26251e] px-5 py-2 rounded-sm font-medium transition cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg font-medium transition cursor-pointer"
+            className="bg-[#cf2d56] hover:bg-[#b3003f] text-[#f7f7f4] px-5 py-2 rounded-sm font-medium transition cursor-pointer"
           >
             Delete
           </button>
@@ -87,23 +87,23 @@ const AdminPage = () => {
   );
 
   return (
-    <div className="min-h-screen py-12 md:py-16 lg:py-6">
+    <div className="min-h-screen py-12 md:py-16 lg:py-6 bg-[#f7f7f4] text-[#26251e]">
       <div className="max-w-7xl mx-auto">
         
         {/* HEADER SECTION */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
-            <div className="bg-blue-50 p-2.5 rounded-lg border border-blue-100">
-              <ShieldCheck className="text-blue-600" size={28} />
+            <div className="bg-[#f2f1ed] p-2.5 rounded-sm border border-[#26251e]/10">
+              <ShieldCheck className="text-[#26251e]" size={28} />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-[#1e293b]">Admin Management</h1>
-              <p className="text-sm text-gray-500">Manage system administrators</p>
+              <h1 className="text-2xl font-normal text-[#26251e] tracking-tight">Admin Management</h1>
+              <p className="text-sm text-[#26251e]/60 font-normal">Manage system administrators</p>
             </div>
           </div>
           <Link 
             href="/dashboard/signup" 
-            className="inline-flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2.5 rounded-lg font-medium transition shadow-sm shadow-blue-200"
+            className="inline-flex items-center justify-center gap-2 bg-[#26251e] hover:bg-[#3b3a33] text-[#f7f7f4] px-5 py-2.5 rounded-sm font-normal transition"
           >
             <Plus size={18} /> Add Admin
           </Link>
@@ -111,57 +111,57 @@ const AdminPage = () => {
 
         {/* SEARCH BAR */}
         <div className="relative mb-6 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#26251e]/40" size={18} />
           <input
             type="text"
             placeholder="Search admins..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition shadow-sm"
+            className="w-full pl-10 pr-4 py-2 bg-[#f2f1ed] border border-[#26251e]/10 rounded-sm focus:outline-none focus:border-[#26251e] focus:ring-1 focus:ring-[#26251e] text-[#26251e] transition"
           />
         </div>
 
         {/* STATS CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-            <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Admins</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{admins.length}</p>
+          <div className="bg-[#f2f1ed] p-6 rounded-sm border border-[#26251e]/10 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <p className="text-xs font-medium text-[#26251e]/60 uppercase tracking-wide">Total Admins</p>
+            <p className="text-3xl font-normal text-[#26251e] mt-1">{admins.length}</p>
           </div>
-          <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-            <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Active</p>
-            <p className="text-3xl font-bold text-green-600 mt-1">{admins.length}</p>
+          <div className="bg-[#f2f1ed] p-6 rounded-sm border border-[#26251e]/10 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <p className="text-xs font-medium text-[#26251e]/60 uppercase tracking-wide">Active</p>
+            <p className="text-3xl font-normal text-[#1f8a65] mt-1">{admins.length}</p>
           </div>
-          <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-            <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Inactive</p>
-            <p className="text-3xl font-bold text-gray-400 mt-1">0</p>
+          <div className="bg-[#f2f1ed] p-6 rounded-sm border border-[#26251e]/10 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <p className="text-xs font-medium text-[#26251e]/60 uppercase tracking-wide">Inactive</p>
+            <p className="text-3xl font-normal text-[#26251e]/40 mt-1">0</p>
           </div>
         </div>
 
         {/* TABLE SECTION */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-[#f2f1ed] rounded-sm border border-[#26251e]/10 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)] overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#f8fafc] border-b border-gray-200">
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Role</th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Action</th>
+                <tr className="border-b border-[#26251e]/10">
+                  <th className="px-6 py-4 text-xs font-medium text-[#26251e]/60 uppercase tracking-wide">Name</th>
+                  <th className="px-6 py-4 text-xs font-medium text-[#26251e]/60 uppercase tracking-wide">Email</th>
+                  <th className="px-6 py-4 text-xs font-medium text-[#26251e]/60 uppercase tracking-wide">Role</th>
+                  <th className="px-6 py-4 text-xs font-medium text-[#26251e]/60 uppercase tracking-wide">Status</th>
+                  <th className="px-6 py-4 text-xs font-medium text-[#26251e]/60 uppercase tracking-wide text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-[#26251e]/5">
                 {filteredAdmins.map((admin) => (
-                  <tr key={admin._id} className="hover:bg-gray-50 transition-colors group">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-800">{admin.name}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{admin.email}</td>
+                  <tr key={admin._id} className="hover:bg-[#ebeae5] transition-colors group">
+                    <td className="px-6 py-4 text-sm font-medium text-[#26251e]">{admin.name}</td>
+                    <td className="px-6 py-4 text-sm text-[#26251e]/70">{admin.email}</td>
                     <td className="px-6 py-4">
-                      <span className="px-3 py-1 text-[11px] font-bold bg-blue-50 text-blue-600 rounded-full uppercase">
+                      <span className="px-3 py-1 text-[11px] font-medium bg-[#26251e]/5 text-[#26251e] rounded-sm uppercase tracking-wide">
                         Admin
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-sm text-[11px] font-medium bg-[#1f8a65]/10 text-[#1f8a65] uppercase tracking-wide">
                         active
                       </span>
                     </td>
@@ -171,7 +171,7 @@ const AdminPage = () => {
                       
                         <button 
                           onClick={() => handleDeleteClick(admin._id)}
-                          className="p-1.5 text-white bg-red-600 hover:text-red-600 hover:bg-red-50 rounded-md transition cursor-pointer"
+                          className="p-1.5 text-[#26251e]/40 hover:text-[#cf2d56] hover:bg-[#cf2d56]/10 rounded-sm transition cursor-pointer"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -186,7 +186,7 @@ const AdminPage = () => {
           {/* EMPTY STATE */}
           {!loading && filteredAdmins.length === 0 && (
             <div className="py-20 text-center">
-              <p className="text-gray-500 font-medium">No admins found matching your search.</p>
+              <p className="text-[#26251e]/40 text-sm font-normal">No admins found matching your search.</p>
             </div>
           )}
         </div>

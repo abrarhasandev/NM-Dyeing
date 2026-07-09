@@ -203,7 +203,6 @@ export default function LedgerPrint({
           </thead>
 
           <tbody className="divide-y divide-gray-100">
-            {" "}
             {/* Rows are separated by very subtle lines */}
             {rows?.map((row, idx) => (
               <tr

@@ -140,12 +140,12 @@ export default function Page() {
 
   return (
     <div className="py-10 max-w-4xl mx-auto px-4 space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800 border-b pb-3">
+      <h1 className="text-2xl font-normal text-[#26251e] border-b border-[#26251e]/10 pb-3 tracking-tight">
         Accounts Section
       </h1>
 
       {/* ✅ Toggle Tabs */}
-      <div className="flex  bg-gray-100 p-1 rounded-xl shadow-inner">
+      <div className="flex bg-[#f2f1ed] p-1 rounded-sm shadow-[inset_0_0_0_1px_rgba(38,37,30,0.1)]">
         {[
           { id: "customer", label: "Customer", icon: <FaUser /> },
           { id: "dyeing", label: "Dyeing", icon: <FaFillDrip /> },
@@ -154,9 +154,9 @@ export default function Page() {
           <button
             key={tab.id}
             onClick={() => setType(tab.id)}
-            className={`flex-1 flex items-center justify-center cursor-pointer gap-2 py-2.5 rounded-lg font-bold transition-all ${type === tab.id
-                ? "bg-white text-blue-600 shadow-md"
-                : "text-gray-500 hover:text-gray-700"
+            className={`flex-1 flex items-center justify-center cursor-pointer gap-2 py-2.5 rounded-sm font-medium transition-all ${type === tab.id
+                ? "bg-[#26251e] text-[#f7f7f4] shadow-sm"
+                : "text-[#26251e]/60 hover:text-[#26251e] hover:bg-[#26251e]/5"
               }`}
           >
             {tab.icon} {tab.label}
@@ -168,11 +168,11 @@ export default function Page() {
       <div className="relative" ref={dropdownRef}>
         <div
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="w-full border-2 border-gray-200 p-3 rounded-lg bg-white cursor-pointer flex justify-between items-center hover:border-blue-300 transition"
+          className="w-full border border-[#26251e]/10 p-3 rounded-sm bg-[#f2f1ed] cursor-pointer flex justify-between items-center hover:border-[#26251e]/30 transition shadow-sm"
         >
           <span
             className={
-              currentSelection ? "font-semibold text-gray-800" : "text-gray-400"
+              currentSelection ? "font-medium text-[#26251e]" : "text-[#26251e]/40"
             }
           >
             {currentSelection
@@ -182,14 +182,14 @@ export default function Page() {
               }`
               : `Select ${type}...`}
           </span>
-          <span>{isDropdownOpen ? "▲" : "▼"}</span>
+          <span className="text-[#26251e]/40">{isDropdownOpen ? "▲" : "▼"}</span>
         </div>
 
         {isDropdownOpen && (
-          <div className="absolute z-20 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-2xl overflow-hidden">
+          <div className="absolute z-20 w-full mt-1 bg-[#f2f1ed] border border-[#26251e]/10 rounded-sm shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)] overflow-hidden">
             <input
               type="text"
-              className="w-full p-3 border-b outline-none focus:bg-blue-50"
+              className="w-full p-3 border-b border-[#26251e]/10 outline-none bg-transparent focus:bg-[#26251e]/5 text-[#26251e]"
               placeholder={`Search ${type}...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -204,9 +204,9 @@ export default function Page() {
                     setIsDropdownOpen(false);
                     setSearchTerm("");
                   }}
-                  className="p-3 hover:bg-blue-600 hover:text-white cursor-pointer border-b last:border-0 transition"
+                  className="p-3 hover:bg-[#26251e] hover:text-[#f7f7f4] cursor-pointer border-b border-[#26251e]/5 last:border-0 transition"
                 >
-                  <div className="font-bold">{ent.companyName || ent.name}</div>
+                  <div className="font-medium">{ent.companyName || ent.name}</div>
                   <div className="text-xs opacity-80">
                     {ent.ownerName || "No Owner Info"}
                   </div>
@@ -220,17 +220,17 @@ export default function Page() {
       {selectedId && (
         <>
           {/* ✅ Total Card */}
-          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-2xl shadow-lg flex justify-between items-center">
+          <div className="bg-[#26251e] text-[#f7f7f4] p-6 rounded-sm shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)] flex justify-between items-center border border-[#26251e]">
             <div>
-              <p className="text-sm opacity-90 uppercase tracking-widest font-semibold">
+              <p className="text-xs text-[#f7f7f4]/70 uppercase tracking-wide font-medium">
                 Total Received
               </p>
-              <h2 className="text-3xl font-black">
+              <h2 className="text-3xl font-normal mt-1">
                 ৳ {total.toLocaleString()}
               </h2>
             </div>
             {form.id && (
-              <div className="bg-yellow-400 text-yellow-900 px-4 py-1 rounded-full text-xs font-bold animate-pulse">
+              <div className="bg-[#f54e00]/20 text-[#f54e00] border border-[#f54e00]/30 px-3 py-1 rounded-sm text-xs font-medium animate-pulse">
                 EDITING MODE
               </div>
             )}
@@ -239,10 +239,10 @@ export default function Page() {
           {/* ✅ Form */}
           <form
             onSubmit={handleSubmit}
-            className="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm grid grid-cols-1 md:grid-cols-2 gap-5"
+            className="bg-[#f2f1ed] border border-[#26251e]/10 p-6 rounded-sm shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)] grid grid-cols-1 md:grid-cols-2 gap-5"
           >
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-[#26251e]/60 uppercase tracking-wide">
                 Amount
               </label>
               <input
@@ -250,20 +250,20 @@ export default function Page() {
                 name="amount"
                 value={form.amount}
                 onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                className="w-full border-2 border-gray-50 p-2.5 rounded-lg focus:border-blue-400 outline-none bg-gray-50 font-semibold"
+                className="w-full border border-[#26251e]/10 p-2.5 rounded-sm focus:border-[#26251e] focus:ring-1 focus:ring-[#26251e] outline-none bg-white text-[#26251e]"
                 placeholder="0.00"
                 required
               />
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-[#26251e]/60 uppercase tracking-wide">
                 Method
               </label>
               <select
                 name="method"
                 value={form.method}
                 onChange={(e) => setForm({ ...form, method: e.target.value })}
-                className="w-full border-2 border-gray-50 p-2.5 rounded-lg focus:border-blue-400 outline-none bg-gray-50 font-semibold"
+                className="w-full border border-[#26251e]/10 p-2.5 rounded-sm focus:border-[#26251e] focus:ring-1 focus:ring-[#26251e] outline-none bg-white text-[#26251e]"
               >
                 <option value="cash">Cash</option>
                 <option value="bank">Bank</option>
@@ -272,8 +272,8 @@ export default function Page() {
                 <option value="check">Check</option>
               </select>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-[#26251e]/60 uppercase tracking-wide">
                 Date
               </label>
               <input
@@ -281,11 +281,11 @@ export default function Page() {
                 name="date"
                 value={form.date}
                 onChange={(e) => setForm({ ...form, date: e.target.value })}
-                className="w-full border-2 border-gray-50 p-2.5 rounded-lg focus:border-blue-400 outline-none bg-gray-50 font-semibold"
+                className="w-full border border-[#26251e]/10 p-2.5 rounded-sm focus:border-[#26251e] focus:ring-1 focus:ring-[#26251e] outline-none bg-white text-[#26251e]"
               />
             </div>
-            <div className="md:col-span-2 space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase">
+            <div className="md:col-span-2 space-y-1.5">
+              <label className="text-xs font-medium text-[#26251e]/60 uppercase tracking-wide">
                 Description
               </label>
               <textarea
@@ -294,17 +294,17 @@ export default function Page() {
                 onChange={(e) =>
                   setForm({ ...form, description: e.target.value })
                 }
-                className="w-full border-2 border-gray-50 p-2.5 rounded-lg focus:border-blue-400 outline-none bg-gray-50"
+                className="w-full border border-[#26251e]/10 p-2.5 rounded-sm focus:border-[#26251e] focus:ring-1 focus:ring-[#26251e] outline-none bg-white text-[#26251e]"
                 placeholder="Note here..."
                 rows="2"
               />
             </div>
-            <div className="md:col-span-2 flex gap-3">
+            <div className="md:col-span-2 flex gap-3 pt-2">
               <button
                 type="submit"
-                className={`flex-1 cursor-pointer py-3 rounded-xl font-bold text-white shadow-lg transition-all ${form.id
-                    ? "bg-orange-500 hover:bg-orange-600"
-                    : "bg-blue-600 hover:bg-blue-700"
+                className={`flex-1 cursor-pointer py-2.5 rounded-sm font-medium text-[#f7f7f4] transition-all shadow-sm ${form.id
+                    ? "bg-[#f54e00] hover:bg-[#d44100]"
+                    : "bg-[#26251e] hover:bg-[#3b3a33]"
                   }`}
               >
                 {form.id ? "Update Entry" : "Save Payment"}
@@ -321,7 +321,7 @@ export default function Page() {
                       date: new Date().toISOString().slice(0, 10),
                     })
                   }
-                  className="bg-gray-200 text-gray-600 px-6 rounded-xl font-bold hover:bg-gray-300"
+                  className="bg-transparent border border-[#26251e]/20 text-[#26251e] px-6 rounded-sm font-medium hover:bg-[#26251e]/5 transition-colors shadow-sm"
                 >
                   Cancel
                 </button>
@@ -330,54 +330,54 @@ export default function Page() {
           </form>
 
           {/* ✅ Table */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="bg-[#f2f1ed] rounded-sm shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)] border border-[#26251e]/10 overflow-hidden">
             <table className="w-full text-left border-collapse text-sm">
-              <thead className="bg-gray-50">
+              <thead className="bg-[#ebeae5]">
                 <tr>
-                  <th className="p-4 font-bold text-gray-600 border-b">Date</th>
-                  <th className="p-4 font-bold text-gray-600 border-b">
+                  <th className="p-4 font-medium text-[#26251e]/60 uppercase tracking-wide text-xs border-b border-[#26251e]/10">Date</th>
+                  <th className="p-4 font-medium text-[#26251e]/60 uppercase tracking-wide text-xs border-b border-[#26251e]/10">
                     Method
                   </th>
-                  <th className="p-4 font-bold text-gray-600 border-b">
+                  <th className="p-4 font-medium text-[#26251e]/60 uppercase tracking-wide text-xs border-b border-[#26251e]/10">
                     Description
                   </th>
-                  <th className="p-4 font-bold text-gray-600 border-b text-right">
+                  <th className="p-4 font-medium text-[#26251e]/60 uppercase tracking-wide text-xs border-b border-[#26251e]/10 text-right">
                     Amount
                   </th>
-                  <th className="p-4 font-bold text-gray-600 border-b text-center">
+                  <th className="p-4 font-medium text-[#26251e]/60 uppercase tracking-wide text-xs border-b border-[#26251e]/10 text-center">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-[#26251e]/5">
                 {payments.map((p) => (
-                  <tr key={p._id} className="hover:bg-blue-50/30 transition">
-                    <td className="p-4 text-gray-700">
+                  <tr key={p._id} className="hover:bg-[#ebeae5] transition-colors group">
+                    <td className="p-4 text-[#26251e]">
                       {new Date(p.date).toLocaleDateString()}
                     </td>
                     <td className="p-4">
-                      <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter">
+                      <span className="bg-[#26251e]/5 text-[#26251e] px-2.5 py-1 rounded-sm text-[10px] font-medium uppercase tracking-wide">
                         {p.method}
                       </span>
                     </td>
-                    <td className="p-4 text-gray-500 max-w-[150px] truncate">
+                    <td className="p-4 text-[#26251e]/70 max-w-[150px] truncate">
                       {p.description || "-"}
                     </td>
-                    <td className="p-4 text-right font-bold text-gray-800">
+                    <td className="p-4 text-right font-medium text-[#26251e]">
                       ৳ {p.amount.toLocaleString()}
                     </td>
                     <td className="p-4 text-center space-x-3">
                       <button
                         onClick={() => handleEdit(p)}
-                        className="text-blue-500 hover:scale-110 transition inline-block"
+                        className="text-[#26251e]/40 hover:text-[#f54e00] hover:bg-[#f54e00]/10 p-1.5 rounded-sm transition inline-flex"
                       >
-                        <FaEdit size={18} />
+                        <FaEdit size={16} />
                       </button>
                       <button
                         onClick={() => handleDelete(p._id)}
-                        className="text-red-500 hover:scale-110 transition inline-block"
+                        className="text-[#26251e]/40 hover:text-[#cf2d56] hover:bg-[#cf2d56]/10 p-1.5 rounded-sm transition inline-flex"
                       >
-                        <MdDeleteForever size={20} />
+                        <MdDeleteForever size={18} />
                       </button>
                     </td>
                   </tr>
