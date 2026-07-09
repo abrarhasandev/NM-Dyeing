@@ -9,8 +9,10 @@ import {
   Trash2,
   Truck,
   TrendingDown,
+  TrendingUp,
   FileText,
   ChevronsUpDown,
+  XCircle,
   X,
 } from "lucide-react";
 
@@ -122,25 +124,54 @@ const renderGojDetails = (order: any, orderId: string, totalGojVal: number, tota
   const batchBundle = order?.batchSummary?.totalBatchBundle || 0;
   const batchGoj = order?.batchSummary?.totalBatchGoj || 0;
 
-  const remainingBundle = totalBundleVal - batchBundle;
-  const remainingGoj = totalGojVal - batchGoj;
+  const dispatchCount = order?.batchSummary?.dispatchCount || 0;
+  const dispatchTotalBundle = order?.batchSummary?.dispatchTotalBundle || 0;
+  const dispatchTotalGoj = order?.batchSummary?.dispatchTotalGoj || 0;
+  const dispatchOriginalGoj = order?.batchSummary?.dispatchOriginalGoj || 0;
+
+  const remainingBundle = Math.max(0, totalBundleVal - batchBundle);
+  const remainingGoj = Math.max(0, totalGojVal - batchGoj);
+
+  const isCompleted = ["done", "completed", "delivered", "completedprocess", "complete"].includes(status);
 
   const rows = [];
   
   if (status !== "pending") {
-    // Row 2: Remaining
-    rows.push({
-      icon: "clock",
-      text: `${remainingBundle}~${remainingGoj}`,
-      cls: "text-[#26251e]/60 bg-[#f7f7f4] border-[color-mix(in_oklab,#26251e_10%,transparent)]",
-    });
+    if (!isCompleted) {
+      // Row 2: Remaining Unbatched
+      if (remainingBundle > 0 || remainingGoj > 0) {
+        rows.push({
+          icon: "x",
+          text: `${remainingBundle}~${remainingGoj}`,
+          cls: "text-[#26251e]/60 bg-[#f7f7f4] border-[color-mix(in_oklab,#26251e_10%,transparent)]",
+        });
+      }
 
-    // Row 3: Batch Totals
-    if (batchCount > 0) {
+      // Row 3: All Batches in process
+      if (batchCount > 0) {
+        rows.push({
+          icon: "clock",
+          text: `${batchCount}/ ${batchBundle}~${batchGoj}`,
+          cls: "text-[#3a6a9f] bg-[#3a6a9f]/10 border-[#3a6a9f]/20",
+        });
+      }
+    }
+
+    // Row 4: Dispatch Totals
+    if (dispatchCount > 0) {
+      let trend = null;
+      let trendNum = 0;
+      if (dispatchOriginalGoj > 0) {
+        trendNum = ((dispatchTotalGoj - dispatchOriginalGoj) / dispatchOriginalGoj) * 100;
+        trend = `${trendNum > 0 ? "+" : ""}${trendNum.toFixed(1)}%`;
+      }
+
       rows.push({
         icon: "check",
-        text: `${batchCount}/ ${batchBundle}~${batchGoj}`,
+        text: `${dispatchCount}/ ${dispatchTotalBundle}~${dispatchTotalGoj}`,
         cls: "text-[#1f8a65] bg-[#1f8a65]/10 border-[#1f8a65]/20",
+        trend: trend,
+        trendIsDown: trendNum < 0,
       });
     }
   }
@@ -155,14 +186,14 @@ const renderGojDetails = (order: any, orderId: string, totalGojVal: number, tota
           {rows.map((rec, i) => (
             <div key={i} className="flex items-center gap-1">
               <span className={`inline-flex items-center gap-0.5 px-1.5 py-[2px] rounded-[4px] border text-[9px] font-semibold ${rec.cls}`}>
-                {rec.icon === "x" && <X size={7} strokeWidth={3} className="shrink-0" />}
+                {rec.icon === "x" && <XCircle size={7} strokeWidth={3} className="shrink-0" />}
                 {rec.icon === "clock" && <Clock size={7} className="shrink-0" />}
                 {rec.icon === "check" && <CheckCircle2 size={7} className="shrink-0" />}
                 <span>{rec.text}</span>
               </span>
               {rec.trend && (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-[2px] rounded-[4px] border border-[#cf2d56]/20 bg-[#f7f7f4] text-[#cf2d56] text-[9px] font-bold">
-                  <TrendingDown size={7} className="shrink-0" />
+                <span className={`inline-flex items-center gap-0.5 px-1.5 py-[2px] rounded-[4px] border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[9px] font-bold ${rec.trendIsDown ? 'text-[#cf2d56]' : 'text-[#1f8a65]'}`}>
+                  {rec.trendIsDown ? <TrendingDown size={7} className="shrink-0" /> : <TrendingUp size={7} className="shrink-0" />}
                   <span className="text-[#26251e]">{rec.trend}</span>
                 </span>
               )}

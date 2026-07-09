@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import connectDB from "@/lib/db";
 import Order from "@/models/Order";
 import Batch from "@/models/Batch";
@@ -307,6 +308,10 @@ export async function GET(req) {
       let totalBatchBundle = 0;
       let totalBatchGoj = 0;
       let batchCount = 0;
+      let dispatchCount = 0;
+      let dispatchTotalBundle = 0;
+      let dispatchTotalGoj = 0;
+      let dispatchOriginalGoj = 0;
 
       if (batchDoc && batchDoc.batches) {
         batchCount = batchDoc.batches.length;
@@ -314,6 +319,15 @@ export async function GET(req) {
           if (b.rows) {
             totalBatchBundle += b.rows.length;
             totalBatchGoj += b.rows.reduce((sum, row) => sum + (Number(row.goj) || 0), 0);
+          }
+          
+          if (["delivered", "billing", "completed"].includes(b.status)) {
+            dispatchCount += 1;
+            if (b.rows) {
+              dispatchTotalBundle += b.rows.length;
+              dispatchTotalGoj += b.rows.reduce((sum, row) => sum + (Number(row.idx) || 0), 0);
+              dispatchOriginalGoj += b.rows.reduce((sum, row) => sum + (Number(row.goj) || 0), 0);
+            }
           }
         });
       }
@@ -324,6 +338,10 @@ export async function GET(req) {
           batchCount,
           totalBatchBundle,
           totalBatchGoj,
+          dispatchCount,
+          dispatchTotalBundle,
+          dispatchTotalGoj,
+          dispatchOriginalGoj,
         },
       };
     });
@@ -354,7 +372,7 @@ export async function GET(req) {
       headers: {
         // Private to the browser; fresh for 15s; serve stale for up to 60s
         // while revalidating in the background — no stale data risk for order lists
-        "Cache-Control": "private, max-age=15, stale-while-revalidate=60",
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
       },
     });
   } catch (error) {
