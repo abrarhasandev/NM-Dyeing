@@ -208,6 +208,7 @@ export const OrdersContent = () => {
     setSelectedOrder,
     fetchSingleOrder,
     deleteOrder,
+    fetchOrders,
   } = useOrders({
     currentPage,
     itemsPerPage,
