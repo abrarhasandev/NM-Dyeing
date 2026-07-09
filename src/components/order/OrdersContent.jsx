@@ -20,6 +20,7 @@ import ConfirmationModal from "@/components/order/ConfirmationModal";
 import OrderFilters from "@/components/order/OrderFilters";
 import OrderTable from "@/components/order/OrderTable";
 import PaginationControls from "@/components/order/PaginationControls";
+import OrderSkeleton from "@/components/order/OrderSkeleton";
 import useAppData from "@/hook/useAppData";
 import useOrders from "@/hook/useOrder";
 import dayjs from "dayjs";
@@ -72,6 +73,9 @@ export const OrdersContent = () => {
   const [quality, setQuality] = useState("");
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [showGraph, setShowGraph] = useState(true);
+
+  // Track whether the very first data fetch has resolved
+  const [initialLoaded, setInitialLoaded] = useState(false);
 
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -218,6 +222,13 @@ export const OrdersContent = () => {
     quality,
     skip: !isInitialized,
   });
+
+  // Mark initial load complete once loadingOrders transitions false for the first time
+  React.useEffect(() => {
+    if (!loadingOrders && isInitialized && !initialLoaded) {
+      setInitialLoaded(true);
+    }
+  }, [loadingOrders, isInitialized, initialLoaded]);
 
   // URL-e ID thakle seta auto load hobe (Refresh korle kaj korbe)
   useEffect(() => {
@@ -483,8 +494,27 @@ export const OrdersContent = () => {
     },
   };
 
+  // Show skeleton on the very first load (before any data has arrived)
+  const isInitialLoading = !initialLoaded && (loadingOrders || !isInitialized);
+
+  if (isInitialLoading) {
+    return (
+      <div
+        style={{
+          animation: "mn-content-fade-in 0.3s ease",
+        }}
+      >
+        <style>{`@keyframes mn-content-fade-in { from { opacity: 0; } to { opacity: 1; } }`}</style>
+        <OrderSkeleton showGraph={showGraph} />
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-5 text-[#09090B] select-none py-2 pb-10">
+    <div
+      className="flex flex-col gap-5 text-[#09090B] select-none py-2 pb-10"
+      style={{ animation: "mn-content-fade-in 0.4s ease" }}
+    >
 
       {/* Breadcrumb / Top Title Bar */}
       <div className="flex items-center justify-between border-b border-[#E4E4E7] pb-4">

@@ -130,12 +130,13 @@ const SignUp = () => {
     const name = form.name.value;
     const email = form.email.value;
     const password = form.password.value;
+    const role = form.role.value;
 
     try {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, role }),
       });
 
       const data = await res.json();
@@ -177,8 +178,8 @@ const SignUp = () => {
             <div className="bg-blue-600 p-3 rounded-2xl shadow-lg shadow-blue-200 mb-4 transform transition-transform hover:scale-105">
                <ShieldCheck className="text-white" size={32} />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Create Admin</h1>
-            <p className="text-gray-500 text-sm mt-1.5 font-medium">Add a new administrator to the system</p>
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Create User</h1>
+            <p className="text-gray-500 text-sm mt-1.5 font-medium">Add a new team member to the system</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -237,6 +238,26 @@ const SignUp = () => {
               </div>
             </div>
 
+            {/* ROLE SELECTOR */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-gray-700 ml-1">Role</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                  <ShieldCheck size={19} />
+                </div>
+                <select
+                    id="role"
+                    name="role"
+                    defaultValue="user"
+                    className="block w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none text-gray-800 appearance-none cursor-pointer"
+                >
+                  <option value="user">User</option>
+                  <option value="moderator">Moderator</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+            </div>
+
             {/* SUBMIT BUTTON */}
             <div className="pt-4">
               <button 
@@ -244,7 +265,7 @@ const SignUp = () => {
                 className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 text-sm font-bold text-white bg-[#2563eb] hover:bg-[#1d4ed8] rounded-xl transition-all shadow-lg shadow-blue-200 hover:shadow-blue-300 active:scale-[0.98] cursor-pointer"
               >
                 <UserPlus size={19} />
-                Register Admin
+                Register User
               </button>
             </div>
           </form>
