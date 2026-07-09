@@ -44,12 +44,12 @@ const Sidebar = () => {
   }, []);
 
   const menuItems = [
-    { href: "/dashboard/order",    label: "Order",          icon: ShoppingCart },
-    { href: "/dashboard/customer", label: "Customer",       icon: Users },
-    { href: "/dashboard/dyeing",   label: "Dyeing",         icon: Palette },
-    { href: "/dashboard/calender", label: "Calender",       icon: CalendarDays },
-    { href: "/dashboard/accounts", label: "Accounts",       icon: WalletCards },
-    { href: "/dashboard/admins",   label: "Administration", icon: ShieldCheck },
+    { href: "/dashboard/order", label: "Order", icon: ShoppingCart },
+    { href: "/dashboard/customer", label: "Customer", icon: Users },
+    { href: "/dashboard/dyeing", label: "Dyeing", icon: Palette },
+    { href: "/dashboard/calender", label: "Calender", icon: CalendarDays },
+    { href: "/dashboard/accounts", label: "Accounts", icon: WalletCards },
+    { href: "/dashboard/admins", label: "Administration", icon: ShieldCheck },
   ];
 
   return (
@@ -159,15 +159,6 @@ const Sidebar = () => {
 
           {/* ===== NAVIGATION MENU ===== */}
           <div className="flex-1 overflow-y-auto" style={{ padding: "8px" }}>
-            {isOpen && (
-              <p
-                className="text-[9px] uppercase tracking-[2.5px] font-bold mb-3 mt-2 px-2"
-                style={{ color: "rgba(255,255,255,0.35)" }}
-              >
-                Main Menu
-              </p>
-            )}
-
             <nav className="flex flex-col" style={{ gap: "2px" }}>
               {menuItems.map((item) => {
                 const isActive = pathname === item.href || pathname?.startsWith(item.href + "/");

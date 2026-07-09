@@ -1,16 +1,18 @@
-import { getToken } from "next-auth/jwt";
+import NextAuth from "next-auth";
+import { authConfig } from "./src/auth.config";
 import { NextResponse } from "next/server";
 
-export async function middleware(req) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+const { auth } = NextAuth(authConfig);
+
+export default auth(function proxy(req) {
   const { pathname } = req.nextUrl;
 
-  const isLoggedIn = Boolean(token);
-  const isAdmin = token?.role === "admin";
+  const isLoggedIn = Boolean(req.auth?.user);
+  const isAdmin = req.auth?.user?.role === "admin";
   const isAdminRoute = pathname.startsWith("/dashboard");
 
   // --- API route protection ---
-  // All /api/* routes (except /api/auth/*, which NextAuth needs public) require
+  // All /api/* routes (except /api/auth/*, which Auth.js needs public) require
   // a valid session token. Sensitive admin routes additionally require role==="admin".
   if (pathname.startsWith("/api/")) {
     if (!isLoggedIn) {
@@ -39,8 +41,9 @@ export async function middleware(req) {
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico).*)"],
 };
+
