@@ -1,5 +1,16 @@
+/**
+ * useAppData — fetches all lookup/menu data via a single API call.
+ *
+ * Previously made 9 parallel requests to separate endpoints.
+ * Now makes 1 request to /api/menu/all, which:
+ *  - runs all 9 DB queries in parallel on the server
+ *  - returns them in one HTTP response
+ *  - benefits from HTTP Cache-Control (120s browser cache)
+ *
+ * This reduces page-load DB operations from 9 → 1 connection.
+ */
+
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 export default function useAppData() {
   const [data, setData] = useState({
@@ -8,57 +19,51 @@ export default function useAppData() {
     colours: [],
     sillNames: [],
     qualities: [],
+    processes: [],
     customers: [],
     calender: [],
     dyeings: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
- 
+
   useEffect(() => {
+    let cancelled = false;
+
     async function fetchData() {
       try {
         setLoading(true);
-        const [
-          finishingRes,
-          clothRes,
-          colourRes,
-          sillRes,
-          qualityRes,
-          customersRes,
-          calenderRes,dyeingsRes,processRes
-        ] = await Promise.all([
-          axios.get("/api/menu/finishing-type"),
-          axios.get("/api/menu/cloth-type"),
-          axios.get("/api/menu/colour"),
+        const res = await fetch("/api/menu/all");
+        if (!res.ok) throw new Error(`Menu fetch failed: ${res.status}`);
 
-          axios.get("/api/menu/sill-name"),
-          axios.get("/api/menu/quality"),
-          axios.get("/api/customers"),
-          axios.get("/api/calender"),
-          axios.get("/api/dyeings"),
-          axios.get("/api/menu/process"),
-        ]);
+        const json = await res.json();
 
-        setData({
-          finishingTypes: finishingRes.data,
-          clotheTypes: clothRes.data,
-          colours: colourRes.data,
-          sillNames: sillRes.data,
-          qualities: qualityRes.data,
-          customers: customersRes.data,
-          calender: calenderRes.data,
-          dyeings: dyeingsRes.data,
-          process: processRes.data,
-        });
+        if (!cancelled) {
+          setData({
+            finishingTypes: json.finishingTypes ?? [],
+            clotheTypes:    json.clotheTypes    ?? [],
+            colours:        json.colours        ?? [],
+            sillNames:      json.sillNames      ?? [],
+            qualities:      json.qualities      ?? [],
+            processes:      json.processes      ?? [],
+            customers:      json.customers      ?? [],
+            calender:       json.calender       ?? [],
+            dyeings:        json.dyeings        ?? [],
+          });
+        }
       } catch (err) {
-        setError(err);
+        if (!cancelled) setError(err);
+        console.error("useAppData fetch error:", err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
     fetchData();
+
+    return () => {
+      cancelled = true; // prevent state update on unmounted component
+    };
   }, []);
 
   return { data, loading, error };

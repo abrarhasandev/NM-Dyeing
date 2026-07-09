@@ -198,8 +198,9 @@ export const OrdersContent = () => {
   const {
     orders,
     setOrders,
-    allFilteredOrders,
-    prevFilteredOrders,
+    kpiData,
+    prevKpiData,
+    chartData: rawChartBuckets,
     totalPages,
     loadingOrders,
     loadingOrder,
@@ -315,168 +316,106 @@ export const OrdersContent = () => {
     }
   }, [dateRange]);
 
-  // KPI calculations using allFilteredOrders (non-paginated)
-  // Helper to calculate total Goj from an order
-  const getOrderGoj = (order) => {
-    return order.totalGoj !== null && order.totalGoj !== undefined
-      ? order.totalGoj
-      : order.tableData && order.tableData.length > 0
-        ? order.tableData.reduce((s, item) => s + (item.goj || 0), 0)
-        : 0;
-  };
-
-  // Helper to format growth label text based on date range
+  // ── Helper: date-range label text ─────────────────────────────────────────
   const getDateRangeLabel = (range) => {
     switch (range) {
-      case "3_days": return "last 3 days";
-      case "7_days": return "last 7 days";
-      case "30_days": return "last 30 days";
-      case "3_months": return "last 3 months";
+      case "3_days":       return "last 3 days";
+      case "7_days":       return "last 7 days";
+      case "30_days":      return "last 30 days";
+      case "3_months":     return "last 3 months";
       case "current_year": return "current year";
-      case "custom": return "custom range";
-      default: return "selected range";
+      case "custom":       return "custom range";
+      default:             return "selected range";
     }
   };
 
-  // KPI calculations using allFilteredOrders (non-paginated) and prevFilteredOrders
+  // ── KPI stats — now derived from server-computed kpiData / prevKpiData ──────
+  // No client-side iteration over raw documents.
   const stats = useMemo(() => {
-    const currentOrders = allFilteredOrders || [];
-    const prevOrders = prevFilteredOrders || [];
+    const cur  = kpiData     ?? { totalOrders: 0, totalGoj: 0, uniqueCustomers: 0, activeCount: 0, activeGoj: 0 };
+    const prev = prevKpiData ?? { totalOrders: 0, totalGoj: 0 };
 
-    const totalOrders = currentOrders.length;
-    const prevTotalOrders = prevOrders.length;
-
-    // Total customers (unique companyName)
-    const uniqueCustomers = new Set(
-      currentOrders.filter(o => o.companyName).map(o => o.companyName)
-    ).size;
-
-    // Active orders (status is not completed or cancelled or delivered)
-    const activeOrders = currentOrders.filter(
-      o => !["completed", "cancelled", "canceled", "delivered"].includes(o.status?.toLowerCase())
-    );
-    const activeCount = activeOrders.length;
-
-    // Active orders total Goj
-    const activeGoj = activeOrders.reduce((sum, o) => sum + getOrderGoj(o), 0);
-
-    // Order Count Growth Rate
     let orderCountGrowth = 0;
-    if (prevTotalOrders > 0) {
-      orderCountGrowth = ((totalOrders - prevTotalOrders) / prevTotalOrders) * 100;
-    } else if (totalOrders > 0) {
+    if (prev.totalOrders > 0) {
+      orderCountGrowth = ((cur.totalOrders - prev.totalOrders) / prev.totalOrders) * 100;
+    } else if (cur.totalOrders > 0) {
       orderCountGrowth = 100;
     }
 
-    // Goj Growth Rate
-    const currentTotalGoj = currentOrders.reduce((sum, o) => sum + getOrderGoj(o), 0);
-    const prevTotalGoj = prevOrders.reduce((sum, o) => sum + getOrderGoj(o), 0);
-    
     let gojGrowth = 0;
-    if (prevTotalGoj > 0) {
-      gojGrowth = ((currentTotalGoj - prevTotalGoj) / prevTotalGoj) * 100;
-    } else if (currentTotalGoj > 0) {
+    if (prev.totalGoj > 0) {
+      gojGrowth = ((cur.totalGoj - prev.totalGoj) / prev.totalGoj) * 100;
+    } else if (cur.totalGoj > 0) {
       gojGrowth = 100;
     }
 
     return {
-      totalOrders,
-      totalGoj: currentTotalGoj,
-      totalCustomers: uniqueCustomers,
-      activeCount,
-      activeGoj,
+      totalOrders:      cur.totalOrders,
+      totalGoj:         cur.totalGoj,
+      totalCustomers:   cur.uniqueCustomers,
+      activeCount:      cur.activeCount,
+      activeGoj:        cur.activeGoj,
       orderCountGrowth,
-      gojGrowth
+      gojGrowth,
     };
-  }, [allFilteredOrders, prevFilteredOrders]);
+  }, [kpiData, prevKpiData]);
 
-  // Group real order data chronologically & by cloth category for Recharts Area chart
+  // ── Chart data — reshape server-computed buckets into Recharts format ───────
+  // rawChartBuckets: { _id: { year, month, day, clothCat }, count }[]
+  // We need to produce: { month: "Jan", cotton: N, silk: N, other: N }[]
   const chartData = useMemo(() => {
-    if (!allFilteredOrders || allFilteredOrders.length === 0) return [];
+    if (!rawChartBuckets || rawChartBuckets.length === 0) return [];
 
-    let grouping = "month"; // "day" or "month"
-    let periods = [];
-
+    // Determine grouping based on date range
     const today = dayjs();
+    let grouping = "month";
     let start = today.subtract(3, "month");
-    let end = today;
+    let end   = today;
 
-    if (dateRange === "3_days") {
+    if (dateRange === "3_days" || dateRange === "7_days" || dateRange === "30_days") {
       grouping = "day";
-      start = today.subtract(3, "day");
-    } else if (dateRange === "7_days") {
-      grouping = "day";
-      start = today.subtract(7, "day");
-    } else if (dateRange === "30_days") {
-      grouping = "day";
-      start = today.subtract(30, "day");
-    } else if (dateRange === "3_months") {
-      grouping = "month";
-      start = today.subtract(3, "month");
+      const nDays = dateRange === "3_days" ? 3 : dateRange === "7_days" ? 7 : 30;
+      start = today.subtract(nDays, "day");
     } else if (dateRange === "current_year") {
       grouping = "month";
       start = today.startOf("year");
     } else if (dateRange === "custom" && customStartDate && customEndDate) {
       start = dayjs(customStartDate);
-      end = dayjs(customEndDate);
-      const diffDays = end.diff(start, "day");
-      grouping = diffDays <= 31 ? "day" : "month";
+      end   = dayjs(customEndDate);
+      grouping = end.diff(start, "day") <= 31 ? "day" : "month";
     }
 
-    // Generate the periods
+    // Generate empty period slots
+    const periods = [];
     if (grouping === "day") {
-      const diffDays = end.diff(start, "day");
-      const limit = Math.min(diffDays, 31);
-      for (let i = 0; i <= limit; i++) {
-        const dObj = start.add(i, "day");
-        periods.push({
-          key: dObj.format("YYYY-MM-DD"),
-          month: dObj.format("MMM D"),
-          cotton: 0,
-          silk: 0,
-          other: 0,
-        });
+      const diffDays = Math.min(end.diff(start, "day"), 31);
+      for (let i = 0; i <= diffDays; i++) {
+        const d = start.add(i, "day");
+        periods.push({ key: d.format("YYYY-MM-DD"), month: d.format("MMM D"), cotton: 0, silk: 0, other: 0 });
       }
     } else {
-      const diffMonths = end.diff(start, "month");
-      const limit = Math.min(diffMonths, 60); // Cap at 5 years to cover full custom ranges
-      for (let i = 0; i <= limit; i++) {
-        const mObj = start.add(i, "month");
-        periods.push({
-          key: mObj.format("YYYY-MM"),
-          month: dateRange === "3_months" ? mObj.format("MMMM") : mObj.format("MMM YY"),
-          cotton: 0,
-          silk: 0,
-          other: 0,
-        });
+      const diffMonths = Math.min(end.diff(start, "month"), 60);
+      for (let i = 0; i <= diffMonths; i++) {
+        const m = start.add(i, "month");
+        const label = dateRange === "3_months" ? m.format("MMMM") : m.format("MMM YY");
+        periods.push({ key: m.format("YYYY-MM"), month: label, cotton: 0, silk: 0, other: 0 });
       }
     }
 
-    // Group the orders
-    allFilteredOrders.forEach((order) => {
-      if (!order.date) return;
-      const [d, m, y] = order.date.split("/");
-      const orderDate = dayjs(new Date(Number(y), Number(m) - 1, Number(d)));
-
-      const periodKey = grouping === "day"
-        ? orderDate.format("YYYY-MM-DD")
-        : orderDate.format("YYYY-MM");
-
-      const period = periods.find(p => p.key === periodKey);
-      if (period) {
-        const clothTypeRaw = (order.clotheType || "").toLowerCase();
-        if (clothTypeRaw.includes("cotton")) {
-          period.cotton += 1;
-        } else if (clothTypeRaw.includes("silk") || clothTypeRaw.includes("sill")) {
-          period.silk += 1;
-        } else {
-          period.other += 1;
-        }
+    // Map server buckets into the period slots
+    for (const bucket of rawChartBuckets) {
+      const { year, month, day, clothCat } = bucket._id;
+      const key = grouping === "day"
+        ? dayjs(new Date(year, month - 1, day)).format("YYYY-MM-DD")
+        : dayjs(new Date(year, month - 1, 1)).format("YYYY-MM");
+      const period = periods.find(p => p.key === key);
+      if (period && clothCat in period) {
+        period[clothCat] += bucket.count;
       }
-    });
+    }
 
     return periods;
-  }, [allFilteredOrders, dateRange, customStartDate, customEndDate]);
+  }, [rawChartBuckets, dateRange, customStartDate, customEndDate]);
 
   // Recharts color and label configuration
   const chartConfig = {

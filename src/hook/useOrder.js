@@ -1,3 +1,19 @@
+/**
+ * useOrders — fetches paginated orders + server-computed stats.
+ *
+ * API response shape (new):
+ * {
+ *   orders:       Order[]       — paginated rows
+ *   totalCount:   number
+ *   kpiData:      { totalOrders, totalGoj, uniqueCustomers, activeCount, activeGoj }
+ *   prevKpiData:  { totalOrders, totalGoj }
+ *   chartData:    { _id: { year, month, day, clothCat }, count }[]
+ * }
+ *
+ * The previous allFilteredOrders (unbounded raw documents) is GONE.
+ * All aggregation now happens server-side inside a MongoDB $facet pipeline.
+ */
+
 import { useState, useEffect, useRef } from "react";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
@@ -20,81 +36,102 @@ const useOrders = (filters) => {
     skip,
   } = filters;
 
-  const [orders, setOrders] = useState([]);
-  const [allFilteredOrders, setAllFilteredOrders] = useState([]);
-  const [prevFilteredOrders, setPrevFilteredOrders] = useState([]);
-  const [totalPages, setTotalPages] = useState(1);
+  const [orders,       setOrders]       = useState([]);
+  const [kpiData,      setKpiData]      = useState(null);       // server-computed KPIs
+  const [prevKpiData,  setPrevKpiData]  = useState(null);       // previous-period KPIs
+  const [chartData,    setChartData]    = useState([]);         // server-computed chart buckets
+  const [totalPages,   setTotalPages]   = useState(1);
   const [loadingOrders, setLoadingOrders] = useState(true);
-  const [loadingOrder, setLoadingOrder] = useState(false);
+  const [loadingOrder,  setLoadingOrder]  = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   const lastRequestId = useRef(0);
 
-  const fetchOrders = async () => {
-    if (skip) return;
-    setLoadingOrders(true);
-    const requestId = ++lastRequestId.current;
+  // ── Build date range ISO strings from the dateRange selector ─────────────
+  const resolveDateRange = () => {
     let startDate = "";
-    let endDate = "";
-    const today = dayjs();
+    let endDate   = "";
+    const today   = dayjs();
 
     switch (dateRange) {
       case "current_year":
         startDate = today.startOf("year").toISOString();
-        endDate = today.endOf("day").toISOString();
+        endDate   = today.endOf("day").toISOString();
         break;
       case "3_months":
         startDate = today.subtract(3, "month").startOf("day").toISOString();
-        endDate = today.endOf("day").toISOString();
+        endDate   = today.endOf("day").toISOString();
         break;
       case "30_days":
         startDate = today.subtract(30, "day").startOf("day").toISOString();
-        endDate = today.endOf("day").toISOString();
+        endDate   = today.endOf("day").toISOString();
         break;
       case "7_days":
         startDate = today.subtract(7, "day").startOf("day").toISOString();
-        endDate = today.endOf("day").toISOString();
+        endDate   = today.endOf("day").toISOString();
         break;
       case "3_days":
         startDate = today.subtract(3, "day").startOf("day").toISOString();
-        endDate = today.endOf("day").toISOString();
+        endDate   = today.endOf("day").toISOString();
         break;
       case "custom":
         if (customStartDate && customEndDate) {
-          startDate = customStartDate.toISOString();
-          endDate = customEndDate.toISOString();
+          startDate = customStartDate instanceof Date
+            ? customStartDate.toISOString()
+            : new Date(customStartDate).toISOString();
+          endDate = customEndDate instanceof Date
+            ? customEndDate.toISOString()
+            : new Date(customEndDate).toISOString();
         }
         break;
       default:
         break;
     }
 
+    return { startDate, endDate };
+  };
+
+  // ── Main fetch ────────────────────────────────────────────────────────────
+  const fetchOrders = async () => {
+    if (skip) return;
+    setLoadingOrders(true);
+    const requestId = ++lastRequestId.current;
+
+    const { startDate, endDate } = resolveDateRange();
+
     try {
       const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: itemsPerPage.toString(),
-        search: searchTerm,
-        startDate,
-        endDate,
+        page:      currentPage.toString(),
+        limit:     itemsPerPage.toString(),
+        search:    searchTerm || "",
+        startDate: startDate  || "",
+        endDate:   endDate    || "",
       });
 
-      if (exactDate) params.append("date", exactDate);
-      if (status) params.append("status", status);
-      if (clotheType) params.append("clotheTypes", clotheType);
+      if (exactDate)     params.append("date",         exactDate);
+      if (status)        params.append("status",        status);
+      if (clotheType)    params.append("clotheTypes",   clotheType);
       if (finishingType) params.append("finishingType", finishingType);
-      if (colour) params.append("colour", colour);
-      if (sillName) params.append("sillName", sillName);
-      if (quality) params.append("quality", quality);
+      if (colour)        params.append("colour",        colour);
+      if (sillName)      params.append("sillName",      sillName);
+      if (quality)       params.append("quality",       quality);
 
       const res = await fetch(`/api/order?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch orders");
 
-      const { orders: fetchedOrders, totalCount, allFilteredOrders: fetchedAllFiltered, prevFilteredOrders: fetchedPrevFiltered } = await res.json();
-      
+      const {
+        orders:      fetchedOrders,
+        totalCount,
+        kpiData:     fetchedKpi,
+        prevKpiData: fetchedPrevKpi,
+        chartData:   fetchedChart,
+      } = await res.json();
+
       if (requestId === lastRequestId.current) {
-        setOrders(fetchedOrders);
-        setAllFilteredOrders(fetchedAllFiltered || []);
-        setPrevFilteredOrders(fetchedPrevFiltered || []);
+        setOrders(fetchedOrders       ?? []);
+        setKpiData(fetchedKpi         ?? null);
+        setPrevKpiData(fetchedPrevKpi ?? null);
+        setChartData(fetchedChart     ?? []);
         setTotalPages(Math.ceil(totalCount / itemsPerPage));
       }
     } catch (err) {
@@ -109,7 +146,7 @@ const useOrders = (filters) => {
     }
   };
 
-
+  // ── Fetch single order by ID ──────────────────────────────────────────────
   const fetchSingleOrder = async (id) => {
     setLoadingOrder(true);
     try {
@@ -126,7 +163,7 @@ const useOrders = (filters) => {
     }
   };
 
-
+  // ── Delete order then refresh list ────────────────────────────────────────
   const deleteOrder = async (id) => {
     try {
       const res = await fetch(`/api/order/${id}`, { method: "DELETE" });
@@ -139,6 +176,7 @@ const useOrders = (filters) => {
     }
   };
 
+  // ── Re-fetch whenever any filter changes ─────────────────────────────────
   useEffect(() => {
     fetchOrders();
   }, [
@@ -161,10 +199,10 @@ const useOrders = (filters) => {
   return {
     orders,
     setOrders,
-    allFilteredOrders,
-    setAllFilteredOrders,
-    prevFilteredOrders,
-    setPrevFilteredOrders,
+    // New server-computed data (replaces allFilteredOrders + prevFilteredOrders)
+    kpiData,
+    prevKpiData,
+    chartData,
     totalPages,
     loadingOrders,
     loadingOrder,
@@ -172,6 +210,7 @@ const useOrders = (filters) => {
     setSelectedOrder,
     fetchSingleOrder,
     deleteOrder,
+    fetchOrders,
   };
 };
 

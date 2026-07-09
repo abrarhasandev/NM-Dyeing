@@ -1,0 +1,72 @@
+[
+  {
+    "_id": "6918b40804b8a93a26e647e8",
+    "originalDate": "2025-11-11",
+    "reason": "Could not parse as DD/MM/YYYY"
+  },
+  {
+    "_id": "691972b475f2f29be58c0711",
+    "originalDate": "2025-11-16",
+    "reason": "Could not parse as DD/MM/YYYY"
+  },
+  {
+    "_id": "691ac5116afc0413b8b78755",
+    "originalDate": "2025-11-11",
+    "reason": "Could not parse as DD/MM/YYYY"
+  },
+  {
+    "_id": "691ad35f99bfaf4f399eb09c",
+    "originalDate": "2025-11-11",
+    "reason": "Could not parse as DD/MM/YYYY"
+  },
+  {
+    "_id": "691adc70530eb41a3b9d5ca7",
+    "originalDate": "2025-11-11",
+    "reason": "Could not parse as DD/MM/YYYY"
+  },
+  {
+    "_id": "691d722b8583bdb0074f3739",
+    "originalDate": "2025-11-10",
+    "reason": "Could not parse as DD/MM/YYYY"
+  },
+  {
+    "_id": "6923326f8944dc5162db85b5",
+    "originalDate": "2025-11-18",
+    "reason": "Could not parse as DD/MM/YYYY"
+  },
+  {
+    "_id": "6923c208951f1591ad5fc216",
+    "originalDate": "2025-11-18",
+    "reason": "Could not parse as DD/MM/YYYY"
+  },
+  {
+    "_id": "6923e00a951f1591ad5fd455",
+    "originalDate": "2025-11-24",
+    "reason": "Could not parse as DD/MM/YYYY"
+  },
+  {
+    "_id": "6923e0be951f1591ad5fd819",
+    "originalDate": "2025-11-18",
+    "reason": "Could not parse as DD/MM/YYYY"
+  },
+  {
+    "_id": "69243987cd39c7a11de037b2",
+    "originalDate": "2025-11-18",
+    "reason": "Could not parse as DD/MM/YYYY"
+  },
+  {
+    "_id": "69243e54cd39c7a11de040e5",
+    "originalDate": "2025-11-16",
+    "reason": "Could not parse as DD/MM/YYYY"
+  },
+  {
+    "_id": "692541658e24f6d08172bf23",
+    "originalDate": "2025-11-20",
+    "reason": "Could not parse as DD/MM/YYYY"
+  },
+  {
+    "_id": "692bf5e7ef04cd8de6c646ad",
+    "originalDate": "2025-11-25",
+    "reason": "Could not parse as DD/MM/YYYY"
+  }
+]

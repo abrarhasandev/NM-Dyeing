@@ -13,7 +13,7 @@ const orderSchema = new mongoose.Schema(
         const day = String(now.getDate()).padStart(2, "0");
         const random = Math.floor(Math.random() * 900) + 100;
         return `#ord-${year}-${month}${day}-${random}`;
-      }, 
+      },
     },
     customerId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -39,7 +39,16 @@ const orderSchema = new mongoose.Schema(
       ],
       default: "pending",
     },
-    date: String,
+
+    // ─── MIGRATED: was String ("DD/MM/YYYY") ────────────────────────────────
+    // After running scripts/migrate-order-dates.js this field is a proper Date.
+    // New orders created via the API send a Date object directly.
+    date: {
+      type: Date,
+      default: null,
+    },
+    // ────────────────────────────────────────────────────────────────────────
+
     invoiceNumber: String,
     companyName: String,
     clotheType: String,
@@ -61,6 +70,39 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// ════════════════════════════════════════════════════════════════
+//  INDEXES  — eliminate full-collection scans (COLLSCAN)
+// ════════════════════════════════════════════════════════════════
+
+// 1. Primary sort index — latest orders first (most used sort)
+orderSchema.index({ createdAt: -1 });
+
+// 2. Date range queries (replaces the $expr/$dateFromString workaround)
+orderSchema.index({ date: 1 });
+
+// 3. Status filter (used in almost every query)
+orderSchema.index({ status: 1 });
+
+// 4. Compound: status + date range (covers the most common combined query)
+orderSchema.index({ status: 1, date: -1 });
+
+// 5. Cloth type filter
+orderSchema.index({ clotheType: 1 });
+
+// 6. Other filter fields
+orderSchema.index({ finishingType: 1 });
+orderSchema.index({ colour: 1 });
+orderSchema.index({ sillName: 1 });
+orderSchema.index({ quality: 1 });
+
+// 7. Text search index for companyName + orderId (replaces slow $regex scans)
+orderSchema.index(
+  { companyName: "text", orderId: "text" },
+  { name: "order_text_search", weights: { orderId: 2, companyName: 1 } }
+);
+
+// ════════════════════════════════════════════════════════════════
 
 const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
 module.exports = Order;

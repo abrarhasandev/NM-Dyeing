@@ -35,6 +35,13 @@ const Orders = () => {
   const [quality, setQuality] = useState("");
   const [showMoreFilters, setShowMoreFilters] = useState(false);
 
+  // Debounced search — prevents a DB query on every keystroke
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearchTerm(searchTerm), 400);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
+
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const isFiltersLoaded = useRef(false);
@@ -118,7 +125,7 @@ const Orders = () => {
   } = useOrders({
     currentPage,
     itemsPerPage,
-    searchTerm,
+    searchTerm: debouncedSearchTerm,
     dateRange,
     customStartDate,
     customEndDate,
