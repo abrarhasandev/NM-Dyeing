@@ -10,6 +10,8 @@ export default function BatchCreator({
   keys,
   setUsedRowIndexes,
   selectedOrder,
+  setOrders,
+  setSelectedOrder,
 }) {
   const [loading, setLoading] = useState(false);
   const { data } = useAppData();
@@ -140,7 +142,7 @@ export default function BatchCreator({
 
       const processesPayload =
         selectedProcesses.map((pname) => {
-          const p = data.process.find((pr) => pr.name === pname);
+          const p = data.processes.find((pr) => pr.name === pname);
           return { name: p.name, price: p?.price || 0 };
         }) || [];
 
@@ -193,6 +195,42 @@ export default function BatchCreator({
         setUsedRowIndexes((prev) =>
           Array.from(new Set([...(prev || []), ...newKeys]))
         );
+
+        if (setOrders) {
+          setOrders((prev) =>
+            prev.map((order) => {
+              if (order._id === orderId) {
+                const addedBundle = batchData.length;
+                const addedGoj = batchData.reduce((sum, r) => sum + (Number(r.goj) || 0), 0);
+                return {
+                  ...order,
+                  batchSummary: {
+                    batchCount: (order.batchSummary?.batchCount || 0) + 1,
+                    totalBatchBundle: (order.batchSummary?.totalBatchBundle || 0) + addedBundle,
+                    totalBatchGoj: (order.batchSummary?.totalBatchGoj || 0) + addedGoj,
+                  },
+                };
+              }
+              return order;
+            })
+          );
+        }
+
+        if (setSelectedOrder) {
+          setSelectedOrder((prev) => {
+            if (!prev) return prev;
+            const addedBundle = batchData.length;
+            const addedGoj = batchData.reduce((sum, r) => sum + (Number(r.goj) || 0), 0);
+            return {
+              ...prev,
+              batchSummary: {
+                batchCount: (prev.batchSummary?.batchCount || 0) + 1,
+                totalBatchBundle: (prev.batchSummary?.totalBatchBundle || 0) + addedBundle,
+                totalBatchGoj: (prev.batchSummary?.totalBatchGoj || 0) + addedGoj,
+              },
+            };
+          });
+        }
 
         setBatchData([]);
       } else {
@@ -290,7 +328,7 @@ export default function BatchCreator({
 
         <MultiSelectDropdown
           label="Process List"
-          options={data?.process || []}
+          options={data?.processes || []}
           selected={selectedProcesses}
           setSelected={setSelectedProcesses}
         />

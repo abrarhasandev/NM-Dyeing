@@ -169,7 +169,7 @@ export default function BatchEditPage() {
     try {
       setLoading(true);
       const processesPayload = selectedProcesses.map((pname) => {
-        const p = data.process.find((pr) => pr.name === pname);
+        const p = data.processes.find((pr) => pr.name === pname);
         return { name: p.name, price: p.price };
       });
 
@@ -232,7 +232,7 @@ export default function BatchEditPage() {
           {selectedProcesses.some((p) => p.toLowerCase() === "calender") && (
             <Dropdown label="Calender" options={data?.calender || []} selected={selectedCalender} setSelected={setSelectedCalender} optional />
           )}
-          <MultiSelectDropdown label="Process List" options={data?.process || []} selected={selectedProcesses} setSelected={setSelectedProcesses} />
+          <MultiSelectDropdown label="Process List" options={data?.processes || []} selected={selectedProcesses} setSelected={setSelectedProcesses} />
         </div>
 
         {/* Rows Table */}

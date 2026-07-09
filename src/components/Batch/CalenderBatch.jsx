@@ -25,7 +25,7 @@ export default function CalendarBatch({ orderId }) {
           );
           setBatches(deliveredBatches);
         } else {
-          toast.error(data.error || "Failed to load delivered batches");
+          toast.error(data.error || "Failed to load dispatched batches");
         }
       } catch (err) {
         console.error(err);
@@ -86,14 +86,14 @@ export default function CalendarBatch({ orderId }) {
   return (
     <div className="mt-6">
       <h3 className="text-lg font-semibold mb-4 text-gray-800">
-        Delivered Batches (Calendar)
+        Dispatched Batches (Calendar)
       </h3>
 
       {loading ? (
-        <p className="text-gray-500">Loading delivered batches...</p>
+        <p className="text-gray-500">Loading dispatched batches...</p>
       ) : batches.length === 0 ? (
         <p className="text-gray-500">
-          No delivered batches found for this order.
+          No dispatched batches found for this order.
         </p>
       ) : (
         <div className="space-y-6">
@@ -121,7 +121,7 @@ export default function CalendarBatch({ orderId }) {
                     onClick={() => handleDelivered(batch)}
                     className="bg-green-300 text-gray-700 px-2 py-1 rounded cursor-pointer hover:bg-green-400"
                   >
-                    Delivered
+                    Dispatch
                   </button>
                 </div>
               </div>

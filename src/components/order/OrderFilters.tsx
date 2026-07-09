@@ -289,7 +289,7 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
                 <option value="batch">Batch</option>
                 <option value="inprocess">In Process</option>
                 <option value="completedprocess">Completed Process</option>
-                <option value="delivered">Delivered</option>
+                <option value="delivered">Dispatch</option>
                 <option value="billing">Billing</option>
                 <option value="completed">Completed</option>
               </select>

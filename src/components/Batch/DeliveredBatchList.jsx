@@ -25,7 +25,7 @@ export default function DeliveredBatchList({ orderId }) {
           .filter((batch) => batch.status === "delivered")
           .map((b) => ({ ...b, isExpanded: false }));
         setBatches(deliveredBatches);
-      } else toast.error(data.error || "Failed to load delivered batches");
+      } else toast.error(data.error || "Failed to load dispatched batches");
     } catch (err) {
       console.error(err);
       
@@ -123,7 +123,7 @@ console.log(batches);
     <div className="mt-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-800">
-          Delivered Batches
+          Dispatched Batches
         </h3>
 
         {selectedBatches.length > 0 && (
@@ -140,7 +140,7 @@ console.log(batches);
         <p className="text-gray-500">Loading batches...</p>
       ) : batches.length === 0 ? (
         <p className="text-gray-500">
-          No delivered batches found for this order.
+          No dispatched batches found for this order.
         </p>
       ) : (
         <div className="space-y-6">

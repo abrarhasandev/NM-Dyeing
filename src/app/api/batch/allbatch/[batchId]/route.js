@@ -4,7 +4,7 @@ import Order from "@/models/Order"; // আপনার Order মডেল
 
 export async function GET(req, { params }) {
   await connectDB();
-  const { batchId: embeddedBatchId } = params;
+  const { batchId: embeddedBatchId } = await params;
 
   try {
     // 1️⃣ এই embeddedBatchId যে Batch ডকুমেন্টের ভেতরে আছে, সেই পুরো ডকুমেন্ট আনো
@@ -125,7 +125,7 @@ export async function GET(req, { params }) {
 
 export async function PATCH(req, { params }) {
   await connectDB();
-  const { batchId: embeddedBatchId } = params;
+  const { batchId: embeddedBatchId } = await params;
   const { embeddedBatchData } = await req.json();
 
   try {

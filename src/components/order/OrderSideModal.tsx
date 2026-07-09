@@ -261,6 +261,8 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                         }
                       }
                     }}
+                    setOrders={setOrders}
+                    setSelectedOrder={setSelectedOrder}
                   />
                 </>
               )}

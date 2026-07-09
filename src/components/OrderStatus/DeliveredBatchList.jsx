@@ -20,11 +20,11 @@ export default function DeliveredBatchCard({ orderId }) {
           );
           setBatches(delivered);
         } else {
-          toast.error(data.error || "Failed to load delivered batches");
+          toast.error(data.error || "Failed to load dispatched batches");
         }
       } catch (err) {
         console.error(err);
-        toast.error("Server error while fetching delivered batches");
+        toast.error("Server error while fetching dispatched batches");
       } finally {
         setLoading(false);
       }
@@ -34,10 +34,10 @@ export default function DeliveredBatchCard({ orderId }) {
   }, [orderId]);
 
   if (loading)
-    return <p className="text-gray-500 mt-4">Loading delivered batches...</p>;
+    return <p className="text-gray-500 mt-4">Loading dispatched batches...</p>;
 
   if (!batches.length)
-    return <p className="text-gray-500 mt-4">No delivered batches found.</p>;
+    return <p className="text-gray-500 mt-4">No dispatched batches found.</p>;
 
   return (
     <div className="space-y-4 mt-6">
@@ -50,7 +50,7 @@ export default function DeliveredBatchCard({ orderId }) {
           <div className="flex justify-between items-center mb-3">
             <h4 className="font-medium text-gray-700">{batch.batchName}</h4>
             <span className="text-green-700 bg-green-200 px-2 py-1 rounded text-sm font-semibold">
-              Delivered
+              Dispatch
             </span>
           </div>
 

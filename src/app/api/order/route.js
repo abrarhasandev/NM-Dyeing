@@ -1,5 +1,6 @@
 import connectDB from "@/lib/db";
 import Order from "@/models/Order";
+import Batch from "@/models/Batch";
 import { NextResponse } from "next/server";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -298,11 +299,40 @@ export async function GET(req) {
       prevKpi = await runPrevKpiAggregation(baseQueryNoDates, prevStart, prevEnd);
     }
 
+    const orderIds = orders.map((o) => o._id);
+    const batchesData = await Batch.find({ orderId: { $in: orderIds } }).lean();
+
+    const enrichedOrders = orders.map((order) => {
+      const batchDoc = batchesData.find((b) => String(b.orderId) === String(order._id));
+      let totalBatchBundle = 0;
+      let totalBatchGoj = 0;
+      let batchCount = 0;
+
+      if (batchDoc && batchDoc.batches) {
+        batchCount = batchDoc.batches.length;
+        batchDoc.batches.forEach((b) => {
+          if (b.rows) {
+            totalBatchBundle += b.rows.length;
+            totalBatchGoj += b.rows.reduce((sum, row) => sum + (Number(row.goj) || 0), 0);
+          }
+        });
+      }
+
+      return {
+        ...order,
+        batchSummary: {
+          batchCount,
+          totalBatchBundle,
+          totalBatchGoj,
+        },
+      };
+    });
+
     // ── Response payload ─────────────────────────────────────────────────────
     //  No more allFilteredOrders (raw docs)!
     //  Client receives lightweight computed data only.
     const payload = {
-      orders,
+      orders: enrichedOrders,
       totalCount,
       // KPIs (replaces allFilteredOrders computation on the client)
       kpiData: {

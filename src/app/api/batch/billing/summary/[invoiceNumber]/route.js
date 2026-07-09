@@ -4,9 +4,10 @@ import BillingSummary from "@/models/BillingSummary";
 
 export async function GET(req, { params }) {
   await connectDB();
+  const { invoiceNumber } = await params;
 
   const rows = await BillingSummary.find({
-    invoiceNumber: params.invoiceNumber,
+    invoiceNumber,
   }).select("summaryType");
 
   const result = {};

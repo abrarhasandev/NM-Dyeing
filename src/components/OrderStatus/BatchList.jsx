@@ -239,7 +239,7 @@ export default function BatchList({ orderId }) {
                 (p?.name?.toLowerCase && p.name.toLowerCase() === "calender")
             );
 
-            const buttonLabel = hasCalender ? "Calender" : "Delivered";
+            const buttonLabel = hasCalender ? "Calender" : "Dispatch";
             const newStatus = hasCalender ? "calender" : "delivered";
 
             return (

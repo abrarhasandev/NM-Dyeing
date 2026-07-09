@@ -53,7 +53,7 @@ const renderStatusBadges = (status: string, orderId: string) => {
         </span>
         <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/70">
           <Truck size={12} className="shrink-0 text-[#26251e]/50" />
-          Delivered
+          Dispatch
           <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#ebeae5] text-[#26251e]/70 rounded-full ml-0.5">
             {deliveryNum}
           </span>
@@ -71,7 +71,7 @@ const renderStatusBadges = (status: string, orderId: string) => {
         </span>
         <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/70">
           <Truck size={12} className="shrink-0 text-[#26251e]/50" />
-          Delivered
+          Dispatch
           <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#ebeae5] text-[#26251e]/70 rounded-full ml-0.5">
             3
           </span>
@@ -89,7 +89,7 @@ const renderStatusBadges = (status: string, orderId: string) => {
         </span>
         <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/70">
           <Truck size={12} className="shrink-0 text-[#26251e]/50" />
-          Delivered
+          Dispatch
           <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#ebeae5] text-[#26251e]/70 rounded-full ml-0.5">
             3
           </span>
@@ -116,55 +116,39 @@ const renderStatusBadges = (status: string, orderId: string) => {
 };
 
 // ─── Total Goj — exact Figma match ───────────────────────────────────────────
-const renderGojDetails = (orderId: string, totalGojVal: number) => {
-  const index = getDummyIndex(orderId + "goj_v2", 7);
+const renderGojDetails = (order: any, orderId: string, totalGojVal: number, totalBundleVal: number) => {
+  const status = order?.status?.toLowerCase() || "pending";
+  const batchCount = order?.batchSummary?.batchCount || 0;
+  const batchBundle = order?.batchSummary?.totalBatchBundle || 0;
+  const batchGoj = order?.batchSummary?.totalBatchGoj || 0;
 
-  const patterns = [
-    { rows: [] },
-    {
-      rows: [
-        { icon: "x",     text: "7~1525",       cls: "text-[#cf2d56] bg-[#cf2d56]/10 border-[#cf2d56]/20" },
-        { icon: "clock", text: "3/ 39~2602",   cls: "text-[#26251e]/60 bg-[#f7f7f4] border-[color-mix(in_oklab,#26251e_10%,transparent)]" },
-      ],
-    },
-    {
-      rows: [
-        { icon: "x",     text: "7~1525",       cls: "text-[#cf2d56] bg-[#cf2d56]/10 border-[#cf2d56]/20" },
-        { icon: "clock", text: "4/ 39~12525",  cls: "text-[#26251e]/60 bg-[#f7f7f4] border-[color-mix(in_oklab,#26251e_10%,transparent)]" },
-        { icon: "check", text: "2/ 24~4337",   cls: "text-[#1f8a65] bg-[#1f8a65]/10 border-[#1f8a65]/20", trend: "-5.2%" },
-      ],
-    },
-    {
-      rows: [
-        { icon: "clock", text: "3/ 32~12525",  cls: "text-[#26251e]/60 bg-[#f7f7f4] border-[color-mix(in_oklab,#26251e_10%,transparent)]" },
-        { icon: "check", text: "4/ 37~8560",   cls: "text-[#1f8a65] bg-[#1f8a65]/10 border-[#1f8a65]/20", trend: "-6.2%" },
-      ],
-    },
-    {
-      rows: [
-        { icon: "check", text: "7/ 59~16256",  cls: "text-[#1f8a65] bg-[#1f8a65]/10 border-[#1f8a65]/20", trend: "-5.9%" },
-      ],
-    },
-    {
-      rows: [
-        { icon: "x",     text: "7~1525",       cls: "text-[#cf2d56] bg-[#cf2d56]/10 border-[#cf2d56]/20" },
-        { icon: "clock", text: "3/ 52~12525",  cls: "text-[#26251e]/60 bg-[#f7f7f4] border-[color-mix(in_oklab,#26251e_10%,transparent)]" },
-        { icon: "check", text: "2/ 24~10255",  cls: "text-[#1f8a65] bg-[#1f8a65]/10 border-[#1f8a65]/20", trend: "-17.5%" },
-      ],
-    },
-    {
-      rows: [
-        { icon: "check", text: "7/ 59~16256",  cls: "text-[#1f8a65] bg-[#1f8a65]/10 border-[#1f8a65]/20", trend: "-5.9%" },
-      ],
-    },
-  ];
+  const remainingBundle = totalBundleVal - batchBundle;
+  const remainingGoj = totalGojVal - batchGoj;
 
-  const { rows } = patterns[index];
+  const rows = [];
+  
+  if (status !== "pending") {
+    // Row 2: Remaining
+    rows.push({
+      icon: "clock",
+      text: `${remainingBundle}~${remainingGoj}`,
+      cls: "text-[#26251e]/60 bg-[#f7f7f4] border-[color-mix(in_oklab,#26251e_10%,transparent)]",
+    });
+
+    // Row 3: Batch Totals
+    if (batchCount > 0) {
+      rows.push({
+        icon: "check",
+        text: `${batchCount}/ ${batchBundle}~${batchGoj}`,
+        cls: "text-[#1f8a65] bg-[#1f8a65]/10 border-[#1f8a65]/20",
+      });
+    }
+  }
 
   return (
     <div className="flex flex-col gap-1 py-0.5 select-none min-w-[120px]">
       <span className="font-semibold text-[#26251e] text-[13px] leading-tight">
-        Gry {totalGojVal >= 80000 ? "83" : "53"}~{totalGojVal}
+        Gry {totalBundleVal}~{totalGojVal}
       </span>
       {rows.length > 0 && (
         <div className="flex flex-col gap-0.5 mt-0.5">
@@ -507,6 +491,13 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
                 : null;
               const totalGojVal = realGoj !== null ? realGoj : DUMMY_GOJ_VALUES[getDummyIndex(orderId + "g", DUMMY_GOJ_VALUES.length)];
 
+              const realBundle = order?.totalBundle !== null && order?.totalBundle !== undefined && order?.totalBundle !== ""
+                ? Number(order.totalBundle)
+                : order?.tableData?.length > 0
+                ? order.tableData.length
+                : null;
+              const totalBundleVal = realBundle !== null ? realBundle : (totalGojVal >= 80000 ? 83 : 53);
+
               const rawId = order?.orderId || order?._id || "";
               const displayId = rawId.startsWith("#ord-")
                 ? rawId.slice(0, 22) + "..."
@@ -547,7 +538,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
                   </td>
 
                   <td className="px-5 py-3.5 whitespace-nowrap">
-                    {renderGojDetails(orderId, totalGojVal)}
+                    {renderGojDetails(order, orderId, totalGojVal, totalBundleVal)}
                   </td>
 
                   <td className="px-5 py-3.5 whitespace-nowrap">

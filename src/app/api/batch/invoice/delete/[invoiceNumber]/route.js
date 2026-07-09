@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 export async function DELETE(req, { params }) {
   try {
     await connectDB();
-    const { invoiceNumber } = params;
+    const { invoiceNumber } = await params;
 
     if (!invoiceNumber) {
       return NextResponse.json(

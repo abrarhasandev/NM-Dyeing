@@ -16,7 +16,7 @@ const steps = [
   { id: 2, title: "Process" },
   { id: 3, title: "Batches" },
   { id: 4, title: "Calender" },
-  { id: 5, title: "Delivered" },
+  { id: 5, title: "Dispatch" },
   { id: 6, title: "Billing" },
   { id: 7, title: "Completed" },
 ];
@@ -26,7 +26,7 @@ const statusMap = {
   Process: "inprocess",
   Batches: "batch",
   Calender: "calender",
-  Delivered: "delivered",
+  Dispatch: "delivered",
   Billing: "billing",
   Completed: "completed",
 };
@@ -37,6 +37,8 @@ export default function OrderStatus({
   tableData,
   onStatusChange,
   selectedOrder,
+  setOrders,
+  setSelectedOrder,
 }) {
   const [currentStep, setCurrentStep] = useState(
     steps.find((s) => statusMap[s.title] === currentStatus)?.id || 1
@@ -114,6 +116,8 @@ export default function OrderStatus({
           sillName={selectedOrder?.sillName}
           createdBatches={createdBatches}
           setCreatedBatches={setCreatedBatches}
+          setOrders={setOrders}
+          setSelectedOrder={setSelectedOrder}
         />
       )}
 
@@ -124,7 +128,7 @@ export default function OrderStatus({
       {steps[currentStep - 1]?.title === "Calender" && (
         <CalendarBatch orderId={orderId} />
       )}
-      {steps[currentStep - 1]?.title === "Delivered" && (
+      {steps[currentStep - 1]?.title === "Dispatch" && (
         <DeliveredBatchList orderId={orderId} />
       )}
       {steps[currentStep - 1]?.title === "Billing" && (
