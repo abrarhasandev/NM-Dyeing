@@ -6,7 +6,7 @@ import { FaEye, FaFileInvoiceDollar } from "react-icons/fa";
 import { Edit } from "lucide-react";
 import { useRouter } from 'next/navigation'
 
-export default function DeliveredBatchList({ orderId }) {
+export default function DeliveredBatchList({ orderId, fetchOrders }) {
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedBatches, setSelectedBatches] = useState([]);
@@ -71,6 +71,7 @@ export default function DeliveredBatchList({ orderId }) {
   
         // ✅ Remove that batch from the delivered list immediately
         setBatches((prev) => prev.filter((b) => b._id !== batchId));
+        if (fetchOrders) fetchOrders();
       } else toast.error(data.error || "Billing failed");
     } catch (err) {
       console.error(err);
@@ -101,6 +102,7 @@ export default function DeliveredBatchList({ orderId }) {
           prev.filter((b) => !selectedBatches.includes(b._id))
         );
         setSelectedBatches([]);
+        if (fetchOrders) fetchOrders();
       } else toast.error(data.error || "Billing failed");
     } catch (err) {
       console.error(err);

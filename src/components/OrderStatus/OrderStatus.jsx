@@ -39,6 +39,7 @@ export default function OrderStatus({
   selectedOrder,
   setOrders,
   setSelectedOrder,
+  fetchOrders,
 }) {
   const [currentStep, setCurrentStep] = useState(
     steps.find((s) => statusMap[s.title] === currentStatus)?.id || 1
@@ -118,24 +119,25 @@ export default function OrderStatus({
           setCreatedBatches={setCreatedBatches}
           setOrders={setOrders}
           setSelectedOrder={setSelectedOrder}
+          fetchOrders={fetchOrders}
         />
       )}
 
       {steps[currentStep - 1]?.title === "Batches" && (
-        <BatchList orderId={orderId} />
+        <BatchList orderId={orderId} fetchOrders={fetchOrders} />
       )}
 
       {steps[currentStep - 1]?.title === "Calender" && (
-        <CalendarBatch orderId={orderId} />
+        <CalendarBatch orderId={orderId} fetchOrders={fetchOrders} />
       )}
       {steps[currentStep - 1]?.title === "Dispatch" && (
-        <DeliveredBatchList orderId={orderId} />
+        <DeliveredBatchList orderId={orderId} fetchOrders={fetchOrders} />
       )}
       {steps[currentStep - 1]?.title === "Billing" && (
-        <BillingBatch orderId={orderId} />
+        <BillingBatch orderId={orderId} fetchOrders={fetchOrders} />
       )}
       {steps[currentStep - 1]?.title === "Completed" && (
-        <CompletedBatch orderId={orderId} />
+        <CompletedBatch orderId={orderId} fetchOrders={fetchOrders} />
       )}
 
       {/* Confirmation modal only for first change */}

@@ -779,6 +779,7 @@ export const OrdersContent = () => {
         confirmDelete={confirmDelete}
         setOrders={setOrders}
         setSelectedOrder={setSelectedOrder}
+        fetchOrders={() => fetchOrders(true)}
       />
 
       {/* Delete Confirmation Modal */}

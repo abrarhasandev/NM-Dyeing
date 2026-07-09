@@ -17,6 +17,7 @@ interface OrderSideModalProps {
   confirmDelete: (id: string) => void;
   setOrders?: React.Dispatch<React.SetStateAction<any[]>>;
   setSelectedOrder?: React.Dispatch<React.SetStateAction<any>>;
+  fetchOrders?: () => void;
 }
 
 const OrderSideModal: React.FC<OrderSideModalProps> = ({
@@ -27,6 +28,7 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
   confirmDelete,
   setOrders,
   setSelectedOrder,
+  fetchOrders,
 }) => {
   const router = useRouter();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -263,6 +265,7 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                     }}
                     setOrders={setOrders}
                     setSelectedOrder={setSelectedOrder}
+                    fetchOrders={fetchOrders}
                   />
                 </>
               )}

@@ -33,10 +33,12 @@ const getDummyIndex = (id: string, poolLength: number) => {
 };
 
 // ─── Status Badges — exact Figma match ───────────────────────────────────────
-const renderStatusBadges = (status: string, orderId: string) => {
-  const s = status?.toLowerCase() || "pending";
+const renderStatusBadges = (order: any, orderId: string) => {
+  const status = order?.status?.toLowerCase() || "pending";
+  const batchCount = order?.batchSummary?.batchCount || 0;
+  const dispatchCount = order?.batchSummary?.dispatchCount || 0;
 
-  if (s === "pending") {
+  if (status === "pending") {
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[#f54e00]/20 bg-[#f54e00]/10 text-[#f54e00] select-none">
         <Clock size={12} className="shrink-0 text-[#f54e00]" />
@@ -45,76 +47,54 @@ const renderStatusBadges = (status: string, orderId: string) => {
     );
   }
 
-  if (s === "inprocess" || s === "in process" || s === "processing") {
-    const deliveryNum = getDummyIndex(orderId + "del", 3) + 1;
-    return (
-      <div className="flex flex-col gap-1 select-none items-start">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[#3a6a9f]/20 bg-[#3a6a9f]/10 text-[#3a6a9f]">
-          <Clock size={12} className="shrink-0 text-[#3a6a9f]" />
-          in process
-        </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/70">
-          <Truck size={12} className="shrink-0 text-[#26251e]/50" />
-          Dispatch
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#ebeae5] text-[#26251e]/70 rounded-full ml-0.5">
-            {deliveryNum}
-          </span>
-        </span>
-      </div>
-    );
-  }
+  const isCompleted = ["done", "completed", "delivered", "completedprocess", "complete"].includes(status);
 
-  if (s === "done") {
-    return (
-      <div className="flex flex-col gap-1 select-none items-start">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[#1f8a65]/20 bg-[#1f8a65]/10 text-[#1f8a65]">
-          <CheckCircle2 size={12} className="shrink-0 text-[#1f8a65]" />
-          Done
-        </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/70">
-          <Truck size={12} className="shrink-0 text-[#26251e]/50" />
-          Dispatch
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#ebeae5] text-[#26251e]/70 rounded-full ml-0.5">
-            3
-          </span>
-        </span>
-      </div>
-    );
-  }
-
-  if (["completed", "delivered", "completedprocess", "complete"].includes(s)) {
+  if (isCompleted) {
     return (
       <div className="flex flex-col gap-1 select-none items-start">
         <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[#1f8a65]/20 bg-[#1f8a65]/10 text-[#1f8a65]">
           <CheckCircle2 size={12} className="shrink-0 text-[#1f8a65]" />
           complete
         </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/70">
-          <Truck size={12} className="shrink-0 text-[#26251e]/50" />
-          Dispatch
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#ebeae5] text-[#26251e]/70 rounded-full ml-0.5">
-            3
+        {dispatchCount > 0 && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/70">
+            <Truck size={12} className="shrink-0 text-[#26251e]/50" />
+            Dispatch
+            <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#ebeae5] text-[#26251e]/70 rounded-full ml-0.5">
+              {dispatchCount}
+            </span>
           </span>
-        </span>
+        )}
       </div>
     );
   }
 
-  if (s === "batch") {
+  if (batchCount === 0) {
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[#6049b3]/20 bg-[#6049b3]/10 text-[#6049b3] select-none">
         <Clock size={12} className="shrink-0 text-[#6049b3]" />
         Batching
       </span>
     );
+  } else {
+    return (
+      <div className="flex flex-col gap-1 select-none items-start">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[#3a6a9f]/20 bg-[#3a6a9f]/10 text-[#3a6a9f]">
+          <Clock size={12} className="shrink-0 text-[#3a6a9f]" />
+          in process
+        </span>
+        {dispatchCount > 0 && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/70">
+            <Truck size={12} className="shrink-0 text-[#26251e]/50" />
+            Dispatch
+            <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#ebeae5] text-[#26251e]/70 rounded-full ml-0.5">
+              {dispatchCount}
+            </span>
+          </span>
+        )}
+      </div>
+    );
   }
-
-  return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/60 select-none">
-      <Clock size={12} className="shrink-0 text-[#26251e]/40" />
-      {s}
-    </span>
-  );
 };
 
 // ─── Total Goj — exact Figma match ───────────────────────────────────────────
@@ -137,24 +117,22 @@ const renderGojDetails = (order: any, orderId: string, totalGojVal: number, tota
   const rows = [];
   
   if (status !== "pending") {
-    if (!isCompleted) {
-      // Row 2: Remaining Unbatched
-      if (remainingBundle > 0 || remainingGoj > 0) {
-        rows.push({
-          icon: "x",
-          text: `${remainingBundle}~${remainingGoj}`,
-          cls: "text-[#26251e]/60 bg-[#f7f7f4] border-[color-mix(in_oklab,#26251e_10%,transparent)]",
-        });
-      }
+    // Row 2: Remaining Unbatched
+    if (remainingBundle > 0 || remainingGoj > 0) {
+      rows.push({
+        icon: "x",
+        text: `${remainingBundle}~${remainingGoj}`,
+        cls: "text-[#26251e]/60 bg-[#f7f7f4] border-[color-mix(in_oklab,#26251e_10%,transparent)]",
+      });
+    }
 
-      // Row 3: All Batches in process
-      if (batchCount > 0) {
-        rows.push({
-          icon: "clock",
-          text: `${batchCount}/ ${batchBundle}~${batchGoj}`,
-          cls: "text-[#3a6a9f] bg-[#3a6a9f]/10 border-[#3a6a9f]/20",
-        });
-      }
+    // Row 3: All Batches in process
+    if (batchCount > 0) {
+      rows.push({
+        icon: "clock",
+        text: `${batchCount}/ ${batchBundle}~${batchGoj}`,
+        cls: "text-[#3a6a9f] bg-[#3a6a9f]/10 border-[#3a6a9f]/20",
+      });
     }
 
     // Row 4: Dispatch Totals
@@ -565,7 +543,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
                   </td>
 
                   <td className="px-5 py-3.5 whitespace-nowrap">
-                    {renderStatusBadges(resolvedStatus, orderId)}
+                    {renderStatusBadges(order, orderId)}
                   </td>
 
                   <td className="px-5 py-3.5 whitespace-nowrap">

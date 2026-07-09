@@ -12,6 +12,7 @@ export default function BatchCreator({
   selectedOrder,
   setOrders,
   setSelectedOrder,
+  fetchOrders,
 }) {
   const [loading, setLoading] = useState(false);
   const { data } = useAppData();
@@ -233,6 +234,7 @@ export default function BatchCreator({
         }
 
         setBatchData([]);
+        if (fetchOrders) fetchOrders();
       } else {
         toast.error(newBatch?.message || "Batch creation failed");
       }

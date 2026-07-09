@@ -92,9 +92,9 @@ const useOrders = (filters) => {
   };
 
   // ── Main fetch ────────────────────────────────────────────────────────────
-  const fetchOrders = async () => {
+  const fetchOrders = async (silent = false) => {
     if (skip) return;
-    setLoadingOrders(true);
+    if (!silent) setLoadingOrders(true);
     const requestId = ++lastRequestId.current;
 
     const { startDate, endDate } = resolveDateRange();
@@ -141,7 +141,7 @@ const useOrders = (filters) => {
       }
     } finally {
       if (requestId === lastRequestId.current) {
-        setLoadingOrders(false);
+        if (!silent) setLoadingOrders(false);
       }
     }
   };

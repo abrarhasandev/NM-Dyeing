@@ -6,7 +6,7 @@ import { useEffect, useState,useRef  } from "react";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function BatchList({ orderId }) {
+export default function BatchList({ orderId, fetchOrders }) {
   const router = useRouter();
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -170,6 +170,8 @@ export default function BatchList({ orderId }) {
         } else {
           localStorage.removeItem(STORAGE_KEY);
         }
+        
+        if (fetchOrders) fetchOrders();
       } else {
         toast.error(data.message || "Failed to update batch");
       }
@@ -201,6 +203,8 @@ export default function BatchList({ orderId }) {
         } else {
           localStorage.removeItem(STORAGE_KEY);
         }
+        
+        if (fetchOrders) fetchOrders();
       } else {
         toast.error(data.message || "Delete failed");
       }

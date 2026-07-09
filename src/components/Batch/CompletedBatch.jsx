@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { FaRegEdit, FaSave, FaTimes, FaSearch } from "react-icons/fa";
 import { toast } from "react-toastify";
 
-const CompletedBatch = ({ orderId }) => {
+const CompletedBatch = ({ orderId, fetchOrders }) => {
   const [summaries, setSummaries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
@@ -64,6 +64,7 @@ const CompletedBatch = ({ orderId }) => {
       );
       setEditingId(null);
       toast.success("Billing updated");
+      if (fetchOrders) fetchOrders();
     } catch {
       toast.error("Update failed");
     }

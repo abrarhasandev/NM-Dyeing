@@ -16,6 +16,7 @@ export default function OrderTableData({
   selectedOrder,
   setOrders,
   setSelectedOrder,
+  fetchOrders,
 }) {
   const [batchData, setBatchData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -254,6 +255,7 @@ export default function OrderTableData({
         selectedOrder={selectedOrder}
         setOrders={setOrders}
         setSelectedOrder={setSelectedOrder}
+        fetchOrders={fetchOrders}
       />
     </div>
   );

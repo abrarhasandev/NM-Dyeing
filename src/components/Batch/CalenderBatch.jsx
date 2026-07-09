@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function CalendarBatch({ orderId }) {
+export default function CalendarBatch({ orderId, fetchOrders }) {
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState(null); // COLLAPSE STATE
@@ -74,6 +74,7 @@ export default function CalendarBatch({ orderId }) {
           `Batch "${updatedBatch.batchName}" Status Update "${newStatus}" SuccessFully`
         );
         setBatches((prev) => prev.filter((b) => b._id !== batchToUpdate._id));
+        if (fetchOrders) fetchOrders();
       } else {
         toast.error(data.message || " Status Update Faild");
       }

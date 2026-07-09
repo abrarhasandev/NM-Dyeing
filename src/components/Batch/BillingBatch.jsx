@@ -7,7 +7,7 @@ import { TiTick } from "react-icons/ti";
 import { MdDelete } from "react-icons/md";
 import PrintBillingInvoice from "../Print/PrintBillingInvoice/PrintBillingInvoice";
 
-export default function BillingBatch({ orderId }) {
+export default function BillingBatch({ orderId, fetchOrders }) {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [orderInfo, setOrderInfo] = useState({});
@@ -131,6 +131,7 @@ export default function BillingBatch({ orderId }) {
           delete next[invoiceNumber];
           return next;
         });
+        if (fetchOrders) fetchOrders();
       } else toast.error(data.error || "Failed to delete invoice");
     } catch (err) {
       console.error(err);
@@ -252,6 +253,7 @@ export default function BillingBatch({ orderId }) {
           [r.key]: true,
         },
       }));
+      if (fetchOrders) fetchOrders();
     } catch {
       toast.error("Failed to save billing");
     }
