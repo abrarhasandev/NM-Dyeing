@@ -451,33 +451,18 @@ export const OrdersContent = () => {
 
   return (
     <div
-      className="flex flex-col gap-5 text-[#09090B] select-none py-2 pb-10"
+      className="flex flex-col gap-4 text-[#26251e] select-none py-1 pb-10"
       style={{ animation: "mn-content-fade-in 0.4s ease" }}
     >
-
-      {/* Breadcrumb / Top Title Bar */}
-      <div className="flex items-center justify-between border-b border-[#E4E4E7] pb-4">
-        <div className="flex items-center gap-2 text-sm text-[#71717A] font-medium">
-          <span>Dashboard</span>
-          <ChevronRight size={14} className="text-[#A1A1AA]" />
-          <span className="text-[#09090B] font-semibold">Orders</span>
-        </div>
-        <Link
-          href="/dashboard/createOrder"
-          className="inline-flex items-center justify-center gap-1.5 bg-[#09090B] hover:bg-[#27272A] text-white text-[12px] font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer"
-        >
-          <Plus size={14} /> New Order
-        </Link>
-      </div>
 
       {/* KPI Stats Cards & Chart Section (Collapsible) */}
       {showGraph && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Card 1: Total Orders */}
-            <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[#D4D4D8] transition-colors">
+            <div className="bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[color-mix(in_oklab,#26251e_20%,transparent)] transition-colors">
               <div className="flex justify-between items-start">
-                <span className="text-[13px] font-medium text-[#71717A]">Total Orders</span>
+                <span className="text-[13px] font-medium text-[#26251e]/60">Total Orders</span>
                 {(() => {
                   const val = stats.orderCountGrowth;
                   if (val > 0) {
@@ -502,51 +487,51 @@ export const OrdersContent = () => {
                 })()}
               </div>
               <div className="flex flex-col mt-1">
-                <span className="text-[22px] font-bold text-[#09090B] leading-none">
-                  {stats.totalOrders.toLocaleString()} <span className="text-[14px] font-semibold text-[#71717A]">orders</span>
+                <span className="text-[22px] font-bold text-[#26251e] leading-none">
+                  {stats.totalOrders.toLocaleString()} <span className="text-[14px] font-semibold text-[#26251e]/60">orders</span>
                 </span>
-                <span className="text-[12px] font-medium text-[#71717A] mt-1.5 leading-none">
+                <span className="text-[12px] font-medium text-[#26251e]/60 mt-1.5 leading-none">
                   {stats.totalGoj.toLocaleString()} goj total
                 </span>
-                <span className="text-[11px] text-[#A1A1AA] mt-1.5 font-medium">
+                <span className="text-[11px] text-[#26251e]/40 mt-1.5 font-medium">
                   Orders in {getDateRangeLabel(dateRange)}
                 </span>
               </div>
             </div>
 
             {/* Card 2: Total Customers */}
-            <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[#D4D4D8] transition-colors">
+            <div className="bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[color-mix(in_oklab,#26251e_20%,transparent)] transition-colors">
               <div className="flex justify-between items-start">
-                <span className="text-[13px] font-medium text-[#71717A]">Total Customers</span>
-                <Users size={15} className="text-[#A1A1AA]" />
+                <span className="text-[13px] font-medium text-[#26251e]/60">Total Customers</span>
+                <Users size={15} className="text-[#26251e]/40" />
               </div>
               <div className="flex flex-col mt-2">
-                <span className="text-[22px] font-bold text-[#09090B]">{stats.totalCustomers}</span>
-                <span className="text-[11px] text-[#A1A1AA] mt-1.5 font-medium">
+                <span className="text-[22px] font-bold text-[#26251e]">{stats.totalCustomers}</span>
+                <span className="text-[11px] text-[#26251e]/40 mt-1.5 font-medium">
                   Customers in {getDateRangeLabel(dateRange)}
                 </span>
               </div>
             </div>
 
             {/* Card 3: Active Orders */}
-            <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[#D4D4D8] transition-colors">
+            <div className="bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[color-mix(in_oklab,#26251e_20%,transparent)] transition-colors">
               <div className="flex justify-between items-start">
-                <span className="text-[13px] font-medium text-[#71717A]">Active Orders</span>
-                <Activity size={15} className="text-[#A1A1AA]" />
+                <span className="text-[13px] font-medium text-[#26251e]/60">Active Orders</span>
+                <Activity size={15} className="text-[#26251e]/40" />
               </div>
               <div className="flex flex-col mt-2">
-                <span className="text-[16px] font-bold text-[#09090B] leading-tight">
+                <span className="text-[16px] font-bold text-[#26251e] leading-tight">
                   {stats.activeCount} active
                 </span>
-                <span className="text-[12px] font-medium text-[#71717A] mt-0.5">{stats.activeGoj.toLocaleString()} goj</span>
-                <span className="text-[11px] text-[#A1A1AA] mt-1.5 font-medium">In-progress orders</span>
+                <span className="text-[12px] font-medium text-[#26251e]/60 mt-0.5">{stats.activeGoj.toLocaleString()} goj</span>
+                <span className="text-[11px] text-[#26251e]/40 mt-1.5 font-medium">In-progress orders</span>
               </div>
             </div>
 
             {/* Card 4: Growth Rate */}
-            <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[#D4D4D8] transition-colors">
+            <div className="bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[color-mix(in_oklab,#26251e_20%,transparent)] transition-colors">
               <div className="flex justify-between items-start">
-                <span className="text-[13px] font-medium text-[#71717A]">Growth Rate</span>
+                <span className="text-[13px] font-medium text-[#26251e]/60">Growth Rate</span>
                 {(() => {
                   const val = stats.gojGrowth;
                   if (val > 0) {
@@ -571,21 +556,21 @@ export const OrdersContent = () => {
                 })()}
               </div>
               <div className="flex flex-col mt-2">
-                <span className="text-[22px] font-bold text-[#09090B]">
+                <span className="text-[22px] font-bold text-[#26251e]">
                   {stats.gojGrowth >= 0 ? "+" : ""}{stats.gojGrowth.toFixed(1)}%
                 </span>
-                <span className="text-[11px] text-[#A1A1AA] mt-1.5 font-medium">
+                <span className="text-[11px] text-[#26251e]/40 mt-1.5 font-medium">
                   {stats.gojGrowth >= 0 ? "Meets growth projections" : "Below growth projections"}
                 </span>
               </div>
             </div>
           </div>
 
-          <Card className="border border-[#E4E4E7] rounded-xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
-            <CardHeader className="flex items-center gap-2 space-y-0 border-b border-[#E4E4E7] py-4 sm:flex-row">
+          <Card className="border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] shadow-sm overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300 bg-[#f7f7f4]">
+            <CardHeader className="flex items-center gap-2 space-y-0 border-b border-[color-mix(in_oklab,#26251e_10%,transparent)] py-4 sm:flex-row">
               <div className="grid flex-1 gap-0.5">
-                <CardTitle className="text-[14px] font-bold text-[#09090B]">Order Chart</CardTitle>
-                <CardDescription className="text-[11px] text-[#A1A1AA] font-medium">
+                <CardTitle className="text-[14px] font-bold text-[#26251e]">Order Chart</CardTitle>
+                <CardDescription className="text-[11px] text-[#26251e]/40 font-medium">
                   {chartDescriptionText}
                 </CardDescription>
               </div>
@@ -725,9 +710,9 @@ export const OrdersContent = () => {
                 </ChartContainer>
               ) : (
                 // Fallback State when no data is available
-                <div className="flex flex-col items-center justify-center text-center p-6 bg-[#FAFAFA] border border-[#F4F4F5] rounded-lg w-full h-[250px]">
-                  <span className="text-[#71717A] font-bold text-[13px]">No data available in this range</span>
-                  <span className="text-[11px] text-[#A1A1AA] mt-1 max-w-[280px]">There are no orders matching this filter segment to plot visual stats.</span>
+                <div className="flex flex-col items-center justify-center text-center p-6 bg-[#f7f7f4] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] w-full h-[250px]">
+                  <span className="text-[#26251e]/60 font-bold text-[13px]">No data available in this range</span>
+                  <span className="text-[11px] text-[#26251e]/40 mt-1 max-w-[280px]">There are no orders matching this filter segment to plot visual stats.</span>
                 </div>
               )}
             </CardContent>

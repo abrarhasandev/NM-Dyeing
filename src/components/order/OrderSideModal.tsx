@@ -9,7 +9,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import OrderStatus from "../OrderStatus/OrderStatus";
 import OrderInvoicePrint from "../Print/OrderInvoicePrint/OrderInvoicePrint";
 
-const OrderSideModal = ({
+interface OrderSideModalProps {
+  isModalOpen: boolean;
+  loadingOrder: boolean;
+  selectedOrder: any;
+  closeModal: () => void;
+  confirmDelete: (id: string) => void;
+  setOrders?: React.Dispatch<React.SetStateAction<any[]>>;
+  setSelectedOrder?: React.Dispatch<React.SetStateAction<any>>;
+}
+
+const OrderSideModal: React.FC<OrderSideModalProps> = ({
   isModalOpen,
   loadingOrder,
   selectedOrder,
@@ -19,11 +29,10 @@ const OrderSideModal = ({
   setSelectedOrder,
 }) => {
   const router = useRouter();
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false); // Default open rakhle dekhte bhalo lage
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  const printRef = useRef();
+  const printRef = useRef<HTMLDivElement>(null);
 
-  // Client side check to avoid Hydration Error
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -44,7 +53,7 @@ const OrderSideModal = ({
     }
   }, [selectedOrder]);
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     if (!isClient || !dateString) return "Loading...";
     try {
       return new Date(dateString).toLocaleDateString();
@@ -54,7 +63,8 @@ const OrderSideModal = ({
   };
 
   const handlePrint = () => {
-    const printArea = printRef.current.cloneNode(true);
+    if (!printRef.current) return;
+    const printArea = printRef.current.cloneNode(true) as HTMLElement;
     const tempDiv = document.createElement("div");
     tempDiv.className = "print-only";
     tempDiv.appendChild(printArea);
@@ -70,7 +80,7 @@ const OrderSideModal = ({
       {isModalOpen && (
         <div className="no-print fixed inset-0 flex justify-end z-50">
           <motion.div
-            className="absolute inset-0 bg-black/30"
+            className="absolute inset-0 bg-[#26251e]/30"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -78,19 +88,19 @@ const OrderSideModal = ({
           />
 
           <motion.div
-            className="relative w-full sm:w-[350px] md:w-[450px] h-full bg-white shadow-lg border-l border-gray-200 flex flex-col"
+            className="relative w-full sm:w-[350px] md:w-[450px] h-full bg-[#f7f7f4] shadow-lg border-l border-[color-mix(in_oklab,#26251e_10%,transparent)] flex flex-col"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
           >
             {/* Header */}
-            <div className="flex justify-between items-center px-6 py-4 border-b">
-              <h2 className="text-xl font-bold">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-[color-mix(in_oklab,#26251e_10%,transparent)]">
+              <h2 className="text-[16px] font-bold text-[#26251e]">
                 {selectedOrder?.orderId || "N/A"}
               </h2>
               <IoClose
-                className="w-6 h-6 text-gray-500 hover:text-black cursor-pointer"
+                className="w-5 h-5 text-[#26251e]/40 hover:text-[#26251e] cursor-pointer transition-colors"
                 onClick={closeModal}
               />
             </div>
@@ -99,19 +109,19 @@ const OrderSideModal = ({
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {loadingOrder ? (
                 <div className="flex justify-center items-center h-full">
-                  <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#26251e]"></div>
                 </div>
               ) : (
                 <>
                   <div
-                    className="p-4 bg-gray-100 rounded-lg flex items-center justify-between cursor-pointer"
+                    className="p-3 bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] flex items-center justify-between cursor-pointer transition-colors hover:bg-[#ebeae5]"
                     onClick={() => setIsDetailsOpen(!isDetailsOpen)}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                        <CiGrid41 className="text-2xl" />
+                      <div className="w-10 h-10 bg-[#f7f7f4] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[6px] flex items-center justify-center">
+                        <CiGrid41 className="text-xl text-[#26251e]" />
                       </div>
-                      <p className="text-base uppercase font-medium">
+                      <p className="text-[13px] uppercase font-semibold text-[#26251e]">
                         {selectedOrder?.clotheType || "N/A"}
                       </p>
                     </div>
@@ -126,72 +136,72 @@ const OrderSideModal = ({
                         className="overflow-hidden"
                       >
                         <div className="space-y-6 pt-2">
-                          <div className="grid grid-cols-2 gap-4 text-gray-700">
+                          <div className="grid grid-cols-2 gap-4 text-[#26251e]">
                             <div>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-[11px] font-medium text-[#26251e]/60">
                                 Created at
                               </p>
-                              <p className="font-semibold">
+                              <p className="text-[13px] font-semibold">
                                 {formatDate(selectedOrder?.createdAt)}
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-[11px] font-medium text-[#26251e]/60">
                                 DInvoice No.
                               </p>
-                              <p className="font-semibold">
+                              <p className="text-[13px] font-semibold">
                                 {selectedOrder?.invoiceNumber}
                               </p>
                             </div>
 
                             <div>
-                              <p className="text-xs text-gray-500">Quantity</p>
-                              <p className="font-semibold">
+                              <p className="text-[11px] font-medium text-[#26251e]/60">Quantity</p>
+                              <p className="text-[13px] font-semibold">
                                 {selectedOrder?.quality || "N/A"}
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-500">Colour</p>
-                              <p className="font-semibold">
+                              <p className="text-[11px] font-medium text-[#26251e]/60">Colour</p>
+                              <p className="text-[13px] font-semibold">
                                 {selectedOrder?.colour || "N/A"}
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-500">Sill Name</p>
-                              <p className="font-semibold">
+                              <p className="text-[11px] font-medium text-[#26251e]/60">Sill Name</p>
+                              <p className="text-[13px] font-semibold">
                                 {selectedOrder?.sillName || "N/A"}
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-[11px] font-medium text-[#26251e]/60">
                                 Finishing Type
                               </p>
-                              <p className="font-semibold">
+                              <p className="text-[13px] font-semibold">
                                 {selectedOrder?.finishingType || "N/A"}
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-500">Dyeing</p>
-                              <p className="font-semibold">
+                              <p className="text-[11px] font-medium text-[#26251e]/60">Dyeing</p>
+                              <p className="text-[13px] font-semibold">
                                 {selectedOrder?.dyeingName || "N/A"}
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-[11px] font-medium text-[#26251e]/60">
                                 Transporter
                               </p>
-                              <p className="font-semibold">
+                              <p className="text-[13px] font-semibold">
                                 {selectedOrder?.transporterName || "N/A"}
                               </p>
                             </div>
                           </div>
 
-                          <div className="border-t pt-4 flex gap-2">
+                          <div className="border-t border-[color-mix(in_oklab,#26251e_10%,transparent)] pt-4 flex gap-2">
                             <button
                               onClick={handlePrint}
-                              className="flex items-center gap-2 px-3 py-1.5 bg-green-500 text-white rounded hover:bg-green-600 transition cursor-pointer text-sm"
+                              className="flex items-center gap-2 px-3 py-1.5 bg-[#1f8a65] text-[#f7f7f4] rounded-[4px] hover:bg-[#1f8a65]/90 transition-colors cursor-pointer text-[12px] font-medium"
                             >
-                              <FaPrint size={16} /> Print
+                              <FaPrint size={14} /> Print
                             </button>
                             <div style={{ display: "none" }}>
                               <div ref={printRef}>
@@ -200,7 +210,7 @@ const OrderSideModal = ({
                             </div>
                           </div>
 
-                          <div className="pt-4 border-t flex justify-between gap-4">
+                          <div className="pt-4 border-t border-[color-mix(in_oklab,#26251e_10%,transparent)] flex justify-between gap-4">
                             <button
                               disabled={hasBatch}
                               onClick={() =>
@@ -208,18 +218,18 @@ const OrderSideModal = ({
                                   `/dashboard/order/update/${selectedOrder?._id}`
                                 )
                               }
-                              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition ${hasBatch
-                                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                  : "bg-blue-600 text-white hover:bg-blue-700"
+                              className={`flex-1 py-2.5 px-4 rounded-[6px] font-semibold text-[13px] transition-colors flex justify-center items-center gap-1.5 ${hasBatch
+                                  ? "bg-[#e6e5e0] text-[#26251e]/40 cursor-not-allowed border border-[color-mix(in_oklab,#26251e_10%,transparent)]"
+                                  : "bg-[#26251e] text-[#f7f7f4] hover:bg-[#3b3a33] cursor-pointer"
                                 }`}
                             >
-                              <FaPencilAlt className="inline-block mr-2" /> Edit
+                              <FaPencilAlt size={12} /> Edit
                             </button>
                             <button
                               onClick={() => confirmDelete(selectedOrder?._id)}
-                              className="flex-1 py-3 px-4 bg-red-100 text-red-700 rounded-lg font-semibold hover:bg-red-200 transition"
+                              className="flex-1 py-2.5 px-4 bg-[#cf2d56]/10 text-[#cf2d56] rounded-[6px] font-semibold text-[13px] hover:bg-[#cf2d56]/20 border border-[#cf2d56]/20 transition-colors cursor-pointer flex justify-center items-center gap-1.5"
                             >
-                              <LuTrash2 className="inline-block mr-2" /> Delete
+                              <LuTrash2 size={14} /> Delete
                             </button>
                           </div>
                         </div>
@@ -232,7 +242,7 @@ const OrderSideModal = ({
                     orderId={selectedOrder?._id}
                     currentStatus={selectedOrder?.status || "Pending"}
                     tableData={selectedOrder?.tableData || []}
-                    onStatusChange={(newStatus) => {
+                    onStatusChange={(newStatus: string) => {
                       if (selectedOrder) {
                         if (setSelectedOrder) {
                           setSelectedOrder({

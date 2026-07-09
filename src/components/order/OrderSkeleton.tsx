@@ -15,9 +15,9 @@ const SHIMMER_STYLE = `
   .mn-skeleton {
     background: linear-gradient(
       90deg,
-      #f0f0f0 25%,
-      #e4e4e4 37%,
-      #f0f0f0 63%
+      #e6e5e0 25%,
+      #d4d3ce 37%,
+      #e6e5e0 63%
     );
     background-size: 800px 100%;
     animation: mn-shimmer 1.5s infinite linear;
@@ -37,7 +37,14 @@ function InjectStyle() {
 }
 
 /* ── Primitive ───────────────────────────────────────────────────────────── */
-const Bone = ({ width = "100%", height = 12, radius = 6, style = {} }) => (
+interface BoneProps {
+  width?: number | string;
+  height?: number | string;
+  radius?: number;
+  style?: React.CSSProperties;
+}
+
+const Bone: React.FC<BoneProps> = ({ width = "100%", height = 12, radius = 6, style = {} }) => (
   <div
     className="mn-skeleton"
     style={{ width, height, borderRadius: radius, flexShrink: 0, ...style }}
@@ -47,7 +54,7 @@ const Bone = ({ width = "100%", height = 12, radius = 6, style = {} }) => (
 /* ── KPI Stat Card Skeleton ──────────────────────────────────────────────── */
 const KpiCardSkeleton = () => (
   <div
-    className="bg-white border border-[#E4E4E7] rounded-xl p-5 shadow-sm flex flex-col justify-between"
+    className="bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] p-5 shadow-sm flex flex-col justify-between"
     style={{ height: 130 }}
   >
     <div className="flex justify-between items-start">
@@ -64,9 +71,9 @@ const KpiCardSkeleton = () => (
 
 /* ── Chart Card Skeleton ─────────────────────────────────────────────────── */
 const ChartSkeleton = () => (
-  <div className="bg-white border border-[#E4E4E7] rounded-xl shadow-sm overflow-hidden">
+  <div className="bg-[#f7f7f4] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] shadow-sm overflow-hidden">
     {/* header */}
-    <div className="flex items-center gap-2 border-b border-[#E4E4E7] px-6 py-4">
+    <div className="flex items-center gap-2 border-b border-[color-mix(in_oklab,#26251e_10%,transparent)] px-6 py-4">
       <div className="flex-1 flex flex-col gap-1.5">
         <Bone width={100} height={13} />
         <Bone width={70} height={10} />
@@ -112,27 +119,19 @@ const ChartSkeleton = () => (
 
 /* ── Filter / Search Bar Skeleton ────────────────────────────────────────── */
 const FilterBarSkeleton = () => (
-  <div className="flex flex-wrap items-center gap-2">
-    {/* Search input */}
-    <Bone width={220} height={34} radius={8} />
-    {/* Date range */}
-    <Bone width={130} height={34} radius={8} />
-    {/* Status filter */}
-    <Bone width={100} height={34} radius={8} />
-    {/* More filters button */}
-    <Bone width={110} height={34} radius={8} />
-    {/* Toggle graph */}
-    <Bone width={80} height={34} radius={8} style={{ marginLeft: "auto" }} />
+  <div className="flex flex-wrap items-center gap-2 w-full">
+    <Bone width="100%" height={56} radius={8} />
   </div>
 );
 
 /* ── Table Row Skeleton ──────────────────────────────────────────────────── */
-const TableRowSkeleton = ({ opacity = 1 }) => (
+const TableRowSkeleton = ({ opacity = 1 }: { opacity?: number }) => (
   <tr
     style={{
-      borderBottom: "1px solid #F4F4F5",
+      borderBottom: "1px solid color-mix(in oklab, #26251e 10%, transparent)",
       opacity,
       transition: "opacity 0.2s",
+      backgroundColor: "#f7f7f4",
     }}
   >
     {/* Order ID */}
@@ -180,10 +179,10 @@ const TableRowSkeleton = ({ opacity = 1 }) => (
 );
 
 /* ── Table Skeleton ──────────────────────────────────────────────────────── */
-const TableSkeleton = ({ rows = 8 }) => (
+const TableSkeleton = ({ rows = 8 }: { rows?: number }) => (
   <div
-    className="w-full overflow-hidden rounded-xl bg-white"
-    style={{ border: "1px solid var(--mn-surface)", boxShadow: "var(--mn-elevation-1)" }}
+    className="w-full overflow-hidden rounded-[8px] bg-[#f7f7f4]"
+    style={{ border: "1px solid color-mix(in oklab, #26251e 10%, transparent)", boxShadow: "var(--mn-elevation-1)" }}
   >
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse">
@@ -191,8 +190,8 @@ const TableSkeleton = ({ rows = 8 }) => (
         <thead>
           <tr
             style={{
-              borderBottom: "1px solid var(--mn-surface)",
-              backgroundColor: "var(--mn-background-3)",
+              borderBottom: "1px solid color-mix(in oklab, #26251e 10%, transparent)",
+              backgroundColor: "#f2f1ed",
             }}
           >
             {[120, 100, 80, 70, 90, 65, 70, 36].map((w, i) => (
@@ -217,7 +216,7 @@ const TableSkeleton = ({ rows = 8 }) => (
 
 /* ── Pagination Skeleton ─────────────────────────────────────────────────── */
 const PaginationSkeleton = () => (
-  <div className="flex items-center justify-between flex-wrap gap-3">
+  <div className="flex items-center justify-between flex-wrap gap-3 mt-2">
     <div className="flex items-center gap-2">
       <Bone width={50} height={11} />
       <Bone width={64} height={32} radius={8} />
@@ -232,23 +231,15 @@ const PaginationSkeleton = () => (
 );
 
 /* ── Full Orders Page Skeleton ───────────────────────────────────────────── */
-const OrderSkeleton = ({ showGraph = true }) => {
+interface OrderSkeletonProps {
+  showGraph?: boolean;
+}
+
+const OrderSkeleton: React.FC<OrderSkeletonProps> = ({ showGraph = true }) => {
   return (
     <>
       <InjectStyle />
-      <div className="flex flex-col gap-5 text-[#09090B] select-none py-2 pb-10">
-
-        {/* ── Breadcrumb / Title Bar ── */}
-        <div className="flex items-center justify-between border-b border-[#E4E4E7] pb-4">
-          <div className="flex items-center gap-2">
-            <Bone width={68} height={12} />
-            <Bone width={8} height={12} radius={2} />
-            <Bone width={48} height={12} />
-          </div>
-          {/* New Order button ghost */}
-          <Bone width={100} height={34} radius={8} />
-        </div>
-
+      <div className="flex flex-col gap-4 text-[#26251e] select-none py-1 pb-10">
         {/* ── KPI Cards ── */}
         {showGraph && (
           <>

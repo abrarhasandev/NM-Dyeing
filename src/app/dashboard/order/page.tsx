@@ -1,4 +1,3 @@
-
 import { OrdersContent } from "@/components/order/OrdersContent";
 import { Suspense } from "react";
 

@@ -11,6 +11,7 @@ import {
     CalendarDays,
     WalletCards,
     ShieldCheck,
+    LayoutGrid,
 } from "lucide-react"
 
 import { NavMain } from "@/components/Sidebar/nav-main"
@@ -21,11 +22,10 @@ import {
     SidebarFooter,
     SidebarHeader,
     SidebarRail,
-    SidebarTrigger,
     useSidebar,
 } from "@/components/ui/sidebar"
 
-// Navigation items from the original project
+// Navigation items from the original project with collapsible Menu
 const navigationItems = [
     {
         title: "Order",
@@ -51,6 +51,37 @@ const navigationItems = [
         title: "Accounts",
         url: "/dashboard/accounts",
         icon: WalletCards,
+    },
+    {
+        title: "Menu",
+        url: "/dashboard/menu",
+        icon: LayoutGrid,
+        items: [
+            {
+                title: "Finishing Type",
+                url: "/dashboard/menu/finishingType",
+            },
+            {
+                title: "Clothe Type",
+                url: "/dashboard/menu/clotheType",
+            },
+            {
+                title: "Colour",
+                url: "/dashboard/menu/colour",
+            },
+            {
+                title: "Sill Name",
+                url: "/dashboard/menu/sillName",
+            },
+            {
+                title: "Quality",
+                url: "/dashboard/menu/quality",
+            },
+            {
+                title: "Process List",
+                url: "/dashboard/menu/pocess-list",
+            },
+        ],
     },
     {
         title: "Administration",
@@ -108,9 +139,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         </div>
                     )}
                 </Link>
-                {!isCollapsed && (
-                    <SidebarTrigger className="text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent border-none shadow-none h-8 w-8 shrink-0" />
-                )}
             </SidebarHeader>
             <SidebarContent>
                 <NavMain items={navigationItems} />

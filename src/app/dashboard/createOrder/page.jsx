@@ -454,13 +454,12 @@ const Page = () => {
 
         {/* Buttons */}
         <div className="flex justify-between mt-8 gap-2">
-          <button onClick={() => router.back()}>
-            <button
-              type="button"
-              className="bg-red-500 hover:bg-red-700 text-white font-medium px-6 py-3 cursor-pointer rounded-lg"
-            >
-              Back
-            </button>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="bg-red-500 hover:bg-red-700 text-white font-medium px-6 py-3 cursor-pointer rounded-lg"
+          >
+            Back
           </button>
           <button
             type="submit"

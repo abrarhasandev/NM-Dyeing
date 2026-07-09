@@ -1,13 +1,43 @@
 "use client";
 import React from "react";
-import { Search, SlidersHorizontal, ChevronDown, ChevronUp, BarChart3, Calendar as CalendarIcon, X } from "lucide-react";
+import Link from "next/link";
+import { Search, SlidersHorizontal, ChevronDown, ChevronUp, BarChart3, Calendar as CalendarIcon, X, Plus } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
 
-const OrderFilters = ({
+interface OrderFiltersProps {
+  searchTerm: string;
+  setSearchTerm: (val: string) => void;
+  dateRange: string;
+  handleDateRangeChange: (val: string) => void;
+  customStartDate: Date | null;
+  setCustomStartDate: (date: Date | null) => void;
+  customEndDate: Date | null;
+  setCustomEndDate: (date: Date | null) => void;
+  handleCustomApply: (start: Date | null, end: Date | null) => void;
+  status: string;
+  setStatus: (val: string) => void;
+  clotheType: string;
+  setClotheType: (val: string) => void;
+  finishingType: string;
+  setFinishingType: (val: string) => void;
+  colour: string;
+  setColour: (val: string) => void;
+  sillName: string;
+  setSillName: (val: string) => void;
+  quality: string;
+  setQuality: (val: string) => void;
+  showMoreFilters: boolean;
+  setShowMoreFilters: (val: boolean) => void;
+  data: any;
+  showGraph: boolean;
+  setShowGraph: (val: boolean) => void;
+}
+
+const OrderFilters: React.FC<OrderFiltersProps> = ({
   searchTerm,
   setSearchTerm,
   dateRange,
@@ -35,15 +65,14 @@ const OrderFilters = ({
   showGraph,
   setShowGraph,
 }) => {
-  const [localStartDate, setLocalStartDate] = React.useState(customStartDate);
-  const [localEndDate, setLocalEndDate] = React.useState(customEndDate);
+  const [localStartDate, setLocalStartDate] = React.useState<Date | null>(customStartDate);
+  const [localEndDate, setLocalEndDate] = React.useState<Date | null>(customEndDate);
 
   React.useEffect(() => {
     setLocalStartDate(customStartDate);
     setLocalEndDate(customEndDate);
   }, [customStartDate, customEndDate]);
 
-  // Date range options representing Figma tabs
   const dateTabs = [
     { label: "Custom", value: "custom" },
     { label: "current year", value: "current_year" },
@@ -54,12 +83,12 @@ const OrderFilters = ({
   ];
 
   return (
-    <div className="w-full mb-1" style={{ fontFamily: "var(--mn-font-primary)" }}>
-      {/* Figma Control Bar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white p-2 rounded-xl border shadow-sm" style={{ borderColor: "var(--mn-surface)" }}>
+    <div className="w-full mb-1">
+      {/* Control Bar */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-[#f7f7f4] p-2 rounded-[8px] border border-[color-mix(in_oklab,#26251e_10%,transparent)] shadow-sm">
         {/* Left: Search box */}
         <div className="relative flex-1 min-w-[280px] lg:max-w-md">
-          <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none" style={{ color: "var(--mn-text-tertiary)" }}>
+          <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-[#26251e]/60">
             <Search size={16} />
           </span>
           <input
@@ -67,32 +96,22 @@ const OrderFilters = ({
             placeholder="Search order or company name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-16 py-2 rounded-lg text-[13px] transition-all focus:outline-none"
-            style={{
-              backgroundColor: "var(--mn-background-3)",
-              border: "1px solid var(--mn-surface)",
-              color: "var(--mn-text-primary)",
-            }}
-            onFocus={(e) => (e.target.style.borderColor = "var(--mn-accent)")}
-            onBlur={(e) => (e.target.style.borderColor = "var(--mn-surface)")}
+            className="w-full pl-9 pr-16 py-2 rounded-[4px] text-[13px] transition-all focus:outline-none bg-[#f2f1ed] text-[#26251e] border border-[color-mix(in_oklab,#26251e_10%,transparent)] focus:border-[#f54e00]"
           />
           <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none gap-0.5">
-            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded bg-white text-[10px] font-medium shadow-sm" style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-tertiary)" }}>
+            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded-[2px] bg-[#f7f7f4] text-[10px] font-medium shadow-sm border border-[color-mix(in_oklab,#26251e_10%,transparent)] text-[#26251e]/60">
               Ctrl
             </kbd>
-            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded bg-white text-[10px] font-medium shadow-sm" style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-tertiary)" }}>
+            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded-[2px] bg-[#f7f7f4] text-[10px] font-medium shadow-sm border border-[color-mix(in_oklab,#26251e_10%,transparent)] text-[#26251e]/60">
               K
             </kbd>
           </div>
         </div>
 
-        {/* Right: Date tabs + Graph toggle + Advanced Filters Button */}
+        {/* Right: Date tabs + Graph toggle + Advanced Filters Button + New Order */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Segmented Date Range Tabs */}
-          <div
-            className="inline-flex p-1 rounded-lg text-[11px] font-medium"
-            style={{ backgroundColor: "var(--mn-surface)", border: "1px solid var(--mn-surface-alt)" }}
-          >
+          <div className="inline-flex p-1 rounded-[4px] text-[11px] font-medium bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)]">
             {dateTabs.map((tab) => {
               const isActive = dateRange === tab.value;
               return (
@@ -100,14 +119,12 @@ const OrderFilters = ({
                   key={tab.value}
                   type="button"
                   onClick={() => handleDateRangeChange(tab.value)}
-                  className="px-2.5 py-1.5 rounded-md transition-all duration-200 cursor-pointer capitalize"
+                  className="px-2.5 py-1.5 rounded-[2px] transition-all duration-200 cursor-pointer capitalize"
                   style={{
-                    backgroundColor: isActive ? "var(--mn-accent)" : "transparent",
-                    color: isActive ? "#ffffff" : "var(--mn-text-secondary)",
-                    boxShadow: isActive ? "var(--mn-elevation-1)" : "none",
+                    backgroundColor: isActive ? "#26251e" : "transparent",
+                    color: isActive ? "#f7f7f4" : "color-mix(in oklab, #26251e 60%, transparent)",
+                    boxShadow: isActive ? "0 0 0 1px color-mix(in oklab, #26251e 10%, transparent)" : "none",
                   }}
-                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "rgba(28,39,76,0.08)"; }}
-                  onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "transparent"; }}
                 >
                   {tab.label}
                 </button>
@@ -116,20 +133,17 @@ const OrderFilters = ({
           </div>
 
           {/* Graph Toggle Switch */}
-          <div
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-medium select-none"
-            style={{ backgroundColor: "var(--mn-background-3)", border: "1px solid var(--mn-surface)", color: "var(--mn-text-secondary)" }}
-          >
-            <BarChart3 size={13} style={{ color: "var(--mn-text-tertiary)" }} />
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-[4px] text-[11px] font-medium select-none bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)] text-[#26251e]/60">
+            <BarChart3 size={13} className="text-[#26251e]/40" />
             <span>Graph</span>
             <button
               type="button"
-              onClick={() => setShowGraph && setShowGraph(!showGraph)}
+              onClick={() => setShowGraph(!showGraph)}
               className="relative inline-flex h-[18px] w-8 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
-              style={{ backgroundColor: showGraph ? "var(--mn-accent)" : "var(--mn-surface-alt)" }}
+              style={{ backgroundColor: showGraph ? "#26251e" : "color-mix(in oklab, #26251e 20%, transparent)" }}
             >
               <span
-                className="pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                className="pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-[#f7f7f4] shadow ring-0 transition duration-200 ease-in-out"
                 style={{ transform: showGraph ? "translateX(14px)" : "translateX(0px)", marginTop: "1px" }}
               />
             </button>
@@ -138,52 +152,53 @@ const OrderFilters = ({
           {/* Advanced Filters Toggle Button */}
           <button
             onClick={() => setShowMoreFilters(!showMoreFilters)}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-medium cursor-pointer transition-all"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[4px] text-[11px] font-medium cursor-pointer transition-all"
             style={{
-              backgroundColor: showMoreFilters ? "var(--mn-accent)" : "white",
-              border: showMoreFilters ? "1px solid var(--mn-accent)" : "1px solid var(--mn-surface)",
-              color: showMoreFilters ? "#ffffff" : "var(--mn-text-secondary)",
+              backgroundColor: showMoreFilters ? "#26251e" : "#f7f7f4",
+              border: showMoreFilters ? "1px solid #26251e" : "1px solid color-mix(in oklab, #26251e 10%, transparent)",
+              color: showMoreFilters ? "#f7f7f4" : "color-mix(in oklab, #26251e 60%, transparent)",
             }}
             type="button"
-            onMouseEnter={(e) => { if (!showMoreFilters) e.currentTarget.style.backgroundColor = "var(--mn-background-alt)"; }}
-            onMouseLeave={(e) => { if (!showMoreFilters) e.currentTarget.style.backgroundColor = "white"; }}
           >
             <SlidersHorizontal size={13} />
             <span>Filters</span>
             {showMoreFilters ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
           </button>
+
+          {/* New Order Button */}
+          <Link
+            href="/dashboard/createOrder"
+            className="inline-flex items-center justify-center gap-1.5 bg-[#f54e00] hover:bg-[#c43e00] text-[#f7f7f4] text-[11px] font-medium px-3 py-2 rounded-[4px] transition-colors shadow-sm cursor-pointer"
+          >
+            <Plus size={13} /> New Order
+          </Link>
         </div>
       </div>
 
-      {/* Custom Date Pickers Drawer (when 'custom' range is active) */}
+      {/* Custom Date Pickers Drawer */}
       {dateRange === "custom" && (
-        <div className="mt-2 flex flex-wrap items-center gap-3 p-3 rounded-xl animate-in fade-in slide-in-from-top-1 duration-200" style={{ backgroundColor: "var(--mn-background-3)", border: "1px solid var(--mn-surface)" }}>
+        <div className="mt-2 flex flex-wrap items-center gap-3 p-3 rounded-[8px] animate-in fade-in slide-in-from-top-1 duration-200 bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)]">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <span className="text-[11px] font-medium" style={{ color: "var(--mn-text-secondary)" }}>Custom Range:</span>
+            <span className="text-[11px] font-medium text-[#26251e]/60">Custom Range:</span>
             <div className="flex items-center gap-2 flex-wrap">
-              {/* Start Date Picker */}
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     id="date-picker-start"
-                    className="justify-start px-3 py-2 text-[11px] font-normal bg-white border-[#E4E4E7] text-[#71717A] hover:bg-[#FAFAFA] min-w-[140px] shadow-sm rounded-lg"
+                    className="justify-start px-3 py-2 text-[11px] font-normal bg-[#f7f7f4] border-[color-mix(in_oklab,#26251e_10%,transparent)] text-[#26251e] hover:bg-[#ebeae5] min-w-[140px] shadow-sm rounded-[4px]"
                   >
-                    <CalendarIcon className="mr-2 h-3.5 w-3.5 text-[#A1A1AA]" />
-                    {localStartDate ? (
-                      format(localStartDate, "LLL dd, y")
-                    ) : (
-                      <span>Start Date</span>
-                    )}
+                    <CalendarIcon className="mr-2 h-3.5 w-3.5 text-[#26251e]/60" />
+                    {localStartDate ? format(localStartDate, "LLL dd, y") : <span>Start Date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-white border border-[#E4E4E7] shadow-xl rounded-xl z-[100]" align="start">
+                <PopoverContent className="w-auto p-0 bg-[#f7f7f4] border border-[color-mix(in_oklab,#26251e_10%,transparent)] shadow-xl rounded-[8px] z-[100]" align="start">
                   <Calendar
                     initialFocus
                     mode="single"
-                    selected={localStartDate}
+                    selected={localStartDate || undefined}
                     onSelect={(date) => {
-                      setLocalStartDate(date);
+                      setLocalStartDate(date ?? null);
                       if (date && localEndDate && date > localEndDate) {
                         setLocalEndDate(null);
                       }
@@ -194,31 +209,26 @@ const OrderFilters = ({
                 </PopoverContent>
               </Popover>
 
-              <span className="text-[11px] text-[#A1A1AA] font-semibold">to</span>
+              <span className="text-[11px] text-[#26251e]/40 font-semibold">to</span>
 
-              {/* End Date Picker */}
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     id="date-picker-end"
-                    className="justify-start px-3 py-2 text-[11px] font-normal bg-white border-[#E4E4E7] text-[#71717A] hover:bg-[#FAFAFA] min-w-[140px] shadow-sm rounded-lg"
+                    className="justify-start px-3 py-2 text-[11px] font-normal bg-[#f7f7f4] border-[color-mix(in_oklab,#26251e_10%,transparent)] text-[#26251e] hover:bg-[#ebeae5] min-w-[140px] shadow-sm rounded-[4px]"
                     disabled={!localStartDate}
                   >
-                    <CalendarIcon className="mr-2 h-3.5 w-3.5 text-[#A1A1AA]" />
-                    {localEndDate ? (
-                      format(localEndDate, "LLL dd, y")
-                    ) : (
-                      <span>End Date</span>
-                    )}
+                    <CalendarIcon className="mr-2 h-3.5 w-3.5 text-[#26251e]/60" />
+                    {localEndDate ? format(localEndDate, "LLL dd, y") : <span>End Date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-white border border-[#E4E4E7] shadow-xl rounded-xl z-[100]" align="start">
+                <PopoverContent className="w-auto p-0 bg-[#f7f7f4] border border-[color-mix(in_oklab,#26251e_10%,transparent)] shadow-xl rounded-[8px] z-[100]" align="start">
                   <Calendar
                     initialFocus
                     mode="single"
-                    selected={localEndDate}
-                    onSelect={setLocalEndDate}
+                    selected={localEndDate || undefined}
+                    onSelect={(date) => setLocalEndDate(date ?? null)}
                     defaultMonth={localEndDate || localStartDate || new Date()}
                     disabled={(date) => (localStartDate ? date < localStartDate : false)}
                     captionLayout="dropdown"
@@ -226,7 +236,6 @@ const OrderFilters = ({
                 </PopoverContent>
               </Popover>
 
-              {/* Clear button if any date is selected */}
               {(localStartDate || localEndDate || customStartDate || customEndDate) && (
                 <button
                   type="button"
@@ -236,7 +245,7 @@ const OrderFilters = ({
                     setCustomStartDate(null);
                     setCustomEndDate(null);
                   }}
-                  className="p-1.5 hover:bg-[#F4F4F5] rounded-full transition-colors text-[#A1A1AA] hover:text-[#71717A] cursor-pointer"
+                  className="p-1.5 hover:bg-[#ebeae5] rounded-full transition-colors text-[#26251e]/40 hover:text-[#26251e]/60 cursor-pointer"
                   title="Clear selection"
                 >
                   <X size={13} />
@@ -252,11 +261,7 @@ const OrderFilters = ({
               }
               handleCustomApply(localStartDate, localEndDate);
             }}
-            className="px-4 py-1.5 text-white rounded-md text-[11px] font-medium transition cursor-pointer"
-            style={{ backgroundColor: "var(--mn-accent)", borderRadius: "var(--mn-radius-sm-3)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--mn-accent-4)")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--mn-accent)")}
-            suppressHydrationWarning
+            className="px-4 py-1.5 text-[#f7f7f4] rounded-[4px] text-[11px] font-medium transition cursor-pointer bg-[#26251e] hover:bg-[#3b3a33]"
           >
             Apply
           </button>
@@ -270,15 +275,14 @@ const OrderFilters = ({
         }`}
       >
         <div className="overflow-hidden">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 p-3 rounded-xl" style={{ backgroundColor: "var(--mn-background-3)", border: "1px solid var(--mn-surface)" }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 p-3 rounded-[8px] bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)]">
             {/* Status Select */}
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--mn-text-tertiary)" }}>Status</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-[#26251e]/40">Status</label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full px-2.5 py-2 bg-white rounded-lg text-[12px] font-medium focus:outline-none"
-                style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-primary)" }}
+                className="w-full px-2.5 py-2 bg-[#f7f7f4] rounded-[4px] text-[12px] font-medium focus:outline-none border border-[color-mix(in_oklab,#26251e_10%,transparent)] text-[#26251e]"
               >
                 <option value="">All Statuses</option>
                 <option value="pending">Pending</option>
@@ -293,15 +297,14 @@ const OrderFilters = ({
 
             {/* Cloth Type Select */}
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--mn-text-tertiary)" }}>Cloth Type</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-[#26251e]/40">Cloth Type</label>
               <select
                 value={clotheType}
                 onChange={(e) => setClotheType(e.target.value)}
-                className="w-full px-2.5 py-2 bg-white rounded-lg text-[12px] font-medium focus:outline-none"
-                style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-primary)" }}
+                className="w-full px-2.5 py-2 bg-[#f7f7f4] rounded-[4px] text-[12px] font-medium focus:outline-none border border-[color-mix(in_oklab,#26251e_10%,transparent)] text-[#26251e]"
               >
                 <option value="">All Cloth Types</option>
-                {data?.clotheTypes?.map((item) => (
+                {data?.clotheTypes?.map((item: any) => (
                   <option key={item?._id} value={item.name}>
                     {item.name}
                   </option>
@@ -311,15 +314,14 @@ const OrderFilters = ({
 
             {/* Finishing Type Select */}
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--mn-text-tertiary)" }}>Finishing Type</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-[#26251e]/40">Finishing Type</label>
               <select
                 value={finishingType}
                 onChange={(e) => setFinishingType(e.target.value)}
-                className="w-full px-2.5 py-2 bg-white rounded-lg text-[12px] font-medium focus:outline-none"
-                style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-primary)" }}
+                className="w-full px-2.5 py-2 bg-[#f7f7f4] rounded-[4px] text-[12px] font-medium focus:outline-none border border-[color-mix(in_oklab,#26251e_10%,transparent)] text-[#26251e]"
               >
                 <option value="">All Finishings</option>
-                {data?.finishingTypes?.map((item) => (
+                {data?.finishingTypes?.map((item: any) => (
                   <option key={item?._id || item.id} value={item.name}>
                     {item.name}
                   </option>
@@ -329,15 +331,14 @@ const OrderFilters = ({
 
             {/* Colour Select */}
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--mn-text-tertiary)" }}>Colour</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-[#26251e]/40">Colour</label>
               <select
                 value={colour}
                 onChange={(e) => setColour(e.target.value)}
-                className="w-full px-2.5 py-2 bg-white rounded-lg text-[12px] font-medium focus:outline-none"
-                style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-primary)" }}
+                className="w-full px-2.5 py-2 bg-[#f7f7f4] rounded-[4px] text-[12px] font-medium focus:outline-none border border-[color-mix(in_oklab,#26251e_10%,transparent)] text-[#26251e]"
               >
                 <option value="">All Colours</option>
-                {data?.colours?.map((item) => (
+                {data?.colours?.map((item: any) => (
                   <option key={item?._id || item.id} value={item.name}>
                     {item.name}
                   </option>
@@ -347,15 +348,14 @@ const OrderFilters = ({
 
             {/* Sill Name Select */}
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--mn-text-tertiary)" }}>Sill Name</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-[#26251e]/40">Sill Name</label>
               <select
                 value={sillName}
                 onChange={(e) => setSillName(e.target.value)}
-                className="w-full px-2.5 py-2 bg-white rounded-lg text-[12px] font-medium focus:outline-none"
-                style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-primary)" }}
+                className="w-full px-2.5 py-2 bg-[#f7f7f4] rounded-[4px] text-[12px] font-medium focus:outline-none border border-[color-mix(in_oklab,#26251e_10%,transparent)] text-[#26251e]"
               >
                 <option value="">All Sills</option>
-                {data?.sillNames?.map((item) => (
+                {data?.sillNames?.map((item: any) => (
                   <option key={item?._id || item.id} value={item.name}>
                     {item.name}
                   </option>
@@ -365,15 +365,14 @@ const OrderFilters = ({
 
             {/* Quality Select */}
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--mn-text-tertiary)" }}>Quality</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-[#26251e]/40">Quality</label>
               <select
                 value={quality}
                 onChange={(e) => setQuality(e.target.value)}
-                className="w-full px-2.5 py-2 bg-white rounded-lg text-[12px] font-medium focus:outline-none"
-                style={{ border: "1px solid var(--mn-surface)", color: "var(--mn-text-primary)" }}
+                className="w-full px-2.5 py-2 bg-[#f7f7f4] rounded-[4px] text-[12px] font-medium focus:outline-none border border-[color-mix(in_oklab,#26251e_10%,transparent)] text-[#26251e]"
               >
                 <option value="">All Qualities</option>
-                {data?.qualities?.map((item) => (
+                {data?.qualities?.map((item: any) => (
                   <option key={item?._id || item.id} value={item.name}>
                     {item.name}
                   </option>
