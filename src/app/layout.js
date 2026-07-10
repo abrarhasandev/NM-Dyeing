@@ -60,12 +60,18 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+import { cookies } from "next/headers";
+
+export default async function RootLayout({ children }) {
+  const cookieStore = await cookies();
+  const sidebarState = cookieStore.get("sidebar_state")?.value;
+  const defaultOpen = sidebarState === "false" ? false : true;
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${roboto.variable}`}>
         <NextAuthProvider>
-          <SessionWrapper>
+          <SessionWrapper defaultOpen={defaultOpen}>
             {children}
             <ToastContainer />
           </SessionWrapper>

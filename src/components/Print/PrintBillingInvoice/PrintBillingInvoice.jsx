@@ -122,7 +122,7 @@ export default function PrintBillingInvoice({ order }) {
             Order ID: <span className="font-normal">{orderInfo?.orderId}</span>
           </p>
           <p>
-            Invoice Number:{" "}
+            Delivery Slip No.:{" "}
             <span className="font-normal">{order?.invoiceNumber}</span>
           </p>
           <p>

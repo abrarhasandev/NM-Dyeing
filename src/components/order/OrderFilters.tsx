@@ -111,7 +111,7 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
         {/* Right: Date tabs + Graph toggle + Advanced Filters Button + New Order */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Segmented Date Range Tabs */}
-          <div className="inline-flex p-1 rounded-[4px] text-[11px] font-medium bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)]">
+          <div className="flex max-w-full overflow-x-auto hide-scrollbar p-1 rounded-[4px] text-[11px] font-medium bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)]">
             {dateTabs.map((tab) => {
               const isActive = dateRange === tab.value;
               return (

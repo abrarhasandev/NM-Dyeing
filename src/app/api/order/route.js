@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import connectDB from "@/lib/db";
 import Order from "@/models/Order";
 import Batch from "@/models/Batch";
+import BillingSummary from "@/models/BillingSummary";
 import { NextResponse } from "next/server";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -108,7 +109,23 @@ async function runStatsAggregation(matchQuery) {
             $group: {
               _id: null,
               totalOrders: { $sum: 1 },
-              totalGoj: { $sum: { $ifNull: ["$totalGoj", 0] } },
+              totalGoj: {
+                $sum: {
+                  $cond: {
+                    if: { $and: [{ $ne: ["$totalGoj", null] }, { $ne: ["$totalGoj", ""] }] },
+                    then: { $convert: { input: "$totalGoj", to: "double", onError: 0, onNull: 0 } },
+                    else: {
+                      $sum: {
+                        $map: {
+                          input: { $ifNull: ["$tableData", []] },
+                          as: "item",
+                          in: { $convert: { input: "$$item.goj", to: "double", onError: 0, onNull: 0 } },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
               uniqueCustomers: { $addToSet: "$companyName" },
             },
           },
@@ -135,7 +152,23 @@ async function runStatsAggregation(matchQuery) {
             $group: {
               _id: null,
               count: { $sum: 1 },
-              totalGoj: { $sum: { $ifNull: ["$totalGoj", 0] } },
+              totalGoj: {
+                $sum: {
+                  $cond: {
+                    if: { $and: [{ $ne: ["$totalGoj", null] }, { $ne: ["$totalGoj", ""] }] },
+                    then: { $convert: { input: "$totalGoj", to: "double", onError: 0, onNull: 0 } },
+                    else: {
+                      $sum: {
+                        $map: {
+                          input: { $ifNull: ["$tableData", []] },
+                          as: "item",
+                          in: { $convert: { input: "$$item.goj", to: "double", onError: 0, onNull: 0 } },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
         ],
@@ -175,6 +208,23 @@ async function runStatsAggregation(matchQuery) {
                 },
               },
               count: { $sum: 1 },
+              totalGoj: {
+                $sum: {
+                  $cond: {
+                    if: { $and: [{ $ne: ["$totalGoj", null] }, { $ne: ["$totalGoj", ""] }] },
+                    then: { $convert: { input: "$totalGoj", to: "double", onError: 0, onNull: 0 } },
+                    else: {
+                      $sum: {
+                        $map: {
+                          input: { $ifNull: ["$tableData", []] },
+                          as: "item",
+                          in: { $convert: { input: "$$item.goj", to: "double", onError: 0, onNull: 0 } },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
           { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } },
@@ -209,7 +259,23 @@ async function runPrevKpiAggregation(baseQuery, prevStart, prevEnd) {
       $group: {
         _id: null,
         totalOrders: { $sum: 1 },
-        totalGoj: { $sum: { $ifNull: ["$totalGoj", 0] } },
+        totalGoj: {
+          $sum: {
+            $cond: {
+              if: { $and: [{ $ne: ["$totalGoj", null] }, { $ne: ["$totalGoj", ""] }] },
+              then: { $convert: { input: "$totalGoj", to: "double", onError: 0, onNull: 0 } },
+              else: {
+                $sum: {
+                  $map: {
+                    input: { $ifNull: ["$tableData", []] },
+                    as: "item",
+                    in: { $convert: { input: "$$item.goj", to: "double", onError: 0, onNull: 0 } },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
   ]);
@@ -302,6 +368,7 @@ export async function GET(req) {
 
     const orderIds = orders.map((o) => o._id);
     const batchesData = await Batch.find({ orderId: { $in: orderIds } }).lean();
+    const billingSummaries = await BillingSummary.find({ orderId: { $in: orderIds }, summaryType: "client" }).lean();
 
     const enrichedOrders = orders.map((order) => {
       const batchDoc = batchesData.find((b) => String(b.orderId) === String(order._id));
@@ -340,6 +407,9 @@ export async function GET(req) {
         });
       }
 
+      const orderBilling = billingSummaries.filter((b) => String(b.orderId) === String(order._id));
+      const invoiceCount = orderBilling.length;
+
       return {
         ...order,
         batchSummary: {
@@ -350,6 +420,7 @@ export async function GET(req) {
           dispatchTotalBundle,
           dispatchTotalGoj,
           dispatchOriginalGoj,
+          invoiceCount,
         },
       };
     });

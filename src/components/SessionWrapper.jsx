@@ -46,7 +46,7 @@ function DashboardHeader() {
   );
 }
 
-export default function SessionWrapper({ children }) {
+export default function SessionWrapper({ children, defaultOpen = true }) {
   // const { data: session, status } = useSession();
   const session = { user: { name: "Test Admin", email: "admin@nmdyeing.com", image: null } };
   const status = "authenticated";
@@ -85,12 +85,12 @@ export default function SessionWrapper({ children }) {
 
   // ✅ Authenticated workspace layout with Sidebar
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar />
       <SidebarInset className="bg-gray-100 flex flex-col flex-1 overflow-hidden">
         {/* Header bar with toggle trigger — only shown when collapsed */}
         <DashboardHeader />
-        <main className="flex-1 overflow-y-auto overflow-x-auto p-4 md:p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-6">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

@@ -9,6 +9,7 @@ import DeliveredBatchList from "../Batch/DeliveredBatchList";
 import CalendarBatch from "../Batch/CalenderBatch";
 import BillingBatch from "../Batch/BillingBatch";
 import CompletedBatch from "../Batch/CompletedBatch";
+import { useSearchParams, useRouter } from "next/navigation";
 
 // ✅ Steps for UI
 const steps = [
@@ -41,9 +42,24 @@ export default function OrderStatus({
   setSelectedOrder,
   fetchOrders,
 }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const tab = searchParams.get("tab");
+
+  // `currentStep` represents the actual status of the order (progress line)
   const [currentStep, setCurrentStep] = useState(
     steps.find((s) => statusMap[s.title] === currentStatus)?.id || 1
   );
+
+  // `activeTab` represents the currently viewed tab
+  const [activeTab, setActiveTab] = useState(() => {
+    if (tab) {
+      const stepByTab = steps.find((s) => s.title === tab);
+      if (stepByTab) return stepByTab.id;
+    }
+    return steps.find((s) => statusMap[s.title] === currentStatus)?.id || 1;
+  });
+
   const [selectedStep, setSelectedStep] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
@@ -51,7 +67,22 @@ export default function OrderStatus({
   useEffect(() => {
     const stepId = steps.find((s) => statusMap[s.title] === currentStatus)?.id || 1;
     setCurrentStep(stepId);
-  }, [currentStatus, orderId]);
+    
+    // If no explicit tab is in the URL, also update activeTab
+    if (!tab) {
+      setActiveTab(stepId);
+    }
+  }, [currentStatus, tab]);
+
+  // Sync activeTab when URL tab changes
+  useEffect(() => {
+    if (tab) {
+      const stepByTab = steps.find((s) => s.title === tab);
+      if (stepByTab) {
+        setActiveTab(stepByTab.id);
+      }
+    }
+  }, [tab]);
 
   const [usedRowIndexes, setUsedRowIndexes] = useState([]);
   const [createdBatches, setCreatedBatches] = useState([]);
@@ -68,6 +99,7 @@ export default function OrderStatus({
       const data = await res.json();
       if (res.ok) {
         setCurrentStep(step.id);
+        setActiveTab(step.id);
         onStatusChange(statusMap[step.title]);
         // toast.success("Status updated!");
       } else {
@@ -85,14 +117,24 @@ export default function OrderStatus({
   };
 
   const handleStepClick = async (step) => {
+    // 1. Update the URL to reflect the new tab, for easily copy-pasting
+    router.push(`/dashboard/order?id=${orderId}&tab=${step.title}`, { scroll: false });
+
+    // 2. We only allow updating the status if they click a step DIFFERENT from the actual current status
+    // But wait, the user's main requirement was: "when I shift between each status, say from 1 to 7, there is no change in the route. This means that if you try to go directly to any status through the route, it is not possible. For this reason, when you click on the current dispatch button, it is not opening. I want each status to have a separate number and a route or url endpoint so that the specified status can be opened very easily using them."
+    // They ALSO said: "after opening the delivery slip by clicking on the dispatch button, or after opening it, the order status should not be affected in any way."
+
+    // Let's assume clicking a step still changes status like it did before,
+    // but the URL updates too.
     if (currentStep === 1 && step.id === 2) {
       setSelectedStep(step);
       setShowModal(true);
       return;
     }
 
-    // Allow any other status change directly
-    await updateStatusDirectly(step);
+    if (currentStep !== step.id) {
+      await updateStatusDirectly(step);
+    }
   };
 
   return (
@@ -102,11 +144,12 @@ export default function OrderStatus({
       <Stepper
         steps={steps}
         currentStep={currentStep}
+        activeTab={activeTab}
         onStepClick={handleStepClick}
       />
 
-      {/* Show content based on current step */}
-      {steps[currentStep - 1]?.title === "Process" && (
+      {/* Show content based on ACTIVE TAB */}
+      {steps[activeTab - 1]?.title === "Process" && (
         <OrderTableData
           selectedOrder={selectedOrder}
           orderId={orderId}
@@ -123,20 +166,20 @@ export default function OrderStatus({
         />
       )}
 
-      {steps[currentStep - 1]?.title === "Batches" && (
+      {steps[activeTab - 1]?.title === "Batches" && (
         <BatchList orderId={orderId} fetchOrders={fetchOrders} />
       )}
 
-      {steps[currentStep - 1]?.title === "Calender" && (
+      {steps[activeTab - 1]?.title === "Calender" && (
         <CalendarBatch orderId={orderId} fetchOrders={fetchOrders} />
       )}
-      {steps[currentStep - 1]?.title === "Dispatch" && (
+      {steps[activeTab - 1]?.title === "Dispatch" && (
         <DeliveredBatchList orderId={orderId} fetchOrders={fetchOrders} />
       )}
-      {steps[currentStep - 1]?.title === "Billing" && (
+      {steps[activeTab - 1]?.title === "Billing" && (
         <BillingBatch orderId={orderId} fetchOrders={fetchOrders} />
       )}
-      {steps[currentStep - 1]?.title === "Completed" && (
+      {steps[activeTab - 1]?.title === "Completed" && (
         <CompletedBatch orderId={orderId} fetchOrders={fetchOrders} />
       )}
 

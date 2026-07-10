@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
-import { IoClose } from "react-icons/io5";
+import { IoClose, IoChevronDown, IoChevronUp } from "react-icons/io5";
+import { toast } from "react-toastify";
 import { FaPencilAlt, FaPrint } from "react-icons/fa";
 import { LuTrash2 } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
@@ -77,6 +78,18 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
     }, 500);
   };
 
+  const handleCopy = (text: string, label: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    toast.success(`${label} copied!`, {
+      position: "bottom-right",
+      autoClose: 2000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: false,
+    });
+  };
+
   return (
     <AnimatePresence>
       {isModalOpen && (
@@ -99,7 +112,7 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
             {/* Header */}
             <div className="flex justify-between items-center px-6 py-4 border-b border-[color-mix(in_oklab,#26251e_10%,transparent)]">
               <h2 className="text-[16px] font-bold text-[#26251e]">
-                {selectedOrder?.orderId || "N/A"}
+                Order Details
               </h2>
               <IoClose
                 className="w-5 h-5 text-[#26251e]/40 hover:text-[#26251e] cursor-pointer transition-colors"
@@ -116,16 +129,72 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
               ) : (
                 <>
                   <div
-                    className="p-3 bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] flex items-center justify-between cursor-pointer transition-colors hover:bg-[#ebeae5]"
+                    className="p-4 bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] cursor-pointer transition-all hover:bg-[#ebeae5] relative group shadow-sm"
                     onClick={() => setIsDetailsOpen(!isDetailsOpen)}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-[#f7f7f4] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[6px] flex items-center justify-center">
-                        <CiGrid41 className="text-xl text-[#26251e]" />
+                    <div className="flex flex-col gap-3">
+                      {/* Top Row: Customer & Date/Slip */}
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-[#f7f7f4] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[6px] flex items-center justify-center shrink-0 shadow-sm group-hover:shadow-md transition-shadow">
+                            <CiGrid41 className="text-xl text-[#26251e]" />
+                          </div>
+                          <div className="flex flex-col">
+                            <p 
+                               className="text-[12px] font-bold text-[#26251e]/60 mb-0.5 cursor-pointer hover:text-[#26251e] transition-colors"
+                               onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCopy(selectedOrder?.orderId, "Order number");
+                               }}
+                               title="Copy Order Number"
+                            >
+                              {selectedOrder?.orderId || "N/A"}
+                            </p>
+                            <p 
+                               className="text-[14px] font-bold text-[#26251e] leading-tight cursor-pointer hover:text-[#26251e]/80 transition-colors"
+                               onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCopy(selectedOrder?.companyName, "Customer name");
+                               }}
+                               title="Copy Customer Name"
+                            >
+                              {selectedOrder?.companyName || "Unknown Customer"}
+                            </p>
+                            <p className="text-[11px] font-semibold text-[#26251e]/60 mt-1 uppercase tracking-wider">
+                              {selectedOrder?.clotheType || "N/A"}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="text-right flex flex-col items-end">
+                          <p className="text-[13px] font-bold text-[#26251e] leading-tight">
+                            #{selectedOrder?.invoiceNumber || "N/A"}
+                          </p>
+                          <p className="text-[11px] font-medium text-[#26251e]/60 mt-1">
+                            {formatDate(selectedOrder?.createdAt)}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-[13px] uppercase font-semibold text-[#26251e]">
-                        {selectedOrder?.clotheType || "N/A"}
-                      </p>
+                      
+                      <div className="h-[1px] w-full bg-[color-mix(in_oklab,#26251e_10%,transparent)]"></div>
+
+                      {/* Bottom Row: Dyeing & Transporter */}
+                      <div className="flex justify-between items-end">
+                        <div className="flex items-center gap-6">
+                          <div className="flex flex-col">
+                            <p className="text-[10px] font-semibold text-[#26251e]/50 uppercase tracking-wider mb-0.5">Dyeing</p>
+                            <p className="text-[12px] font-medium text-[#26251e]">{selectedOrder?.dyeingName || "N/A"}</p>
+                          </div>
+                          <div className="flex flex-col">
+                            <p className="text-[10px] font-semibold text-[#26251e]/50 uppercase tracking-wider mb-0.5">Transporter</p>
+                            <p className="text-[12px] font-medium text-[#26251e]">{selectedOrder?.transporterName || "N/A"}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="w-6 h-6 flex items-center justify-center rounded-full bg-[#f7f7f4] border border-[color-mix(in_oklab,#26251e_10%,transparent)] text-[#26251e]/60 group-hover:text-[#26251e] transition-colors">
+                          {isDetailsOpen ? <IoChevronUp size={14} /> : <IoChevronDown size={14} />}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -139,23 +208,6 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                       >
                         <div className="space-y-6 pt-2">
                           <div className="grid grid-cols-2 gap-4 text-[#26251e]">
-                            <div>
-                              <p className="text-[11px] font-medium text-[#26251e]/60">
-                                Created at
-                              </p>
-                              <p className="text-[13px] font-semibold">
-                                {formatDate(selectedOrder?.createdAt)}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-[11px] font-medium text-[#26251e]/60">
-                                DInvoice No.
-                              </p>
-                              <p className="text-[13px] font-semibold">
-                                {selectedOrder?.invoiceNumber}
-                              </p>
-                            </div>
-
                             <div>
                               <p className="text-[11px] font-medium text-[#26251e]/60">Quantity</p>
                               <p className="text-[13px] font-semibold">
@@ -180,20 +232,6 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                               </p>
                               <p className="text-[13px] font-semibold">
                                 {selectedOrder?.finishingType || "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-[11px] font-medium text-[#26251e]/60">Dyeing</p>
-                              <p className="text-[13px] font-semibold">
-                                {selectedOrder?.dyeingName || "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-[11px] font-medium text-[#26251e]/60">
-                                Transporter
-                              </p>
-                              <p className="text-[13px] font-semibold">
-                                {selectedOrder?.transporterName || "N/A"}
                               </p>
                             </div>
                           </div>

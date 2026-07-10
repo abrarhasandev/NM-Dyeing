@@ -295,7 +295,7 @@ export default function BillingBatch({ orderId, fetchOrders }) {
           >
             <div className="flex justify-between items-center bg-gray-100 px-4 py-3 no-print">
               <h4 className="font-medium text-gray-700">
-                Invoice:{" "}
+                Delivery Slip:{" "}
                 <span className="text-blue-600 font-semibold">
                   {inv.invoiceNumber}
                 </span>{" "}

@@ -33,7 +33,7 @@ const getDummyIndex = (id: string, poolLength: number) => {
 };
 
 // ─── Status Badges — exact Figma match ───────────────────────────────────────
-const renderStatusBadges = (order: any, orderId: string) => {
+const renderStatusBadges = (order: any, orderId: string, handleOrderClick: any) => {
   const status = order?.status?.toLowerCase() || "pending";
   const batchCount = order?.batchSummary?.batchCount || 0;
   const dispatchCount = order?.batchSummary?.dispatchCount || 0;
@@ -56,12 +56,18 @@ const renderStatusBadges = (order: any, orderId: string) => {
           <CheckCircle2 size={12} className="shrink-0 text-[#1f8a65]" />
           complete
         </span>
-        {dispatchCount > 0 && (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/70">
+        {order?.batchSummary?.invoiceCount > 0 && (
+          <span
+            className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/70 cursor-pointer hover:bg-[#ebeae5] transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (handleOrderClick) handleOrderClick(orderId, "Billing");
+            }}
+          >
             <Truck size={12} className="shrink-0 text-[#26251e]/50" />
             Dispatch
-            <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#ebeae5] text-[#26251e]/70 rounded-full ml-0.5">
-              {dispatchCount}
+            <span className="inline-flex items-center justify-center px-1.5 h-4 text-[11px] font-bold bg-[#ebeae5] text-[#26251e]/70 rounded-full ml-0.5">
+              {order?.batchSummary?.invoiceCount}
             </span>
           </span>
         )}
@@ -83,12 +89,18 @@ const renderStatusBadges = (order: any, orderId: string) => {
           <Clock size={12} className="shrink-0 text-[#3a6a9f]" />
           in process
         </span>
-        {dispatchCount > 0 && (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/70">
+        {order?.batchSummary?.invoiceCount > 0 && (
+          <span
+            className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/70 cursor-pointer hover:bg-[#ebeae5] transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (handleOrderClick) handleOrderClick(orderId, "Billing");
+            }}
+          >
             <Truck size={12} className="shrink-0 text-[#26251e]/50" />
             Dispatch
-            <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#ebeae5] text-[#26251e]/70 rounded-full ml-0.5">
-              {dispatchCount}
+            <span className="inline-flex items-center justify-center px-1.5 h-4 text-[11px] font-bold bg-[#ebeae5] text-[#26251e]/70 rounded-full ml-0.5">
+              {order?.batchSummary?.invoiceCount}
             </span>
           </span>
         )}
@@ -414,7 +426,7 @@ const SortableHeader = ({ label, sortKey, sortConfig, onSort }: any) => {
 interface OrderTableProps {
   orders: any[];
   loadingOrders: boolean;
-  handleOrderClick: (id: string) => void;
+  handleOrderClick: (id: string, tab?: string) => void;
   confirmDelete: (id: string) => void;
 }
 
@@ -547,7 +559,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
                   </td>
 
                   <td className="px-5 py-3.5 whitespace-nowrap">
-                    {renderStatusBadges(order, orderId)}
+                    {renderStatusBadges(order, order._id, handleOrderClick)}
                   </td>
 
                   <td className="px-5 py-3.5 whitespace-nowrap">

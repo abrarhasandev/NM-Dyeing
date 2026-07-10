@@ -242,8 +242,9 @@ export const OrdersContent = () => {
   }, [orderIdFromUrl]);
 
   // Handlers
-  const handleOrderClick = (id) => {
-    router.push(`/dashboard/order?id=${id}`, { scroll: false });
+  const handleOrderClick = (id, tab) => {
+    const url = tab ? `/dashboard/order?id=${id}&tab=${tab}` : `/dashboard/order?id=${id}`;
+    router.push(url, { scroll: false });
   };
 
   const closeModal = () => {
@@ -392,14 +393,14 @@ export const OrdersContent = () => {
       const diffDays = Math.min(end.diff(start, "day"), 31);
       for (let i = 0; i <= diffDays; i++) {
         const d = start.add(i, "day");
-        periods.push({ key: d.format("YYYY-MM-DD"), month: d.format("MMM D"), cotton: 0, silk: 0, other: 0 });
+        periods.push({ key: d.format("YYYY-MM-DD"), month: d.format("MMM D"), cotton: 0, silk: 0, other: 0, totalGoj: 0, growthRate: 0 });
       }
     } else {
       const diffMonths = Math.min(end.diff(start, "month"), 60);
       for (let i = 0; i <= diffMonths; i++) {
         const m = start.add(i, "month");
         const label = dateRange === "3_months" ? m.format("MMMM") : m.format("MMM YY");
-        periods.push({ key: m.format("YYYY-MM"), month: label, cotton: 0, silk: 0, other: 0 });
+        periods.push({ key: m.format("YYYY-MM"), month: label, cotton: 0, silk: 0, other: 0, totalGoj: 0, growthRate: 0 });
       }
     }
 
@@ -412,6 +413,20 @@ export const OrdersContent = () => {
       const period = periods.find(p => p.key === key);
       if (period && clothCat in period) {
         period[clothCat] += bucket.count;
+        period.totalGoj += (bucket.totalGoj || 0);
+      }
+    }
+
+    // Calculate growth rate based on total orders and totalGoj
+    for (let i = 0; i < periods.length; i++) {
+      if (i === 0) {
+        periods[i].growthRate = 0;
+      } else {
+        const prev = periods[i - 1].totalGoj || 0;
+        const curr = periods[i].totalGoj || 0;
+        if (prev > 0) periods[i].growthRate = ((curr - prev) / prev) * 100;
+        else if (curr > 0) periods[i].growthRate = 100;
+        else periods[i].growthRate = 0;
       }
     }
 
@@ -676,14 +691,46 @@ export const OrdersContent = () => {
                     />
                     <ChartTooltip
                       cursor={false}
-                      content={
-                        <ChartTooltipContent
-                          labelFormatter={(value) => {
-                            return value;
-                          }}
-                          indicator="dot"
-                        />
-                      }
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          const totalOrders = (data.cotton || 0) + (data.silk || 0) + (data.other || 0);
+                          const totalYards = data.totalGoj || 0;
+                          const growth = data.growthRate || 0;
+                          
+                          return (
+                            <div className="bg-white border border-gray-200 p-3 rounded-lg shadow-md text-sm min-w-[160px]">
+                              <p className="font-bold text-[#26251e] mb-2 border-b pb-1">{label}</p>
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-[#26251e]/60 font-medium text-[12px]">Total Orders:</span>
+                                <span className="font-semibold text-[#26251e]">{totalOrders}</span>
+                              </div>
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-[#26251e]/60 font-medium text-[12px]">Total Yards:</span>
+                                <span className="font-semibold text-[#26251e]">{totalYards.toLocaleString()} goj</span>
+                              </div>
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-[#26251e]/60 font-medium text-[12px]">Growth Rate:</span>
+                                <span className={growth > 0 ? "text-[#16A34A] font-semibold" : growth < 0 ? "text-[#DC2626] font-semibold" : "text-[#71717A] font-semibold"}>
+                                  {growth > 0 ? "+" : ""}{growth.toFixed(1)}%
+                                </span>
+                              </div>
+                              <div className="flex flex-col gap-1 border-t pt-2">
+                                {payload.map((entry, index) => (
+                                  <div key={index} className="flex justify-between items-center text-[12px]">
+                                    <div className="flex items-center gap-1.5">
+                                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
+                                      <span className="text-[#26251e]/80 capitalize">{entry.name}</span>
+                                    </div>
+                                    <span className="font-semibold text-[#26251e]">{entry.value}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
                     />
                     <Area
                       dataKey="other"
