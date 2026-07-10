@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import OrderStatus from "../OrderStatus/OrderStatus";
 import OrderInvoicePrint from "../Print/OrderInvoicePrint/OrderInvoicePrint";
+import { useDocumentTitle } from "@/hook/useDocumentTitle";
 
 interface OrderSideModalProps {
   isModalOpen: boolean;
@@ -39,6 +40,12 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Update document title when modal is open
+  useDocumentTitle(
+    isModalOpen && selectedOrder ? `Order #${selectedOrder.orderId || selectedOrder._id}` : "",
+    true // retain on unmount
+  );
 
   const [hasBatch, setHasBatch] = useState(false);
 

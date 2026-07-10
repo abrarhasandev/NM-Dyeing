@@ -23,6 +23,7 @@ import PaginationControls from "@/components/order/PaginationControls";
 import OrderSkeleton from "@/components/order/OrderSkeleton";
 import useAppData from "@/hook/useAppData";
 import useOrders from "@/hook/useOrder";
+import { useDocumentTitle } from "@/hook/useDocumentTitle";
 import dayjs from "dayjs";
 import { toast } from "sonner";
 
@@ -56,6 +57,7 @@ export const OrdersContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderIdFromUrl = searchParams.get("id");
+  const tabFromUrl = searchParams.get("tab");
 
   // States
   const [currentPage, setCurrentPage] = useState(1);
@@ -240,6 +242,23 @@ export const OrdersContent = () => {
       setSelectedOrder(null);
     }
   }, [orderIdFromUrl]);
+
+  // Handle Dynamic Document Title
+  const pageTitle = useMemo(() => {
+    if (selectedOrder) {
+      const orderNumber = selectedOrder?.orderId || selectedOrder?._id;
+      const formattedOrder = orderNumber.startsWith("#") ? orderNumber : `#${orderNumber}`;
+      
+      if (tabFromUrl) {
+        // e.g., "Billing - #ord-123"
+        return `${tabFromUrl.charAt(0).toUpperCase() + tabFromUrl.slice(1)} - ${formattedOrder}`;
+      }
+      return `Order ${formattedOrder}`;
+    }
+    return "Orders";
+  }, [selectedOrder, tabFromUrl]);
+
+  useDocumentTitle(pageTitle);
 
   // Handlers
   const handleOrderClick = (id, tab) => {

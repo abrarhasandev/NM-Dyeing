@@ -151,7 +151,13 @@ const Page = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = { ...formData, tableData };
+      let submitDate = formData.date;
+      if (submitDate && submitDate.includes("/")) {
+        const [d, m, y] = submitDate.split("/");
+        submitDate = `${y}-${m}-${d}`;
+      }
+
+      const payload = { ...formData, date: submitDate, tableData };
 
       const res = await fetch(`/api/order/${id}`, {
         method: "PUT",

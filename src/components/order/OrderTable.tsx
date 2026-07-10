@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ShoppingBag,
   Clock,
@@ -14,7 +15,16 @@ import {
   ChevronsUpDown,
   XCircle,
   X,
+  Edit,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 // ─── Dummy data pools ────────────────────────────────────────────────────────
 const DUMMY_CLOTH_TYPES = ["পলিষ্টার", "লোন", "কটন", "সিল্ক", "টিসি", "ভিসকস", "লিনেন", "জর্জেট"];
@@ -432,7 +442,9 @@ interface OrderTableProps {
 
 // ─── Main Table Component ─────────────────────────────────────────────────────
 const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOrderClick, confirmDelete }) => {
+  const router = useRouter();
   const [sortConfig, setSortConfig] = useState<{ key: string | null; dir: "asc" | "desc" }>({ key: null, dir: "asc" });
+  const [forceEditOrderId, setForceEditOrderId] = useState<string | null>(null);
 
   const handleSort = (key: string) => {
     setSortConfig((prev) =>
@@ -576,24 +588,45 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
 
                   <td className="px-5 py-3.5 whitespace-nowrap text-right">
                     <div className="flex justify-end items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          confirmDelete(order?._id);
-                        }}
-                        className="p-1.5 rounded-[4px] text-muted-foreground/70 hover:text-[#cf2d56] hover:bg-[#cf2d56]/10 transition-all cursor-pointer opacity-0 group-hover:opacity-100"
-                        title="Delete Order"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => e.stopPropagation()}
-                        className="p-1.5 rounded-[4px] text-muted-foreground/70 hover:text-muted-foreground hover:bg-accent transition-colors"
-                      >
-                        <MoreVertical size={15} />
-                      </button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            type="button"
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-1.5 rounded-[4px] text-muted-foreground/70 hover:text-muted-foreground hover:bg-accent transition-colors"
+                          >
+                            <MoreVertical size={15} />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40 rounded-lg bg-card border border-border shadow-md">
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const currentStatus = order?.status?.toLowerCase() || "pending";
+                              if (currentStatus !== "pending") {
+                                setForceEditOrderId(order?._id);
+                              } else {
+                                router.push(`/dashboard/order/update/${order?._id}`);
+                              }
+                            }}
+                            className="cursor-pointer flex items-center gap-2"
+                          >
+                            <Edit size={14} className="text-muted-foreground" />
+                            <span>Edit Order</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator className="bg-border" />
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              confirmDelete(order?._id);
+                            }}
+                            className="text-[#cf2d56] focus:text-[#cf2d56] focus:bg-[#cf2d56]/10 cursor-pointer flex items-center gap-2"
+                          >
+                            <Trash2 size={14} />
+                            <span>Delete Order</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </td>
                 </tr>
@@ -602,6 +635,61 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
           </tbody>
         </table>
       </div>
+
+      <AnimatePresence>
+        {forceEditOrderId && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
+              className="absolute inset-0 bg-[#050503]/40 backdrop-blur-sm"
+              onClick={() => setForceEditOrderId(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
+              className="relative w-full max-w-md bg-[#f2f1ed] dark:bg-[#1f1f1f] rounded-[8px] shadow-[0_28px_70px_rgba(0,0,0,0.14),_0_14px_32px_rgba(0,0,0,0.1),_0_0_0_1px_rgba(38,37,30,0.1)] border border-[#26251e]/10 dark:border-[#f7f7f4]/10 p-6 overflow-hidden font-sans"
+            >
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-full bg-[#f54e00]/10 flex items-center justify-center shrink-0">
+                  <AlertCircle size={20} className="text-[#f54e00]" />
+                </div>
+                <div>
+                  <h3 className="text-[17px] font-semibold text-[#26251e] dark:text-[#f7f7f4] leading-snug">Force Edit Order?</h3>
+                  <p className="text-[13px] text-[#26251e]/60 dark:text-[#f7f7f4]/60">This order is already in processing.</p>
+                </div>
+              </div>
+              <p className="text-[14px] text-[#26251e]/80 dark:text-[#f7f7f4]/80 mb-8 leading-[1.6]">
+                Normally, orders in processing cannot be edited. Force editing is strictly for <span className="font-semibold text-[#26251e] dark:text-[#f7f7f4]">emergency situations</span> only. Are you absolutely sure you want to proceed?
+              </p>
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setForceEditOrderId(null)}
+                  className="px-[1em] py-[0.5em] rounded-[4px] font-medium text-[14px] text-[#26251e] dark:text-[#f7f7f4] bg-transparent hover:bg-[#26251e]/5 dark:hover:bg-[#f7f7f4]/10 transition-colors duration-150"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const id = forceEditOrderId;
+                    setForceEditOrderId(null);
+                    router.push(`/dashboard/order/update/${id}`);
+                  }}
+                  className="px-[1.25em] py-[0.6em] rounded-[4px] font-medium text-[14px] text-[#f7f7f4] dark:text-[#161616] bg-[#26251e] dark:bg-[#f7f7f4] hover:bg-[#3b3a33] dark:hover:bg-[#e0e0e0] shadow-sm transition-all duration-150"
+                >
+                  Yes, Force Edit
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

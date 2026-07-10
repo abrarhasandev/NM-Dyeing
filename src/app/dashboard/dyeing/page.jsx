@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useDocumentTitle } from "@/hook/useDocumentTitle";
 import { 
   Plus, 
   Search, 
@@ -16,6 +17,8 @@ const DyeingPage = () => {
   const [dyeings, setDyeings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useDocumentTitle("Dyeing Management");
 
   const fetchDyeings = async () => {
     try {

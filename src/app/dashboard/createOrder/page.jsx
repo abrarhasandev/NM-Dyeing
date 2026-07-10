@@ -4,11 +4,14 @@ import SearchableSelect from "@/components/OrderCreate/SearchableSelect";
 import useAppData from "@/hook/useAppData";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState, useMemo } from "react";
+import { useDocumentTitle } from "@/hook/useDocumentTitle";
 import { toast } from "sonner";
 
 const Page = () => {
   const { data } = useAppData();
   const router = useRouter();
+  
+  useDocumentTitle("Create Order");
 
   const initialFormData = {
     date: new Date().toISOString().split("T")[0],
