@@ -71,18 +71,18 @@ const CompletedBatch = ({ orderId, fetchOrders }) => {
   };
 
   return (
-    <div className="w-full bg-gray-50 min-h-screen">
+    <div className="w-full bg-gray-50 dark:bg-background min-h-screen">
       {/* search section*/}
-      <div className="p-4 bg-white border-b sticky top-0 z-10 shadow-sm">
-        <h1 className="text-md font-bold text-gray-700 mb-3">Client Billing</h1>
+      <div className="p-4 bg-white dark:bg-card border-b dark:border-border sticky top-0 z-10 shadow-sm">
+        <h1 className="text-md font-bold text-gray-700 dark:text-foreground mb-3">Client Billing</h1>
         <div className="relative max-w-md">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <FaSearch className="text-gray-400" size={14} />
+            <FaSearch className="text-gray-400 dark:text-muted-foreground" size={14} />
           </span>
           <input
             type="text"
             placeholder="Search by Invoice ID..."
-            className="w-full pl-10 pr-4 py-2 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+            className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-muted border border-transparent rounded-lg text-sm text-gray-900 dark:text-foreground focus:bg-white dark:focus:bg-background focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -91,24 +91,24 @@ const CompletedBatch = ({ orderId, fetchOrders }) => {
 
       <div className="p-3">
         {loading ? (
-          <p className="text-center text-sm py-10 text-gray-500">Loading...</p>
+          <p className="text-center text-sm py-10 text-gray-500 dark:text-muted-foreground">Loading...</p>
         ) : (
           //service sequience wise loop 
           BILLING_CATEGORIES.map((type) => {
             const items = processedData?.[type] || [];
             return (
               <div key={type} className="mb-6">
-                <h2 className="text-[11px] font-black uppercase text-gray-500 mb-3 border-l-4 border-blue-500 pl-2 tracking-wider">
+                <h2 className="text-[11px] font-black uppercase text-gray-500 dark:text-muted-foreground mb-3 border-l-4 border-blue-500 pl-2 tracking-wider">
                   {type} Billing
                 </h2>
 
                 <div className="space-y-3">
                   {items?.length > 0 ? (
                     items?.map((item) => (
-                      <div key={item._id} className="bg-white border border-gray-200 rounded-xl p-2 shadow-sm">
+                      <div key={item._id} className="bg-white dark:bg-card border border-gray-200 dark:border-border rounded-xl p-2 shadow-sm">
                         {/* Batch Info Card */}
-                        <div className="bg-gray-100 p-2 rounded-lg mb-2 border border-gray-200">
-                          <p className="text-[13px] font-bold text-gray-800 leading-tight uppercase">
+                        <div className="bg-gray-100 dark:bg-muted p-2 rounded-lg mb-2 border border-gray-200 dark:border-border">
+                          <p className="text-[13px] font-bold text-gray-800 dark:text-foreground leading-tight uppercase">
                             {item?.batchName} • {item?.colour} • {item?.finishingType} • 
                             <span className="text-blue-600 ml-1">{item?.invoiceNumber}</span>
                           </p>
@@ -117,20 +117,20 @@ const CompletedBatch = ({ orderId, fetchOrders }) => {
                         {/* Calculation Area */}
                         <div className="flex items-center justify-between gap-1">
                           {/* Qty */}
-                          <div className="flex-1 bg-gray-50 rounded-lg py-1 text-center border border-gray-200">
-                            <p className="text-[10px] text-gray-500 font-bold">Goj</p>
-                            <p className="text-xs font-black">{item.totalQty}</p>
+                          <div className="flex-1 bg-gray-50 dark:bg-muted rounded-lg py-1 text-center border border-gray-200 dark:border-border">
+                            <p className="text-[10px] text-gray-500 dark:text-muted-foreground font-bold">Goj</p>
+                            <p className="text-xs font-black text-gray-900 dark:text-foreground">{item.totalQty}</p>
                           </div>
 
                           <span className="text-red-400 font-bold text-xs">×</span>
 
                           {/* Price Input/Text */}
-                          <div className={`flex-1 rounded-lg py-1 text-center border ${editingId === item._id ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-gray-50'}`}>
-                            <p className="text-[10px] text-gray-500 font-bold uppercase">Price</p>
+                          <div className={`flex-1 rounded-lg py-1 text-center border ${editingId === item._id ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/30' : 'border-gray-200 dark:border-border bg-gray-50 dark:bg-muted'}`}>
+                            <p className="text-[10px] text-gray-500 dark:text-muted-foreground font-bold uppercase">Price</p>
                             {editingId === item._id ? (
                               <input
                                 type="number"
-                                className="w-full bg-transparent text-center font-bold text-xs outline-none"
+                                className="w-full bg-transparent text-center font-bold text-xs text-gray-900 dark:text-foreground outline-none"
                                 value={editValues.price}
                                 onChange={(e) => {
                                   const val = e.target.value;
@@ -140,22 +140,22 @@ const CompletedBatch = ({ orderId, fetchOrders }) => {
                                 }}
                               />
                             ) : (
-                              <p className="text-xs font-black">৳{item.price || "0"}</p>
+                              <p className="text-xs font-black text-gray-900 dark:text-foreground">৳{item.price || "0"}</p>
                             )}
                           </div>
 
                           <div className="flex flex-col gap-[2px]">
-                            <div className="w-3 h-[1.5px] bg-gray-400"></div>
-                            <div className="w-3 h-[1.5px] bg-gray-400"></div>
+                            <div className="w-3 h-[1.5px] bg-gray-400 dark:bg-gray-600"></div>
+                            <div className="w-3 h-[1.5px] bg-gray-400 dark:bg-gray-600"></div>
                           </div>
 
                           {/* Total Input/Text */}
-                          <div className={`flex-1 rounded-lg py-1 text-center border ${editingId === item._id ? 'border-blue-400 bg-green-50' : 'border-gray-200 bg-gray-50'}`}>
-                            <p className="text-[10px] text-gray-500 font-bold uppercase">Total</p>
+                          <div className={`flex-1 rounded-lg py-1 text-center border ${editingId === item._id ? 'border-blue-400 bg-green-50 dark:bg-green-900/30' : 'border-gray-200 dark:border-border bg-gray-50 dark:bg-muted'}`}>
+                            <p className="text-[10px] text-gray-500 dark:text-muted-foreground font-bold uppercase">Total</p>
                             {editingId === item._id ? (
                               <input
                                 type="number"
-                                className="w-full bg-transparent text-center font-bold text-xs outline-none"
+                                className="w-full bg-transparent text-center font-bold text-xs text-gray-900 dark:text-foreground outline-none"
                                 value={editValues.total}
                                 onChange={(e) => {
                                   const val = e.target.value;
@@ -165,7 +165,7 @@ const CompletedBatch = ({ orderId, fetchOrders }) => {
                                 }}
                               />
                             ) : (
-                              <p className="text-xs font-black text-gray-700">৳{item.total || "0"}</p>
+                              <p className="text-xs font-black text-gray-700 dark:text-foreground">৳{item.total || "0"}</p>
                             )}
                           </div>
 
@@ -180,7 +180,7 @@ const CompletedBatch = ({ orderId, fetchOrders }) => {
                               {editingId === item._id ? <FaSave size={12} /> : <FaRegEdit size={12} />}
                             </button>
                             {editingId === item._id && (
-                              <button onClick={() => setEditingId(null)} className="p-2 bg-gray-200 rounded-lg text-gray-600">
+                              <button onClick={() => setEditingId(null)} className="p-2 bg-gray-200 dark:bg-muted rounded-lg text-gray-600 dark:text-muted-foreground">
                                 <FaTimes size={12} />
                               </button>
                             )}
@@ -189,9 +189,8 @@ const CompletedBatch = ({ orderId, fetchOrders }) => {
                       </div>
                     ))
                   ) : (
-                    
-                    <div className="py-4 text-center border border-dashed border-gray-300 rounded-xl bg-gray-50/50">
-                      <p className="text-[10px] text-gray-400 italic">No {type} records found.</p>
+                    <div className="py-4 text-center border border-dashed border-gray-300 dark:border-border rounded-xl bg-gray-50/50 dark:bg-muted/20">
+                      <p className="text-[10px] text-gray-400 dark:text-muted-foreground italic">No {type} records found.</p>
                     </div>
                   )}
                 </div>

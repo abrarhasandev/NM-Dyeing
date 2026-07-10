@@ -597,7 +597,7 @@ export const OrdersContent = () => {
                 >
                   <SelectValue placeholder="Last 3 months" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl bg-background border border-border shadow-md">
+                <SelectContent className="rounded-xl bg-card border border-border shadow-md">
                   <SelectItem value="3_days" className="rounded-lg">
                     Last 3 days
                   </SelectItem>

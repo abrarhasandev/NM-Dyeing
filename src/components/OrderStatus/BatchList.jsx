@@ -224,14 +224,14 @@ export default function BatchList({ orderId, fetchOrders }) {
 
   return (
     <div className="mt-6">
-      <h3 className="text-lg font-semibold mb-4 text-gray-800">
+      <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-foreground">
         Pending Batches
       </h3>
 
       {loading ? (
-        <p className="text-gray-500">Loading batches...</p>
+        <p className="text-gray-500 dark:text-muted-foreground">Loading batches...</p>
       ) : batches.length === 0 ? (
-        <p className="text-gray-500">
+        <p className="text-gray-500 dark:text-muted-foreground">
           No pending batches found for this order.
         </p>
       ) : (
@@ -249,10 +249,10 @@ export default function BatchList({ orderId, fetchOrders }) {
             return (
               <div
                 key={bIdx}
-                className="border border-gray-200 rounded-lg p-4 shadow-sm"
+                className="border border-gray-200 dark:border-border dark:bg-card rounded-lg p-4 shadow-sm"
               >
                 <div className="flex justify-between items-center mb-3">
-                  <h4 className="font-medium text-gray-700">
+                  <h4 className="font-medium text-gray-700 dark:text-foreground">
                     {batch?.batchName || `Batch ${bIdx + 1}`}
                   </h4>
                   <div className="flex justify-center gap-2">
@@ -281,11 +281,11 @@ export default function BatchList({ orderId, fetchOrders }) {
 
                 {/* Note */}
                 <div className="mb-3">
-                  <label className="block text-sm text-gray-600 mb-1">
+                  <label className="block text-sm text-gray-600 dark:text-muted-foreground mb-1">
                     Note:
                   </label>
                   <textarea
-                    className="w-full border rounded p-2 text-sm"
+                    className="w-full border dark:border-border dark:bg-muted dark:text-foreground rounded p-2 text-sm"
                     value={batch.note || ""}
                     onChange={(e) => handleNoteChange(bIdx, e.target.value)}
                     placeholder="Add your note here..."
@@ -294,25 +294,25 @@ export default function BatchList({ orderId, fetchOrders }) {
 
                 {batch?.rows?.length > 0 ? (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm border border-gray-200">
-                      <thead className="bg-gray-100">
+                    <table className="w-full text-sm border border-gray-200 dark:border-border">
+                      <thead className="bg-gray-100 dark:bg-muted text-gray-900 dark:text-foreground">
                         <tr>
-                          <th className="px-3 py-2 border">Roll No</th>
-                          <th className="px-3 py-2 border">Goj</th>
-                          <th className="px-3 py-2 border">Index</th>
-                          <th className="px-3 py-2 border">Extra Input(s)</th>
+                          <th className="px-3 py-2 border dark:border-border">Roll No</th>
+                          <th className="px-3 py-2 border dark:border-border">Goj</th>
+                          <th className="px-3 py-2 border dark:border-border">Index</th>
+                          <th className="px-3 py-2 border dark:border-border">Extra Input(s)</th>
                         </tr>
                       </thead>
 
                       <tbody>
                         {batch?.rows?.map((row, rIdx) => (
-                          <tr key={rIdx} className="text-center">
-                            <td className="px-3 py-2 border">{row.rollNo}</td>
-                            <td className="px-3 py-2 border">{row.goj}</td>
-                            <td className="px-3 py-2 border">
+                          <tr key={rIdx} className="text-center text-gray-900 dark:text-foreground">
+                            <td className="px-3 py-2 border dark:border-border">{row.rollNo}</td>
+                            <td className="px-3 py-2 border dark:border-border">{row.goj}</td>
+                            <td className="px-3 py-2 border dark:border-border">
                               <input
                                 type="number"
-                                className="w-24 border rounded px-2 py-1 text-center"
+                                className="w-24 border dark:border-border dark:bg-card dark:text-foreground rounded px-2 py-1 text-center"
                                 value={row.idx || ""}
                                 ref={(el) => {
                                   if (!indexRefs.current[bIdx]) {
@@ -338,7 +338,7 @@ export default function BatchList({ orderId, fetchOrders }) {
                               />
                             </td>
 
-                            <td className="px-3 py-2 border">
+                            <td className="px-3 py-2 border dark:border-border">
                               <div className="space-y-1">
                                 {row.extraInputs?.map((input, idx) => (
                                   <div
@@ -347,7 +347,7 @@ export default function BatchList({ orderId, fetchOrders }) {
                                   >
                                     <input
                                       type="text"
-                                      className="w-full border rounded px-2 py-1 text-center"
+                                      className="w-full border dark:border-border dark:bg-card dark:text-foreground rounded px-2 py-1 text-center"
                                       value={input}
                                       placeholder="Optional"
                                       onChange={(e) =>
@@ -387,23 +387,23 @@ export default function BatchList({ orderId, fetchOrders }) {
                       </tbody>
 
                       <tfoot>
-                        <tr className="text-center font-semibold bg-gray-50">
-                          <td className="px-3 py-2 border">
+                        <tr className="text-center font-semibold bg-gray-50 dark:bg-muted text-gray-900 dark:text-foreground">
+                          <td className="px-3 py-2 border dark:border-border">
                             {batch.rows.length}
                           </td>
-                          <td className="px-3 py-2 border">
+                          <td className="px-3 py-2 border dark:border-border">
                             {batch.rows.reduce(
                               (sum, row) => sum + (Number(row.goj) || 0),
                               0
                             )}
                           </td>
-                          <td className="px-3 py-2 border">
+                          <td className="px-3 py-2 border dark:border-border">
                             {batch.rows.reduce(
                               (sum, row) => sum + (Number(row.idx) || 0),
                               0
                             )}
                           </td>
-                          <td className="px-3 py-2 border">
+                          <td className="px-3 py-2 border dark:border-border">
                             {batch.rows.reduce(
                               (sum, row) =>
                                 sum + (row.extraInputs?.length || 0),
@@ -419,7 +419,7 @@ export default function BatchList({ orderId, fetchOrders }) {
                       onClick={() =>
                         setExpandedIndex(expandedIndex === bIdx ? null : bIdx)
                       }
-                      className="flex items-center justify-between w-full px-3 py-2 mt-3 bg-gray-100 border rounded text-sm text-gray-700 cursor-pointer"
+                      className="flex items-center justify-between w-full px-3 py-2 mt-3 bg-gray-100 dark:bg-muted border dark:border-border rounded text-sm text-gray-700 dark:text-foreground cursor-pointer"
                     >
                       <span>Show Batch Details</span>
                       {expandedIndex === bIdx ? (
@@ -440,56 +440,56 @@ export default function BatchList({ orderId, fetchOrders }) {
                           className="overflow-hidden"
                         >
                           <div className="overflow-x-auto my-3">
-                            <table className="w-full text-sm border border-gray-200">
-                              <thead className="bg-gray-100">
+                            <table className="w-full text-sm border border-gray-200 dark:border-border">
+                              <thead className="bg-gray-100 dark:bg-muted text-gray-900 dark:text-foreground">
                                 <tr>
-                                  <th className="px-3 py-2 border text-left w-1/3">
+                                  <th className="px-3 py-2 border dark:border-border text-left w-1/3">
                                     Field
                                   </th>
-                                  <th className="px-3 py-2 border text-left">
+                                  <th className="px-3 py-2 border dark:border-border text-left">
                                     Value
                                   </th>
                                 </tr>
                               </thead>
 
-                              <tbody>
+                              <tbody className="text-gray-900 dark:text-foreground">
                                 <tr>
-                                  <td className="px-3 py-2 border font-medium">
+                                  <td className="px-3 py-2 border dark:border-border font-medium">
                                     COLOUR
                                   </td>
-                                  <td className="px-3 py-2 border">
+                                  <td className="px-3 py-2 border dark:border-border">
                                     {batch.colour || "—"}
                                   </td>
                                 </tr>
                                 <tr>
-                                  <td className="px-3 py-2 border font-medium">
+                                  <td className="px-3 py-2 border dark:border-border font-medium">
                                     DYEING
                                   </td>
-                                  <td className="px-3 py-2 border">
+                                  <td className="px-3 py-2 border dark:border-border">
                                     {batch.dyeing || "—"}
                                   </td>
                                 </tr>
                                 <tr>
-                                  <td className="px-3 py-2 border font-medium">
+                                  <td className="px-3 py-2 border dark:border-border font-medium">
                                     FINISHING TYPE
                                   </td>
-                                  <td className="px-3 py-2 border">
+                                  <td className="px-3 py-2 border dark:border-border">
                                     {batch.finishingType || "—"}
                                   </td>
                                 </tr>
                                 <tr>
-                                  <td className="px-3 py-2 border font-medium">
+                                  <td className="px-3 py-2 border dark:border-border font-medium">
                                     SILL NAME
                                   </td>
-                                  <td className="px-3 py-2 border">
+                                  <td className="px-3 py-2 border dark:border-border">
                                     {batch.sillName || "—"}
                                   </td>
                                 </tr>
                                 <tr>
-                                  <td className="px-3 py-2 border font-medium">
+                                  <td className="px-3 py-2 border dark:border-border font-medium">
                                     PROCESS LIST
                                   </td>
-                                  <td className="px-3 py-2 border">
+                                  <td className="px-3 py-2 border dark:border-border">
                                     {batch.selectedProcesses?.length > 0
                                       ? batch.selectedProcesses
                                           .map((p) =>
@@ -504,10 +504,10 @@ export default function BatchList({ orderId, fetchOrders }) {
 
                                 {batch.calender && (
                                   <tr>
-                                    <td className="px-3 py-2 border font-medium">
+                                    <td className="px-3 py-2 border dark:border-border font-medium">
                                       CALENDER
                                     </td>
-                                    <td className="px-3 py-2 border">
+                                    <td className="px-3 py-2 border dark:border-border">
                                       {batch.calender}
                                     </td>
                                   </tr>
@@ -520,7 +520,7 @@ export default function BatchList({ orderId, fetchOrders }) {
                     </AnimatePresence>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-gray-500 dark:text-muted-foreground mt-2">
                     No rows available for this batch.
                   </p>
                 )}

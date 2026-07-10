@@ -261,7 +261,7 @@ export default function BillingBatch({ orderId, fetchOrders }) {
 
   if (loading) return <p>Loading billing invoices...</p>;
   if (!invoices.length)
-    return <p className="text-gray-500">No invoice billing data found.</p>;
+    return <p className="text-gray-500 dark:text-muted-foreground">No invoice billing data found.</p>;
 
   return (
     <div className="mt-6 space-y-6">
@@ -291,10 +291,10 @@ export default function BillingBatch({ orderId, fetchOrders }) {
         return (
           <div
             key={inv.invoiceNumber}
-            className="border rounded-lg shadow-sm border-gray-200 overflow-hidden"
+            className="border rounded-lg shadow-sm border-gray-200 dark:border-border dark:bg-card overflow-hidden"
           >
-            <div className="flex justify-between items-center bg-gray-100 px-4 py-3 no-print">
-              <h4 className="font-medium text-gray-700">
+            <div className="flex justify-between items-center bg-gray-100 dark:bg-muted px-4 py-3 no-print">
+              <h4 className="font-medium text-gray-700 dark:text-foreground">
                 Delivery Slip:{" "}
                 <span className="text-blue-600 font-semibold">
                   {inv.invoiceNumber}
@@ -303,7 +303,7 @@ export default function BillingBatch({ orderId, fetchOrders }) {
                   ({isMultiple ? "Merged" : "Single"})
                 </span>
               </h4>
-              <div className="flex items-center gap-3 text-gray-600">
+              <div className="flex items-center gap-3 text-gray-600 dark:text-muted-foreground">
                 <FaEye
                   className="cursor-pointer hover:text-blue-600"
                   onClick={() => toggleExpand(inv.invoiceNumber)}
@@ -329,47 +329,47 @@ export default function BillingBatch({ orderId, fetchOrders }) {
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.4 }}
-                  className="bg-white border-t border-gray-200 overflow-hidden"
+                  className="bg-white dark:bg-card border-t border-gray-200 dark:border-border text-gray-900 dark:text-foreground overflow-hidden"
                 >
                   <div className="p-4 overflow-x-auto">
                     {/* Batches table */}
                     {isMultiple ? (
-                      <table className="w-full text-sm border border-gray-200">
-                        <thead className="bg-gray-100">
+                      <table className="w-full text-sm border border-gray-200 dark:border-border">
+                        <thead className="bg-gray-100 dark:bg-muted">
                           <tr>
-                            <th className="px-3 py-2 border">Batch</th>
-                            <th className="px-3 py-2 border">Roll No</th>
-                            <th className="px-3 py-2 border">Goj</th>
-                            <th className="px-3 py-2 border">Index</th>
-                            <th className="px-3 py-2 border">Extras</th>
-                            <th className="px-3 py-2 border">Sill</th>
-                            <th className="px-3 py-2 border">Colour</th>
-                            <th className="px-3 py-2 border">Finishing</th>
+                            <th className="px-3 py-2 border dark:border-border">Batch</th>
+                            <th className="px-3 py-2 border dark:border-border">Roll No</th>
+                            <th className="px-3 py-2 border dark:border-border">Goj</th>
+                            <th className="px-3 py-2 border dark:border-border">Index</th>
+                            <th className="px-3 py-2 border dark:border-border">Extras</th>
+                            <th className="px-3 py-2 border dark:border-border">Sill</th>
+                            <th className="px-3 py-2 border dark:border-border">Colour</th>
+                            <th className="px-3 py-2 border dark:border-border">Finishing</th>
                           </tr>
                         </thead>
                         <tbody>
                           {mergedRows?.map((row, idx) => (
                             <tr key={idx} className="text-center">
-                              <td className="px-3 py-2 border">
+                              <td className="px-3 py-2 border dark:border-border">
                                 {row.batchName}
                               </td>
-                              <td className="px-3 py-2 border">{row.rollNo}</td>
-                              <td className="px-3 py-2 border">{row.goj}</td>
-                              <td className="px-3 py-2 border">
+                              <td className="px-3 py-2 border dark:border-border">{row.rollNo}</td>
+                              <td className="px-3 py-2 border dark:border-border">{row.goj}</td>
+                              <td className="px-3 py-2 border dark:border-border">
                                 {Array.isArray(row.idx)
                                   ? row.idx.join(", ")
                                   : row.idx || "-"}
                               </td>
-                              <td className="px-3 py-2 border">
+                              <td className="px-3 py-2 border dark:border-border">
                                 {row.extraInputs?.length
                                   ? row.extraInputs.join(", ")
                                   : "—"}
                               </td>
-                              <td className="px-3 py-2 border">
+                              <td className="px-3 py-2 border dark:border-border">
                                 {row.sillName}
                               </td>
-                              <td className="px-3 py-2 border">{row.colour}</td>
-                              <td className="px-3 py-2 border">
+                              <td className="px-3 py-2 border dark:border-border">{row.colour}</td>
+                              <td className="px-3 py-2 border dark:border-border">
                                 {row.finishingType}
                               </td>
                             </tr>
@@ -379,31 +379,31 @@ export default function BillingBatch({ orderId, fetchOrders }) {
                     ) : (
                       inv.batches.map((b, bIdx) => (
                         <div key={bIdx} className="mb-4">
-                          <h5 className="text-gray-700 font-medium mb-2">
+                          <h5 className="text-gray-700 dark:text-foreground font-medium mb-2">
                             {b.batchName}
                           </h5>
-                          <table className="w-full text-sm border border-gray-200">
-                            <thead className="bg-gray-100">
+                          <table className="w-full text-sm border border-gray-200 dark:border-border">
+                            <thead className="bg-gray-100 dark:bg-muted">
                               <tr>
-                                <th className="px-3 py-2 border">Roll No</th>
-                                <th className="px-3 py-2 border">Goj</th>
-                                <th className="px-3 py-2 border">Index</th>
-                                <th className="px-3 py-2 border">Extras</th>
+                                <th className="px-3 py-2 border dark:border-border">Roll No</th>
+                                <th className="px-3 py-2 border dark:border-border">Goj</th>
+                                <th className="px-3 py-2 border dark:border-border">Index</th>
+                                <th className="px-3 py-2 border dark:border-border">Extras</th>
                               </tr>
                             </thead>
                             <tbody>
                               {b.rows.map((r, rIdx) => (
                                 <tr key={rIdx} className="text-center">
-                                  <td className="px-3 py-2 border">
+                                  <td className="px-3 py-2 border dark:border-border">
                                     {r.rollNo}
                                   </td>
-                                  <td className="px-3 py-2 border">{r.goj}</td>
-                                  <td className="px-3 py-2 border">
+                                  <td className="px-3 py-2 border dark:border-border">{r.goj}</td>
+                                  <td className="px-3 py-2 border dark:border-border">
                                     {Array.isArray(r.idx)
                                       ? r.idx.join(", ")
                                       : r.idx || "-"}
                                   </td>
-                                  <td className="px-3 py-2 border">
+                                  <td className="px-3 py-2 border dark:border-border">
                                     {r.extraInputs?.length
                                       ? r.extraInputs.join(", ")
                                       : "—"}
@@ -418,11 +418,11 @@ export default function BillingBatch({ orderId, fetchOrders }) {
 
                     {/* Billing Summary */}
                     <div className="mt-4">
-                      <table className="w-full text-sm border border-gray-200">
+                      <table className="w-full text-sm border border-gray-200 dark:border-border">
                         <tbody>
-                          <tr className="bg-gray-50">
+                          <tr className="bg-gray-50 dark:bg-muted">
                             <td
-                              className="px-3 py-2 border font-medium text-gray-700"
+                              className="px-3 py-2 border dark:border-border font-medium text-gray-700 dark:text-foreground"
                               colSpan={6}
                             >
                               Index = {idxTotal} | Extras = {extrasTotal} |
@@ -440,14 +440,14 @@ export default function BillingBatch({ orderId, fetchOrders }) {
 
                             return (
                               <tr key={r.key} className="text-center">
-                                <td className="px-3 py-2 border text-left font-medium">
+                                <td className="px-3 py-2 border dark:border-border text-left font-medium">
                                   {r.label}
                                 </td>
-                                <td className="px-3 py-2 border text-red-500 font-bold text-lg">
+                                <td className="px-3 py-2 border dark:border-border text-red-500 font-bold text-lg">
                                   ×
                                 </td>
 
-                                <td className="px-3 py-2 border">
+                                <td className="px-3 py-2 border dark:border-border">
                                   {!isSaved && (
                                     <input
                                       type="number"
@@ -463,16 +463,16 @@ export default function BillingBatch({ orderId, fetchOrders }) {
                                         )
                                       }
                                       placeholder="Price"
-                                      className="w-full max-w-[90px] mx-auto border rounded px-3 py-2 text-center"
+                                      className="w-full max-w-[90px] mx-auto border dark:border-border dark:bg-background dark:text-foreground rounded px-3 py-2 text-center"
                                     />
                                   )}
                                 </td>
 
-                                <td className="px-3 py-2 border font-bold text-lg text-gray-600">
+                                <td className="px-3 py-2 border dark:border-border font-bold text-lg text-gray-600 dark:text-muted-foreground">
                                   =
                                 </td>
 
-                                <td className="px-3 py-2 border font-semibold text-gray-700">
+                                <td className="px-3 py-2 border dark:border-border font-semibold text-gray-700 dark:text-foreground">
                                   {!isSaved && (
                                     <input
                                       type="number"
@@ -488,7 +488,7 @@ export default function BillingBatch({ orderId, fetchOrders }) {
                                         )
                                       }
                                       placeholder="Total"
-                                      className="w-full max-w-[120px] mx-auto border rounded px-3 py-2 text-center"
+                                      className="w-full max-w-[120px] mx-auto border dark:border-border dark:bg-background dark:text-foreground rounded px-3 py-2 text-center"
                                     />
                                   )}
                                 </td>
@@ -499,7 +499,7 @@ export default function BillingBatch({ orderId, fetchOrders }) {
                                       handleSaveSummary(inv, r, billing)
                                     }
                                     className={`px-2 py-2 rounded m-1 ${isSaved
-                                        ? "bg-gray-300 cursor-not-allowed"
+                                        ? "bg-gray-300 dark:bg-gray-600 cursor-not-allowed"
                                         : "bg-green-400 hover:bg-green-500"
                                       }`}
                                   >

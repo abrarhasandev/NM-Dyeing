@@ -458,7 +458,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
   if (loadingOrders) {
     return (
       <div className="flex flex-col justify-center items-center h-64 bg-card rounded-[8px] shadow-sm border border-border">
-        <div className="w-8 h-8 rounded-full animate-spin border-2 border-border border-t-[#26251e]" />
+        <div className="w-8 h-8 rounded-full animate-spin border-2 border-border border-t-foreground" />
         <p className="text-[11px] font-medium mt-3 text-muted-foreground">Loading orders...</p>
       </div>
     );
@@ -501,7 +501,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-[color-mix(in_oklab,#26251e_10%,transparent)]">
+          <tbody className="divide-y divide-border">
             {sortedOrders?.map((order, rowIndex) => {
               const orderId = order?._id || `row-${rowIndex}`;
 

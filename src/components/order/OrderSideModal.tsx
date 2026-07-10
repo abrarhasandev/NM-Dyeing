@@ -173,7 +173,7 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                         </div>
                       </div>
                       
-                      <div className="h-[1px] w-full bg-[color-mix(in_oklab,#26251e_10%,transparent)]"></div>
+                      <div className="h-[1px] w-full bg-border"></div>
 
                       {/* Bottom Row: Dyeing & Transporter */}
                       <div className="flex justify-between items-end">
@@ -256,7 +256,7 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                                 )
                               }
                               className={`flex-1 py-2.5 px-4 rounded-[6px] font-semibold text-[13px] transition-colors flex justify-center items-center gap-1.5 ${hasBatch
-                                  ? "bg-[#e6e5e0] text-muted-foreground/70 cursor-not-allowed border border-border"
+                                  ? "bg-muted text-muted-foreground/70 cursor-not-allowed border border-border"
                                   : "bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
                                 }`}
                             >

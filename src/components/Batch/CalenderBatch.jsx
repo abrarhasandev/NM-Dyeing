@@ -86,14 +86,14 @@ export default function CalendarBatch({ orderId, fetchOrders }) {
 
   return (
     <div className="mt-6">
-      <h3 className="text-lg font-semibold mb-4 text-gray-800">
+      <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-foreground">
         Dispatched Batches (Calendar)
       </h3>
 
       {loading ? (
-        <p className="text-gray-500">Loading dispatched batches...</p>
+        <p className="text-gray-500 dark:text-muted-foreground">Loading dispatched batches...</p>
       ) : batches.length === 0 ? (
-        <p className="text-gray-500">
+        <p className="text-gray-500 dark:text-muted-foreground">
           No dispatched batches found for this order.
         </p>
       ) : (
@@ -101,10 +101,10 @@ export default function CalendarBatch({ orderId, fetchOrders }) {
           {batches.map((batch, bIdx) => (
             <div
               key={bIdx}
-              className="border border-gray-200 rounded-lg p-4 shadow-sm"
+              className="border border-gray-200 dark:border-border dark:bg-card rounded-lg p-4 shadow-sm"
             >
               <div className="flex justify-between items-center mb-3">
-                <h4 className="font-medium text-gray-700 ">
+                <h4 className="font-medium text-gray-700 dark:text-foreground">
                   {batch.batchName || `Batch ${bIdx + 1}`} ✅
                 </h4>
                 <div className="flex gap-2">
@@ -128,22 +128,22 @@ export default function CalendarBatch({ orderId, fetchOrders }) {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-sm border border-gray-200">
-                  <thead className="bg-gray-100">
+                <table className="w-full text-sm border border-gray-200 dark:border-border">
+                  <thead className="bg-gray-100 dark:bg-muted text-gray-900 dark:text-foreground">
                     <tr>
-                      <th className="px-3 py-2 border">Roll No</th>
-                      <th className="px-3 py-2 border">Goj</th>
-                      <th className="px-3 py-2 border">Index</th>
-                      <th className="px-3 py-2 border">Extras</th>
+                      <th className="px-3 py-2 border dark:border-border">Roll No</th>
+                      <th className="px-3 py-2 border dark:border-border">Goj</th>
+                      <th className="px-3 py-2 border dark:border-border">Index</th>
+                      <th className="px-3 py-2 border dark:border-border">Extras</th>
                     </tr>
                   </thead>
                   <tbody>
                     {batch.rows.map((row, rIdx) => (
-                      <tr key={rIdx} className="text-center">
-                        <td className="px-3 py-2 border">{row.rollNo}</td>
-                        <td className="px-3 py-2 border">{row.goj}</td>
-                        <td className="px-3 py-2 border">{row.idx || "-"}</td>
-                        <td className="px-3 py-2 border">
+                      <tr key={rIdx} className="text-center text-gray-900 dark:text-foreground">
+                        <td className="px-3 py-2 border dark:border-border">{row.rollNo}</td>
+                        <td className="px-3 py-2 border dark:border-border">{row.goj}</td>
+                        <td className="px-3 py-2 border dark:border-border">{row.idx || "-"}</td>
+                        <td className="px-3 py-2 border dark:border-border">
                           {row.extraInputs?.length
                             ? row.extraInputs.join(", ")
                             : "—"}
@@ -154,15 +154,15 @@ export default function CalendarBatch({ orderId, fetchOrders }) {
 
                   {batch.rows.length > 0 && (
                     <tfoot>
-                      <tr className="text-center font-semibold bg-gray-50">
-                        <td className="px-3 py-2 border">{batch.rows.length}</td>
-                        <td className="px-3 py-2 border">
+                      <tr className="text-center font-semibold bg-gray-50 dark:bg-muted text-gray-900 dark:text-foreground">
+                        <td className="px-3 py-2 border dark:border-border">{batch.rows.length}</td>
+                        <td className="px-3 py-2 border dark:border-border">
                           {batch.rows.reduce((sum, row) => sum + (Number(row.goj) || 0), 0)}
                         </td>
-                        <td className="px-3 py-2 border">
+                        <td className="px-3 py-2 border dark:border-border">
                           {batch.rows.reduce((sum, row) => sum + (Number(row.idx) || 0), 0)}
                         </td>
-                        <td className="px-3 py-2 border">
+                        <td className="px-3 py-2 border dark:border-border">
                           {batch.rows.reduce(
                             (sum, row) =>
                               sum +
@@ -182,7 +182,7 @@ export default function CalendarBatch({ orderId, fetchOrders }) {
                   onClick={() =>
                     setExpandedIndex(expandedIndex === bIdx ? null : bIdx)
                   }
-                  className="flex items-center justify-between w-full px-3 py-2 mt-3 bg-gray-100 border rounded text-sm text-gray-700 cursor-pointer"
+                  className="flex items-center justify-between w-full px-3 py-2 mt-3 bg-gray-100 dark:bg-muted border dark:border-border rounded text-sm text-gray-700 dark:text-foreground cursor-pointer"
                 >
                   <span>Show Batch Details</span>
                   {expandedIndex === bIdx ? (
@@ -203,13 +203,13 @@ export default function CalendarBatch({ orderId, fetchOrders }) {
                       className="overflow-hidden"
                     >
                       <div className="overflow-x-auto my-3">
-                        <table className="w-full text-sm border border-gray-200">
-                          <thead className="bg-gray-100">
+                        <table className="w-full text-sm border border-gray-200 dark:border-border">
+                          <thead className="bg-gray-100 dark:bg-muted text-gray-900 dark:text-foreground">
                             <tr>
-                              <th className="px-3 py-2 border text-left w-1/3">
+                              <th className="px-3 py-2 border dark:border-border text-left w-1/3">
                                 Field
                               </th>
-                              <th className="px-3 py-2 border text-left">
+                              <th className="px-3 py-2 border dark:border-border text-left">
                                 Value
                               </th>
                             </tr>
@@ -224,9 +224,9 @@ export default function CalendarBatch({ orderId, fetchOrders }) {
                             ]
                               .filter(([_, value]) => value)
                               .map(([label, value], idx) => (
-                                <tr key={idx} className={idx % 2 === 0 ? "bg-gray-50" : ""}>
-                                  <td className="border px-3 py-2 font-medium uppercase">{label}</td>
-                                  <td className="border px-3 py-2">{value}</td>
+                                <tr key={idx} className={idx % 2 === 0 ? "bg-gray-50 dark:bg-muted/50 text-gray-900 dark:text-foreground" : "text-gray-900 dark:text-foreground"}>
+                                  <td className="border dark:border-border px-3 py-2 font-medium uppercase">{label}</td>
+                                  <td className="border dark:border-border px-3 py-2">{value}</td>
                                 </tr>
                               ))}
                           </tbody>
@@ -238,7 +238,7 @@ export default function CalendarBatch({ orderId, fetchOrders }) {
                 {/* END COLLAPSIBLE INFO SECTION */}
               </div>
 
-              <p className="pt-3">Note: {batch.note?.trim() || "Not Assigned"}</p>
+              <p className="pt-3 text-gray-700 dark:text-muted-foreground">Note: {batch.note?.trim() || "Not Assigned"}</p>
             </div>
           ))}
         </div>

@@ -15,9 +15,9 @@ const SHIMMER_STYLE = `
   .mn-skeleton {
     background: linear-gradient(
       90deg,
-      #e6e5e0 25%,
-      #d4d3ce 37%,
-      #e6e5e0 63%
+      var(--border) 25%,
+      var(--muted) 37%,
+      var(--border) 63%
     );
     background-size: 800px 100%;
     animation: mn-shimmer 1.5s infinite linear;
@@ -127,11 +127,10 @@ const FilterBarSkeleton = () => (
 /* ── Table Row Skeleton ──────────────────────────────────────────────────── */
 const TableRowSkeleton = ({ opacity = 1 }: { opacity?: number }) => (
   <tr
+    className="border-b border-border bg-card"
     style={{
-      borderBottom: "1px solid color-mix(in oklab, #26251e 10%, transparent)",
       opacity,
       transition: "opacity 0.2s",
-      backgroundColor: "#f7f7f4",
     }}
   >
     {/* Order ID */}
@@ -181,19 +180,13 @@ const TableRowSkeleton = ({ opacity = 1 }: { opacity?: number }) => (
 /* ── Table Skeleton ──────────────────────────────────────────────────────── */
 const TableSkeleton = ({ rows = 8 }: { rows?: number }) => (
   <div
-    className="w-full overflow-hidden rounded-[8px] bg-background"
-    style={{ border: "1px solid color-mix(in oklab, #26251e 10%, transparent)", boxShadow: "var(--mn-elevation-1)" }}
+    className="w-full overflow-hidden rounded-[8px] bg-background border border-border shadow-sm"
   >
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse">
         {/* thead ghost */}
         <thead>
-          <tr
-            style={{
-              borderBottom: "1px solid color-mix(in oklab, #26251e 10%, transparent)",
-              backgroundColor: "#f2f1ed",
-            }}
-          >
+          <tr className="border-b border-border bg-muted/50">
             {[120, 100, 80, 70, 90, 65, 70, 36].map((w, i) => (
               <th key={i} className="px-5 py-3.5">
                 <Bone width={w} height={11} />

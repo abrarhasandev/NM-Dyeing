@@ -139,7 +139,7 @@ export default function OrderStatus({
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-6 text-gray-800">Status</h2>
+      <h2 className="text-lg font-semibold mb-6 text-gray-800 dark:text-foreground">Status</h2>
 
       <Stepper
         steps={steps}
@@ -186,7 +186,7 @@ export default function OrderStatus({
       {/* Confirmation modal only for first change */}
       {showModal && selectedStep && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg">
+          <div className="bg-white dark:bg-card rounded-lg p-6 max-w-sm w-full shadow-lg">
             <StatusModal
               selectedStep={selectedStep}
               confirmChange={confirmChange}

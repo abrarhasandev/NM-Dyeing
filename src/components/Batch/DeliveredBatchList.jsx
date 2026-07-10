@@ -124,7 +124,7 @@ console.log(batches);
   return (
     <div className="mt-6">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-foreground">
           Dispatched Batches
         </h3>
 
@@ -139,9 +139,9 @@ console.log(batches);
       </div>
 
       {loading ? (
-        <p className="text-gray-500">Loading batches...</p>
+        <p className="text-gray-500 dark:text-muted-foreground">Loading batches...</p>
       ) : batches.length === 0 ? (
-        <p className="text-gray-500">
+        <p className="text-gray-500 dark:text-muted-foreground">
           No dispatched batches found for this order.
         </p>
       ) : (
@@ -154,7 +154,7 @@ console.log(batches);
               }
               onChange={handleSelectAll}
             />
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-gray-600 dark:text-muted-foreground">
               Select All ({batches.length})
             </span>
           </div>
@@ -167,10 +167,10 @@ console.log(batches);
               <div
                 key={batch._id}
                 className={`border rounded-lg shadow-sm overflow-hidden ${
-                  isSelected ? "border-blue-400 bg-blue-50" : "border-gray-200"
+                  isSelected ? "border-blue-400 bg-blue-50 dark:bg-blue-900/30" : "border-gray-200 dark:border-border dark:bg-card"
                 }`}
               >
-                <div className="flex justify-between items-center bg-gray-100 px-4 py-3">
+                <div className="flex justify-between items-center bg-gray-100 dark:bg-muted px-4 py-3">
                   <div className="flex items-center gap-3">
                     <input
                       type="checkbox"
@@ -178,7 +178,7 @@ console.log(batches);
                       onChange={() => handleSelect(batch._id)}
                       className="cursor-pointer"
                     />
-                    <h4 className="font-medium text-gray-700 flex items-center gap-2">
+                    <h4 className="font-medium text-gray-700 dark:text-foreground flex items-center gap-2">
                       {batch.batchName || `Batch ${bIdx + 1}`}{" "}
                       {batch.status === "billing" && (
                         <span className="text-orange-500 text-sm font-semibold">
@@ -188,7 +188,7 @@ console.log(batches);
                     </h4>
                   </div>
 
-                  <div className="flex items-center gap-3 text-gray-600">
+                  <div className="flex items-center gap-3 text-gray-600 dark:text-muted-foreground">
                     <button
                       onClick={() => toggleExpand(batch._id)}
                       className="hover:text-blue-600 transition cursor-pointer"
@@ -226,32 +226,32 @@ console.log(batches);
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.4, ease: "easeInOut" }}
-                      className="border-t border-gray-200 bg-white overflow-hidden"
+                      className="border-t border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground overflow-hidden"
                     >
                       <div className="p-4">
                         <div className="overflow-x-auto">
-                          <table className="w-full text-sm border border-gray-200">
-                            <thead className="bg-gray-100">
+                          <table className="w-full text-sm border border-gray-200 dark:border-border">
+                            <thead className="bg-gray-100 dark:bg-muted text-gray-900 dark:text-foreground">
                               <tr>
-                                <th className="px-3 py-2 border">Roll No</th>
-                                <th className="px-3 py-2 border">Goj</th>
-                                <th className="px-3 py-2 border">Index</th>
-                                <th className="px-3 py-2 border">Extras</th>
+                                <th className="px-3 py-2 border dark:border-border">Roll No</th>
+                                <th className="px-3 py-2 border dark:border-border">Goj</th>
+                                <th className="px-3 py-2 border dark:border-border">Index</th>
+                                <th className="px-3 py-2 border dark:border-border">Extras</th>
                               </tr>
                             </thead>
                             <tbody>
                               {batch.rows.map((row, rIdx) => (
-                                <tr key={rIdx} className="text-center">
-                                  <td className="px-3 py-2 border">
+                                <tr key={rIdx} className="text-center text-gray-900 dark:text-foreground">
+                                  <td className="px-3 py-2 border dark:border-border">
                                     {row.rollNo}
                                   </td>
-                                  <td className="px-3 py-2 border">
+                                  <td className="px-3 py-2 border dark:border-border">
                                     {row.goj}
                                   </td>
-                                  <td className="px-3 py-2 border">
+                                  <td className="px-3 py-2 border dark:border-border">
                                     {row.idx || "-"}
                                   </td>
-                                  <td className="px-3 py-2 border">
+                                  <td className="px-3 py-2 border dark:border-border">
                                     {row.extraInputs?.length
                                       ? row.extraInputs.join(", ")
                                       : "—"}
@@ -261,8 +261,8 @@ console.log(batches);
                             </tbody>
                           </table>
                         </div>
-                        <p className="pt-3 text-gray-700">
-                          <span className="font-semibold">Note:</span>{" "}
+                        <p className="pt-3 text-gray-700 dark:text-muted-foreground">
+                          <span className="font-semibold text-gray-900 dark:text-foreground">Note:</span>{" "}
                           {batch.note?.trim() || "Not Assigned"}
                         </p>
                       </div>
