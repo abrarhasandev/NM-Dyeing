@@ -52,11 +52,9 @@ function DashboardHeader() {
 }
 
 export default function SessionWrapper({ children, defaultOpen = true }) {
-  // const { data: session, status } = useSession();
-  const session = { user: { name: "Test Admin", email: "admin@nmdyeing.com", image: null } };
-  const status = "authenticated";
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const [showLoader, setShowLoader] = useState(false);
+  const [showLoader, setShowLoader] = useState(true);
 
   // ✅ Always show loader for 1 second on page load
   useEffect(() => {

@@ -4,16 +4,20 @@ import { NextResponse } from "next/server";
 
 const { auth } = NextAuth(authConfig);
 
-export default auth(function proxy(req) {
+const proxyHandler = auth(function proxy(req) {
   const { pathname } = req.nextUrl;
+  console.log("Proxy middleware executed for:", pathname);
+
+  // Allow Auth.js endpoints to proceed without checks
+  if (pathname.startsWith("/api/auth")) {
+    return NextResponse.next();
+  }
 
   const isLoggedIn = Boolean(req.auth?.user);
   const isAdmin = req.auth?.user?.role === "admin";
   const isAdminRoute = pathname.startsWith("/dashboard");
 
   // --- API route protection ---
-  // All /api/* routes (except /api/auth/*, which Auth.js needs public) require
-  // a valid session token. Sensitive admin routes additionally require role==="admin".
   if (pathname.startsWith("/api/")) {
     if (!isLoggedIn) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -43,7 +47,10 @@ export default auth(function proxy(req) {
   return NextResponse.next();
 });
 
-export const config = {
-  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico).*)"],
-};
+// Support both Next.js 16 proxy conventions (default export and named export)
+export { proxyHandler as proxy };
+export default proxyHandler;
 
+export const config = {
+  matcher: ["/", "/dashboard/:path*", "/api/:path*", "/login"],
+};
