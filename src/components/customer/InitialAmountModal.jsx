@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { FaEdit, FaTimes } from "react-icons/fa";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 function InitialAmountModal({ initCharge, initPayment, initDate, onClose, onConfirm, loading }) {
     const [chargeAmount, setChargeAmount] = useState(initCharge > 0 ? String(initCharge) : "");

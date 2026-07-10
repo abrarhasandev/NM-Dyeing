@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { 
   Plus, 
   Search, 

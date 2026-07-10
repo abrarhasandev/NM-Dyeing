@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 export default function EditDyeing() {
   const { id } = useParams();

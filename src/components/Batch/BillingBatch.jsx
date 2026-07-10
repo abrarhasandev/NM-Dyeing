@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { FaPrint, FaEye } from "react-icons/fa";
 import { TiTick } from "react-icons/ti";
 import { MdDelete } from "react-icons/md";

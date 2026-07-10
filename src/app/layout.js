@@ -1,6 +1,6 @@
 import { Geist, Geist_Mono, Inter, Roboto } from "next/font/google";
 import "./globals.css";
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "@/components/ui/sonner";
 import NextAuthProvider from "@/Providers/NextAuthProvider";
 import SessionWrapper from "@/components/SessionWrapper";
 import "react-datepicker/dist/react-datepicker.css";
@@ -73,7 +73,7 @@ export default async function RootLayout({ children }) {
         <NextAuthProvider>
           <SessionWrapper defaultOpen={defaultOpen}>
             {children}
-            <ToastContainer />
+            <Toaster position="bottom-right" />
           </SessionWrapper>
         </NextAuthProvider>
       </body>

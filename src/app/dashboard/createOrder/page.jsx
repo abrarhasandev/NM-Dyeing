@@ -5,7 +5,7 @@ import useAppData from "@/hook/useAppData";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const Page = () => {
   const { data } = useAppData();

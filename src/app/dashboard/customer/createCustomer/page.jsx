@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 const CreateCustomerPage = () => {

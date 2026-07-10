@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { FaPencilAlt } from "react-icons/fa";
 import { LuTrash2 } from "react-icons/lu";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const Page = () => {
   const [types, setTypes] = useState([]);

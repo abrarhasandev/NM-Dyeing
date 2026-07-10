@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, use } from "react";
 import { FaArrowLeft, FaChevronDown, FaChevronUp, FaPrint } from "react-icons/fa";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 function fmtDate(d) {
     return new Date(d).toLocaleDateString("en-GB");

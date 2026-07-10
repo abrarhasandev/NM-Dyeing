@@ -1,7 +1,7 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
 import { IoClose, IoChevronDown, IoChevronUp } from "react-icons/io5";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { FaPencilAlt, FaPrint } from "react-icons/fa";
 import { LuTrash2 } from "react-icons/lu";
 import { CiGrid41 } from "react-icons/ci";
@@ -83,10 +83,7 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
     navigator.clipboard.writeText(text);
     toast.success(`${label} copied!`, {
       position: "bottom-right",
-      autoClose: 2000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: false,
+      duration: 2000,
     });
   };
 

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const EditCustomerPage = () => {
   const router = useRouter();

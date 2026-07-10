@@ -1,7 +1,7 @@
 // "use client";
 // import React from "react";
 // import { useRouter } from "next/navigation";
-// import { toast } from "react-toastify";
+// import { toast } from "sonner";
 // import { signIn } from "next-auth/react";
 
 // const SignUp = () => {
@@ -111,7 +111,7 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { 
   ArrowLeft, 
   UserPlus, 

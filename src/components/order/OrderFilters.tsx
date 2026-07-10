@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 interface OrderFiltersProps {
   searchTerm: string;

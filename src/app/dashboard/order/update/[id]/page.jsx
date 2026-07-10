@@ -4,7 +4,7 @@ import SearchableSelect from "@/components/OrderCreate/SearchableSelect";
 import useAppData from "@/hook/useAppData";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const Page = () => {
   const { id } = useParams();

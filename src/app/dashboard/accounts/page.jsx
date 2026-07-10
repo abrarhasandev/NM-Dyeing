@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { FaEdit, FaUser, FaFillDrip, FaCalendarAlt } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 export default function Page() {
   const [entities, setEntities] = useState([]);

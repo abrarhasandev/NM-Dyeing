@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import Stepper from "./Stepper";
 import StatusModal from "./StatusModal";
 import OrderTableData from "./OrderTableData";

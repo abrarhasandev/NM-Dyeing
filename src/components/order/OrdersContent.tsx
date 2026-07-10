@@ -24,7 +24,7 @@ import OrderSkeleton from "@/components/order/OrderSkeleton";
 import useAppData from "@/hook/useAppData";
 import useOrders from "@/hook/useOrder";
 import dayjs from "dayjs";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 // Import Recharts & Shadcn Chart UI
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";

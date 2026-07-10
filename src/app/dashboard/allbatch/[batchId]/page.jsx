@@ -3,7 +3,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Plus, Trash2, CheckCircle2 } from "lucide-react";
 import useAppData from "@/hook/useAppData";
 

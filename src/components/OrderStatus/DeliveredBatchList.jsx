@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 export default function DeliveredBatchCard({ orderId }) {
   const [batches, setBatches] = useState([]);

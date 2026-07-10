@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { FaRegEdit, FaSave, FaTimes, FaSearch } from "react-icons/fa";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const CompletedBatch = ({ orderId, fetchOrders }) => {
   const [summaries, setSummaries] = useState([]);

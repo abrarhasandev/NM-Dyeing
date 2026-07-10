@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { FaLock, FaTimes } from "react-icons/fa";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 function CloseModal({ onClose, onConfirm, loading }) {
     const [title, setTitle] = useState("");

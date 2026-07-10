@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { FaEye, FaFileInvoiceDollar } from "react-icons/fa";
 import { Edit } from "lucide-react";
 import { useRouter } from 'next/navigation'

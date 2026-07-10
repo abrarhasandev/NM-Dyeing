@@ -2,7 +2,7 @@
 import { Edit, ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function CalendarBatch({ orderId, fetchOrders }) {

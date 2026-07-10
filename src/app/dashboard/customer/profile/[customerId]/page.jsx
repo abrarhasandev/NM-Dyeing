@@ -17,7 +17,7 @@ import {
   FaEdit,
   FaPrint,
 } from "react-icons/fa";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import SaveInvoiceModal from "@/components/SaveInvoiceModal";
 import CustomerSavedBillsTab from "@/components/customer/CustomerSavedBillsTab";
