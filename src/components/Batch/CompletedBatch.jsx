@@ -1,34 +1,98 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import { FaRegEdit, FaSave, FaTimes, FaSearch } from "react-icons/fa";
+import React, { useEffect, useMemo, useState, useRef } from "react";
+import { FaRegEdit, FaSave, FaTimes, FaSearch, FaPrint } from "react-icons/fa";
 import { toast } from "sonner";
+import PrintBillingInvoice from "../Print/PrintBillingInvoice/PrintBillingInvoice";
 
 const CompletedBatch = ({ orderId, fetchOrders }) => {
   const [summaries, setSummaries] = useState([]);
+  const [invoices, setInvoices] = useState([]);
+  const [orderInfo, setOrderInfo] = useState({});
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({ price: "", total: "" });
   const [searchTerm, setSearchTerm] = useState("");
 
+  const printRef = useRef(null);
+  const [selectedInvoiceToPrint, setSelectedInvoiceToPrint] = useState(null);
+
   
   const BILLING_CATEGORIES = ["client", "dyeing", "calender"];
 
   useEffect(() => {
-    const fetchSummaries = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`/api/batch/completed/billing-summary/${orderId}`);
-        const data = await res.json();
-        if (!res.ok) throw new Error();
-        setSummaries(data.data || []);
+        const [sumRes, invRes, ordRes] = await Promise.all([
+          fetch(`/api/batch/completed/billing-summary/${orderId}`),
+          fetch(`/api/batch/invoice/billing/${orderId}`),
+          fetch(`/api/order/${orderId}`)
+        ]);
+        
+        if (sumRes.ok) {
+          const sumData = await sumRes.json();
+          setSummaries(sumData.data || []);
+        }
+        if (invRes.ok) {
+          const invData = await invRes.json();
+          setInvoices(invData.invoices || []);
+        }
+        if (ordRes.ok) {
+          const ordData = await ordRes.json();
+          setOrderInfo(ordData || {});
+        }
       } catch {
-        toast.error("Failed to load billing summaries");
+        toast.error("Failed to load data");
       } finally {
         setLoading(false);
       }
     };
-    if (orderId) fetchSummaries();
+    if (orderId) fetchData();
   }, [orderId]);
+
+  const handlePrint = (invoiceNumber) => {
+    const invoice = invoices.find(inv => inv.invoiceNumber === invoiceNumber);
+    if (!invoice) {
+        toast.error("Invoice details not found! Please ensure it wasn't deleted.");
+        return;
+    }
+    setSelectedInvoiceToPrint({ ...invoice, orderInfo });
+  };
+
+  useEffect(() => {
+    if (!selectedInvoiceToPrint) return;
+    
+    setTimeout(() => {
+      if (!printRef.current) return;
+      const printArea = printRef.current.cloneNode(true);
+      const tempDiv = document.createElement("div");
+      tempDiv.style.position = "absolute";
+      tempDiv.style.top = "0";
+      tempDiv.style.left = "0";
+      tempDiv.style.width = "100%";
+      tempDiv.style.background = "white";
+      tempDiv.style.zIndex = "9999";
+      tempDiv.appendChild(printArea);
+      document.body.appendChild(tempDiv);
+
+      const images = tempDiv.getElementsByTagName("img");
+      const promises = Array.from(images).map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      });
+
+      Promise.all(promises).then(() => {
+        window.print();
+        setTimeout(() => {
+          document.body.removeChild(tempDiv);
+          setSelectedInvoiceToPrint(null);
+        }, 500);
+      });
+    }, 100);
+  }, [selectedInvoiceToPrint]);
 
  
   const processedData = useMemo(() => {
@@ -172,6 +236,13 @@ const CompletedBatch = ({ orderId, fetchOrders }) => {
                           {/* Actions */}
                           <div className="flex gap-1 pl-1">
                             <button
+                              onClick={() => handlePrint(item.invoiceNumber)}
+                              className="p-2 rounded-lg border bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 transition-all hover:bg-blue-200 dark:hover:bg-blue-800/60"
+                              title="Print Delivery Slip"
+                            >
+                              <FaPrint size={12} />
+                            </button>
+                            <button
                               onClick={() => (editingId === item._id ? handleSave(item._id) : handleEdit(item))}
                               className={`p-2 rounded-lg border transition-all ${
                                 editingId === item._id ? "bg-blue-600 text-white" : "bg-blue-500 text-white"
@@ -198,6 +269,13 @@ const CompletedBatch = ({ orderId, fetchOrders }) => {
             );
           })
         )}
+      </div>
+      <div className="absolute opacity-0 pointer-events-none w-0 h-0 overflow-hidden">
+        <div ref={printRef} className="print-only">
+          {selectedInvoiceToPrint && (
+            <PrintBillingInvoice order={selectedInvoiceToPrint} />
+          )}
+        </div>
       </div>
     </div>
   );
