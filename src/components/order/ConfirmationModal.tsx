@@ -16,7 +16,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ showConfirmModal,
       style={{ backgroundColor: "rgba(38,37,30,0.3)", backdropFilter: "blur(3px)" }}
     >
       <div
-        className="relative flex flex-col items-center text-center bg-[#f7f7f4] rounded-[12px] shadow-lg border border-[color-mix(in_oklab,#26251e_10%,transparent)] px-7 py-8 w-full max-w-[380px]"
+        className="relative flex flex-col items-center text-center bg-background rounded-[12px] shadow-lg border border-border px-7 py-8 w-full max-w-[380px]"
       >
         {/* Icon */}
         <div
@@ -26,25 +26,25 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ showConfirmModal,
         </div>
 
         {/* Title */}
-        <h3 className="font-semibold mb-2 text-[16px] leading-6 text-[#26251e]">
+        <h3 className="font-semibold mb-2 text-[16px] leading-6 text-foreground">
           Delete Order?
         </h3>
 
         {/* Description */}
-        <p className="mb-8 text-[14px] leading-5 text-[#26251e]/60 max-w-[280px]">
+        <p className="mb-8 text-[14px] leading-5 text-muted-foreground max-w-[280px]">
           Are you sure you want to delete this order? This action cannot be undone.
         </p>
 
         {/* Actions */}
         <div className="flex gap-3 w-full">
           <button
-            className="flex-1 font-semibold transition-all cursor-pointer text-[13px] px-4 py-2.5 rounded-[8px] bg-[#f2f1ed] text-[#26251e] border border-[color-mix(in_oklab,#26251e_10%,transparent)] hover:bg-[#ebeae5]"
+            className="flex-1 font-semibold transition-all cursor-pointer text-[13px] px-4 py-2.5 rounded-[8px] bg-card text-foreground border border-border hover:bg-accent"
             onClick={onCancel}
           >
             Cancel
           </button>
           <button
-            className="flex-1 font-semibold text-[#f7f7f4] transition-all cursor-pointer text-[13px] px-4 py-2.5 rounded-[8px] bg-[#cf2d56] border-none shadow-sm hover:opacity-90"
+            className="flex-1 font-semibold text-primary-foreground transition-all cursor-pointer text-[13px] px-4 py-2.5 rounded-[8px] bg-[#cf2d56] border-none shadow-sm hover:opacity-90"
             onClick={onConfirm}
           >
             Delete

@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import NextAuthProvider from "@/Providers/NextAuthProvider";
 import SessionWrapper from "@/components/SessionWrapper";
 import "react-datepicker/dist/react-datepicker.css";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -68,14 +69,16 @@ export default async function RootLayout({ children }) {
   const defaultOpen = sidebarState === "false" ? false : true;
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${roboto.variable}`}>
-        <NextAuthProvider>
-          <SessionWrapper defaultOpen={defaultOpen}>
-            {children}
-            <Toaster position="bottom-right" />
-          </SessionWrapper>
-        </NextAuthProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <NextAuthProvider>
+            <SessionWrapper defaultOpen={defaultOpen}>
+              {children}
+              <Toaster position="bottom-right" />
+            </SessionWrapper>
+          </NextAuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

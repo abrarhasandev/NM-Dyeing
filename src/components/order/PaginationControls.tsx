@@ -35,14 +35,14 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
     <div className="flex items-center justify-between py-2 px-1 select-none">
       {/* Left: Rows per page */}
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-[#26251e] whitespace-nowrap">
+        <span className="text-sm font-medium text-foreground whitespace-nowrap">
           Rows per page
         </span>
         <div className="relative">
           <select
             value={itemsPerPage}
             onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-            className="appearance-none bg-[#f7f7f4] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[4px] px-3 py-2 pr-8 text-sm font-normal text-[#26251e] cursor-pointer shadow-sm hover:border-[color-mix(in_oklab,#26251e_20%,transparent)] focus:outline-none focus:border-[#26251e] transition-all min-w-[72px]"
+            className="appearance-none bg-background border border-border rounded-[4px] px-3 py-2 pr-8 text-sm font-normal text-foreground cursor-pointer shadow-sm hover:border-border/80 focus:outline-none focus:border-foreground transition-all min-w-[72px]"
           >
             <option value={10}>10</option>
             <option value={12}>12</option>
@@ -52,7 +52,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
           </select>
           <ChevronDown
             size={14}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#26251e]/40 pointer-events-none"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/70 pointer-events-none"
           />
         </div>
       </div>
@@ -63,7 +63,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
       {/* Right: Page info + navigation buttons */}
       <div className="flex items-center gap-8">
         {/* Page indicator */}
-        <span className="text-sm font-medium text-[#26251e] whitespace-nowrap">
+        <span className="text-sm font-medium text-foreground whitespace-nowrap">
           Page {currentPage} of {effectiveTotalPages}
         </span>
 
@@ -77,12 +77,12 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
             className={`inline-flex items-center justify-center w-8 h-8 rounded-[4px] border transition-all cursor-pointer
               ${
                 currentPage <= 1
-                  ? "border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f2f1ed] opacity-50 cursor-not-allowed"
-                  : "border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] hover:border-[color-mix(in_oklab,#26251e_20%,transparent)] hover:bg-[#ebeae5] shadow-sm active:scale-95"
+                  ? "border-border bg-card opacity-50 cursor-not-allowed"
+                  : "border-border bg-background hover:border-border/80 hover:bg-accent shadow-sm active:scale-95"
               }`}
             title="First page"
           >
-            <ChevronsLeft size={16} className="text-[#26251e]/60" />
+            <ChevronsLeft size={16} className="text-muted-foreground" />
           </button>
 
           {/* Previous page */}
@@ -93,12 +93,12 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
             className={`inline-flex items-center justify-center w-8 h-8 rounded-[4px] border transition-all cursor-pointer
               ${
                 currentPage <= 1
-                  ? "border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f2f1ed] opacity-50 cursor-not-allowed"
-                  : "border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] hover:border-[color-mix(in_oklab,#26251e_20%,transparent)] hover:bg-[#ebeae5] shadow-sm active:scale-95"
+                  ? "border-border bg-card opacity-50 cursor-not-allowed"
+                  : "border-border bg-background hover:border-border/80 hover:bg-accent shadow-sm active:scale-95"
               }`}
             title="Previous page"
           >
-            <ChevronLeft size={16} className="text-[#26251e]/60" />
+            <ChevronLeft size={16} className="text-muted-foreground" />
           </button>
 
           {/* Next page */}
@@ -109,12 +109,12 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
             className={`inline-flex items-center justify-center w-8 h-8 rounded-[4px] border transition-all cursor-pointer
               ${
                 currentPage >= effectiveTotalPages
-                  ? "border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f2f1ed] opacity-50 cursor-not-allowed"
-                  : "border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] hover:border-[color-mix(in_oklab,#26251e_20%,transparent)] hover:bg-[#ebeae5] shadow-sm active:scale-95"
+                  ? "border-border bg-card opacity-50 cursor-not-allowed"
+                  : "border-border bg-background hover:border-border/80 hover:bg-accent shadow-sm active:scale-95"
               }`}
             title="Next page"
           >
-            <ChevronRight size={16} className="text-[#26251e]/60" />
+            <ChevronRight size={16} className="text-muted-foreground" />
           </button>
 
           {/* Last page */}
@@ -125,12 +125,12 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
             className={`inline-flex items-center justify-center w-8 h-8 rounded-[4px] border transition-all cursor-pointer
               ${
                 currentPage >= effectiveTotalPages
-                  ? "border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f2f1ed] opacity-50 cursor-not-allowed"
-                  : "border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] hover:border-[color-mix(in_oklab,#26251e_20%,transparent)] hover:bg-[#ebeae5] shadow-sm active:scale-95"
+                  ? "border-border bg-card opacity-50 cursor-not-allowed"
+                  : "border-border bg-background hover:border-border/80 hover:bg-accent shadow-sm active:scale-95"
               }`}
             title="Last page"
           >
-            <ChevronsRight size={16} className="text-[#26251e]/60" />
+            <ChevronsRight size={16} className="text-muted-foreground" />
           </button>
         </div>
       </div>

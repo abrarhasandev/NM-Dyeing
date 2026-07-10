@@ -92,7 +92,7 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
       {isModalOpen && (
         <div className="no-print fixed inset-0 flex justify-end z-50">
           <motion.div
-            className="absolute inset-0 bg-[#26251e]/30"
+            className="absolute inset-0 bg-foreground/30"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -100,19 +100,19 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
           />
 
           <motion.div
-            className="relative w-full sm:w-[350px] md:w-[450px] h-full bg-[#f7f7f4] shadow-lg border-l border-[color-mix(in_oklab,#26251e_10%,transparent)] flex flex-col"
+            className="relative w-full sm:w-[350px] md:w-[450px] h-full bg-background shadow-lg border-l border-border flex flex-col"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
           >
             {/* Header */}
-            <div className="flex justify-between items-center px-6 py-4 border-b border-[color-mix(in_oklab,#26251e_10%,transparent)]">
-              <h2 className="text-[16px] font-bold text-[#26251e]">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-border">
+              <h2 className="text-[16px] font-bold text-foreground">
                 Order Details
               </h2>
               <IoClose
-                className="w-5 h-5 text-[#26251e]/40 hover:text-[#26251e] cursor-pointer transition-colors"
+                className="w-5 h-5 text-muted-foreground/70 hover:text-foreground cursor-pointer transition-colors"
                 onClick={closeModal}
               />
             </div>
@@ -121,24 +121,24 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {loadingOrder ? (
                 <div className="flex justify-center items-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#26251e]"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-foreground"></div>
                 </div>
               ) : (
                 <>
                   <div
-                    className="p-4 bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] cursor-pointer transition-all hover:bg-[#ebeae5] relative group shadow-sm"
+                    className="p-4 bg-card border border-border rounded-[8px] cursor-pointer transition-all hover:bg-accent relative group shadow-sm"
                     onClick={() => setIsDetailsOpen(!isDetailsOpen)}
                   >
                     <div className="flex flex-col gap-3">
                       {/* Top Row: Customer & Date/Slip */}
                       <div className="flex justify-between items-start">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-[#f7f7f4] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[6px] flex items-center justify-center shrink-0 shadow-sm group-hover:shadow-md transition-shadow">
-                            <CiGrid41 className="text-xl text-[#26251e]" />
+                          <div className="w-10 h-10 bg-background border border-border rounded-[6px] flex items-center justify-center shrink-0 shadow-sm group-hover:shadow-md transition-shadow">
+                            <CiGrid41 className="text-xl text-foreground" />
                           </div>
                           <div className="flex flex-col">
                             <p 
-                               className="text-[12px] font-bold text-[#26251e]/60 mb-0.5 cursor-pointer hover:text-[#26251e] transition-colors"
+                               className="text-[12px] font-bold text-muted-foreground mb-0.5 cursor-pointer hover:text-foreground transition-colors"
                                onClick={(e) => {
                                   e.stopPropagation();
                                   handleCopy(selectedOrder?.orderId, "Order number");
@@ -148,7 +148,7 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                               {selectedOrder?.orderId || "N/A"}
                             </p>
                             <p 
-                               className="text-[14px] font-bold text-[#26251e] leading-tight cursor-pointer hover:text-[#26251e]/80 transition-colors"
+                               className="text-[14px] font-bold text-foreground leading-tight cursor-pointer hover:text-foreground/80 transition-colors"
                                onClick={(e) => {
                                   e.stopPropagation();
                                   handleCopy(selectedOrder?.companyName, "Customer name");
@@ -157,17 +157,17 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                             >
                               {selectedOrder?.companyName || "Unknown Customer"}
                             </p>
-                            <p className="text-[11px] font-semibold text-[#26251e]/60 mt-1 uppercase tracking-wider">
+                            <p className="text-[11px] font-semibold text-muted-foreground mt-1 uppercase tracking-wider">
                               {selectedOrder?.clotheType || "N/A"}
                             </p>
                           </div>
                         </div>
                         
                         <div className="text-right flex flex-col items-end">
-                          <p className="text-[13px] font-bold text-[#26251e] leading-tight">
+                          <p className="text-[13px] font-bold text-foreground leading-tight">
                             #{selectedOrder?.invoiceNumber || "N/A"}
                           </p>
-                          <p className="text-[11px] font-medium text-[#26251e]/60 mt-1">
+                          <p className="text-[11px] font-medium text-muted-foreground mt-1">
                             {formatDate(selectedOrder?.createdAt)}
                           </p>
                         </div>
@@ -179,16 +179,16 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                       <div className="flex justify-between items-end">
                         <div className="flex items-center gap-6">
                           <div className="flex flex-col">
-                            <p className="text-[10px] font-semibold text-[#26251e]/50 uppercase tracking-wider mb-0.5">Dyeing</p>
-                            <p className="text-[12px] font-medium text-[#26251e]">{selectedOrder?.dyeingName || "N/A"}</p>
+                            <p className="text-[10px] font-semibold text-foreground/50 uppercase tracking-wider mb-0.5">Dyeing</p>
+                            <p className="text-[12px] font-medium text-foreground">{selectedOrder?.dyeingName || "N/A"}</p>
                           </div>
                           <div className="flex flex-col">
-                            <p className="text-[10px] font-semibold text-[#26251e]/50 uppercase tracking-wider mb-0.5">Transporter</p>
-                            <p className="text-[12px] font-medium text-[#26251e]">{selectedOrder?.transporterName || "N/A"}</p>
+                            <p className="text-[10px] font-semibold text-foreground/50 uppercase tracking-wider mb-0.5">Transporter</p>
+                            <p className="text-[12px] font-medium text-foreground">{selectedOrder?.transporterName || "N/A"}</p>
                           </div>
                         </div>
                         
-                        <div className="w-6 h-6 flex items-center justify-center rounded-full bg-[#f7f7f4] border border-[color-mix(in_oklab,#26251e_10%,transparent)] text-[#26251e]/60 group-hover:text-[#26251e] transition-colors">
+                        <div className="w-6 h-6 flex items-center justify-center rounded-full bg-background border border-border text-muted-foreground group-hover:text-foreground transition-colors">
                           {isDetailsOpen ? <IoChevronUp size={14} /> : <IoChevronDown size={14} />}
                         </div>
                       </div>
@@ -204,27 +204,27 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                         className="overflow-hidden"
                       >
                         <div className="space-y-6 pt-2">
-                          <div className="grid grid-cols-2 gap-4 text-[#26251e]">
+                          <div className="grid grid-cols-2 gap-4 text-foreground">
                             <div>
-                              <p className="text-[11px] font-medium text-[#26251e]/60">Quantity</p>
+                              <p className="text-[11px] font-medium text-muted-foreground">Quantity</p>
                               <p className="text-[13px] font-semibold">
                                 {selectedOrder?.quality || "N/A"}
                               </p>
                             </div>
                             <div>
-                              <p className="text-[11px] font-medium text-[#26251e]/60">Colour</p>
+                              <p className="text-[11px] font-medium text-muted-foreground">Colour</p>
                               <p className="text-[13px] font-semibold">
                                 {selectedOrder?.colour || "N/A"}
                               </p>
                             </div>
                             <div>
-                              <p className="text-[11px] font-medium text-[#26251e]/60">Sill Name</p>
+                              <p className="text-[11px] font-medium text-muted-foreground">Sill Name</p>
                               <p className="text-[13px] font-semibold">
                                 {selectedOrder?.sillName || "N/A"}
                               </p>
                             </div>
                             <div>
-                              <p className="text-[11px] font-medium text-[#26251e]/60">
+                              <p className="text-[11px] font-medium text-muted-foreground">
                                 Finishing Type
                               </p>
                               <p className="text-[13px] font-semibold">
@@ -233,10 +233,10 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                             </div>
                           </div>
 
-                          <div className="border-t border-[color-mix(in_oklab,#26251e_10%,transparent)] pt-4 flex gap-2">
+                          <div className="border-t border-border pt-4 flex gap-2">
                             <button
                               onClick={handlePrint}
-                              className="flex items-center gap-2 px-3 py-1.5 bg-[#1f8a65] text-[#f7f7f4] rounded-[4px] hover:bg-[#1f8a65]/90 transition-colors cursor-pointer text-[12px] font-medium"
+                              className="flex items-center gap-2 px-3 py-1.5 bg-[#1f8a65] text-primary-foreground rounded-[4px] hover:bg-[#1f8a65]/90 transition-colors cursor-pointer text-[12px] font-medium"
                             >
                               <FaPrint size={14} /> Print
                             </button>
@@ -247,7 +247,7 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                             </div>
                           </div>
 
-                          <div className="pt-4 border-t border-[color-mix(in_oklab,#26251e_10%,transparent)] flex justify-between gap-4">
+                          <div className="pt-4 border-t border-border flex justify-between gap-4">
                             <button
                               disabled={hasBatch}
                               onClick={() =>
@@ -256,8 +256,8 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                                 )
                               }
                               className={`flex-1 py-2.5 px-4 rounded-[6px] font-semibold text-[13px] transition-colors flex justify-center items-center gap-1.5 ${hasBatch
-                                  ? "bg-[#e6e5e0] text-[#26251e]/40 cursor-not-allowed border border-[color-mix(in_oklab,#26251e_10%,transparent)]"
-                                  : "bg-[#26251e] text-[#f7f7f4] hover:bg-[#3b3a33] cursor-pointer"
+                                  ? "bg-[#e6e5e0] text-muted-foreground/70 cursor-not-allowed border border-border"
+                                  : "bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
                                 }`}
                             >
                               <FaPencilAlt size={12} /> Edit

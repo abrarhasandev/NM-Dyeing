@@ -90,37 +90,60 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #050503;
+  --foreground: #f7f7f4;
+  --card: #141414;
+  --card-foreground: #f7f7f4;
+  --popover: #141414;
+  --popover-foreground: #f7f7f4;
+  --primary: #f7f7f4;
+  --primary-foreground: #050503;
+  --secondary: #26251e;
+  --secondary-foreground: #f7f7f4;
+  --muted: #26251e;
+  --muted-foreground: #b6b9be;
+  --accent: #26251e;
+  --accent-foreground: #f7f7f4;
+  --destructive: #cf2d56;
+  --border: #26251e;
+  --input: #26251e;
+  --ring: #f7f7f4;
+  --chart-1: #1f8a65;
+  --chart-2: #3a6a9f;
+  --chart-3: #c08532;
+  --chart-4: #9e94d5;
+  --chart-5: #f54e00;
+  --sidebar: #050503;
+  --sidebar-foreground: #f7f7f4;
+  --sidebar-primary: #f7f7f4;
+  --sidebar-primary-foreground: #050503;
+  --sidebar-accent: #26251e;
+  --sidebar-accent-foreground: #f7f7f4;
+  --sidebar-border: #26251e;
+  --sidebar-ring: #f7f7f4;
+
+  /* ── Custom MN Design Tokens for Dark Mode ────────────────────────────────── */
+  --mn-accent:            #3a6a9f;
+  --mn-background:        #050503;
+  --mn-text-primary:      #f7f7f4;
+  --mn-surface:           #141414;
+  --mn-text-tertiary:     #b6b9be;
+  --mn-accent-alt:        #cf2d56;
+  --mn-accent-3:          #1f8a65;
+  --mn-text-primary-alt:  #ffffff;
+  --mn-border:            #26251e;
+  --mn-accent-4:          #141414;
+  --mn-accent-5:          #cf2d56;
+  --mn-surface-alt:       #26251e;
+  --mn-text-secondary:    #e6e5e0;
+  --mn-accent-6:          #cf2d56;
+  --mn-accent-7:          #1f8a65;
+  --mn-border-alt:        #3c3935;
+  --mn-background-alt:    #141414;
+  --mn-text-primary-3:    #f7f7f4;
+  --mn-background-3:      #141414;
+  --mn-text-tertiary-alt: #b6b9be;
+  --mn-accent-8:          #26251e;
 }
 
 @layer base {

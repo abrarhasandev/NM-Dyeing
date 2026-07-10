@@ -467,7 +467,7 @@ export const OrdersContent = () => {
 
   return (
     <div
-      className="flex flex-col gap-4 text-[#26251e] select-none py-1 pb-10"
+      className="flex flex-col gap-4 text-foreground select-none py-1 pb-10"
       style={{ animation: "mn-content-fade-in 0.4s ease" }}
     >
 
@@ -476,26 +476,26 @@ export const OrdersContent = () => {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Card 1: Total Orders */}
-            <div className="bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[color-mix(in_oklab,#26251e_20%,transparent)] transition-colors">
+            <div className="bg-card border border-border rounded-[8px] p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-border/80 transition-colors">
               <div className="flex justify-between items-start">
-                <span className="text-[13px] font-medium text-[#26251e]/60">Total Orders</span>
+                <span className="text-[13px] font-medium text-muted-foreground">Total Orders</span>
                 {(() => {
                   const val = stats.orderCountGrowth;
                   if (val > 0) {
                     return (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F0FDF4] text-[#16A34A] text-[11px] font-semibold border border-[#BBF7D0]">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400 text-[11px] font-semibold border border-green-200 dark:border-green-800">
                         <TrendingUp size={10} /> +{val.toFixed(1)}%
                       </span>
                     );
                   } else if (val < 0) {
                     return (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FEF2F2] text-[#DC2626] text-[11px] font-semibold border border-[#FECACA]">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400 text-[11px] font-semibold border border-red-200 dark:border-red-800">
                         <TrendingDown size={10} /> {val.toFixed(1)}%
                       </span>
                     );
                   } else {
                     return (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F4F4F5] text-[#71717A] text-[11px] font-semibold border border-[#E4E4E7]">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 text-[11px] font-semibold border border-zinc-200 dark:border-zinc-700">
                         0.0%
                       </span>
                     );
@@ -503,68 +503,68 @@ export const OrdersContent = () => {
                 })()}
               </div>
               <div className="flex flex-col mt-1">
-                <span className="text-[22px] font-bold text-[#26251e] leading-none">
-                  {stats.totalOrders.toLocaleString()} <span className="text-[14px] font-semibold text-[#26251e]/60">orders</span>
+                <span className="text-[22px] font-bold text-foreground leading-none">
+                  {stats.totalOrders.toLocaleString()} <span className="text-[14px] font-semibold text-muted-foreground">orders</span>
                 </span>
-                <span className="text-[12px] font-medium text-[#26251e]/60 mt-1.5 leading-none">
+                <span className="text-[12px] font-medium text-muted-foreground mt-1.5 leading-none">
                   {stats.totalGoj.toLocaleString()} goj total
                 </span>
-                <span className="text-[11px] text-[#26251e]/40 mt-1.5 font-medium">
+                <span className="text-[11px] text-muted-foreground/70 mt-1.5 font-medium">
                   Orders in {getDateRangeLabel(dateRange)}
                 </span>
               </div>
             </div>
 
             {/* Card 2: Total Customers */}
-            <div className="bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[color-mix(in_oklab,#26251e_20%,transparent)] transition-colors">
+            <div className="bg-card border border-border rounded-[8px] p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-border/80 transition-colors">
               <div className="flex justify-between items-start">
-                <span className="text-[13px] font-medium text-[#26251e]/60">Total Customers</span>
-                <Users size={15} className="text-[#26251e]/40" />
+                <span className="text-[13px] font-medium text-muted-foreground">Total Customers</span>
+                <Users size={15} className="text-muted-foreground/70" />
               </div>
               <div className="flex flex-col mt-2">
-                <span className="text-[22px] font-bold text-[#26251e]">{stats.totalCustomers}</span>
-                <span className="text-[11px] text-[#26251e]/40 mt-1.5 font-medium">
+                <span className="text-[22px] font-bold text-foreground">{stats.totalCustomers}</span>
+                <span className="text-[11px] text-muted-foreground/70 mt-1.5 font-medium">
                   Customers in {getDateRangeLabel(dateRange)}
                 </span>
               </div>
             </div>
 
             {/* Card 3: Active Orders */}
-            <div className="bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[color-mix(in_oklab,#26251e_20%,transparent)] transition-colors">
+            <div className="bg-card border border-border rounded-[8px] p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-border/80 transition-colors">
               <div className="flex justify-between items-start">
-                <span className="text-[13px] font-medium text-[#26251e]/60">Active Orders</span>
-                <Activity size={15} className="text-[#26251e]/40" />
+                <span className="text-[13px] font-medium text-muted-foreground">Active Orders</span>
+                <Activity size={15} className="text-muted-foreground/70" />
               </div>
               <div className="flex flex-col mt-2">
-                <span className="text-[16px] font-bold text-[#26251e] leading-tight">
+                <span className="text-[16px] font-bold text-foreground leading-tight">
                   {stats.activeCount} active
                 </span>
-                <span className="text-[12px] font-medium text-[#26251e]/60 mt-0.5">{stats.activeGoj.toLocaleString()} goj</span>
-                <span className="text-[11px] text-[#26251e]/40 mt-1.5 font-medium">In-progress orders</span>
+                <span className="text-[12px] font-medium text-muted-foreground mt-0.5">{stats.activeGoj.toLocaleString()} goj</span>
+                <span className="text-[11px] text-muted-foreground/70 mt-1.5 font-medium">In-progress orders</span>
               </div>
             </div>
 
             {/* Card 4: Growth Rate */}
-            <div className="bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-[color-mix(in_oklab,#26251e_20%,transparent)] transition-colors">
+            <div className="bg-card border border-border rounded-[8px] p-5 shadow-sm flex flex-col justify-between h-[130px] hover:border-border/80 transition-colors">
               <div className="flex justify-between items-start">
-                <span className="text-[13px] font-medium text-[#26251e]/60">Growth Rate</span>
+                <span className="text-[13px] font-medium text-muted-foreground">Growth Rate</span>
                 {(() => {
                   const val = stats.gojGrowth;
                   if (val > 0) {
                     return (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F0FDF4] text-[#16A34A] text-[11px] font-semibold border border-[#BBF7D0]">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400 text-[11px] font-semibold border border-green-200 dark:border-green-800">
                         <TrendingUp size={10} /> +{val.toFixed(1)}%
                       </span>
                     );
                   } else if (val < 0) {
                     return (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FEF2F2] text-[#DC2626] text-[11px] font-semibold border border-[#FECACA]">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400 text-[11px] font-semibold border border-red-200 dark:border-red-800">
                         <TrendingDown size={10} /> {val.toFixed(1)}%
                       </span>
                     );
                   } else {
                     return (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F4F4F5] text-[#71717A] text-[11px] font-semibold border border-[#E4E4E7]">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 text-[11px] font-semibold border border-zinc-200 dark:border-zinc-700">
                         0.0%
                       </span>
                     );
@@ -572,21 +572,21 @@ export const OrdersContent = () => {
                 })()}
               </div>
               <div className="flex flex-col mt-2">
-                <span className="text-[22px] font-bold text-[#26251e]">
+                <span className="text-[22px] font-bold text-foreground">
                   {stats.gojGrowth >= 0 ? "+" : ""}{stats.gojGrowth.toFixed(1)}%
                 </span>
-                <span className="text-[11px] text-[#26251e]/40 mt-1.5 font-medium">
+                <span className="text-[11px] text-muted-foreground/70 mt-1.5 font-medium">
                   {stats.gojGrowth >= 0 ? "Meets growth projections" : "Below growth projections"}
                 </span>
               </div>
             </div>
           </div>
 
-          <Card className="border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] shadow-sm overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300 bg-[#f7f7f4]">
-            <CardHeader className="flex items-center gap-2 space-y-0 border-b border-[color-mix(in_oklab,#26251e_10%,transparent)] py-4 sm:flex-row">
+          <Card className="border border-border rounded-[8px] shadow-sm overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300 bg-background">
+            <CardHeader className="flex items-center gap-2 space-y-0 border-b border-border py-4 sm:flex-row">
               <div className="grid flex-1 gap-0.5">
-                <CardTitle className="text-[14px] font-bold text-[#26251e]">Order Chart</CardTitle>
-                <CardDescription className="text-[11px] text-[#26251e]/40 font-medium">
+                <CardTitle className="text-[14px] font-bold text-foreground">Order Chart</CardTitle>
+                <CardDescription className="text-[11px] text-muted-foreground/70 font-medium">
                   {chartDescriptionText}
                 </CardDescription>
               </div>
@@ -597,7 +597,7 @@ export const OrdersContent = () => {
                 >
                   <SelectValue placeholder="Last 3 months" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl bg-white border border-neutral-200 shadow-md">
+                <SelectContent className="rounded-xl bg-background border border-border shadow-md">
                   <SelectItem value="3_days" className="rounded-lg">
                     Last 3 days
                   </SelectItem>
@@ -699,19 +699,19 @@ export const OrdersContent = () => {
                           const growth = data.growthRate || 0;
                           
                           return (
-                            <div className="bg-white border border-gray-200 p-3 rounded-lg shadow-md text-sm min-w-[160px]">
-                              <p className="font-bold text-[#26251e] mb-2 border-b pb-1">{label}</p>
+                            <div className="bg-background border border-border p-3 rounded-lg shadow-md text-sm min-w-[160px]">
+                              <p className="font-bold text-foreground mb-2 border-b pb-1">{label}</p>
                               <div className="flex justify-between items-center mb-1">
-                                <span className="text-[#26251e]/60 font-medium text-[12px]">Total Orders:</span>
-                                <span className="font-semibold text-[#26251e]">{totalOrders}</span>
+                                <span className="text-muted-foreground font-medium text-[12px]">Total Orders:</span>
+                                <span className="font-semibold text-foreground">{totalOrders}</span>
                               </div>
                               <div className="flex justify-between items-center mb-1">
-                                <span className="text-[#26251e]/60 font-medium text-[12px]">Total Yards:</span>
-                                <span className="font-semibold text-[#26251e]">{totalYards.toLocaleString()} goj</span>
+                                <span className="text-muted-foreground font-medium text-[12px]">Total Yards:</span>
+                                <span className="font-semibold text-foreground">{totalYards.toLocaleString()} goj</span>
                               </div>
                               <div className="flex justify-between items-center mb-2">
-                                <span className="text-[#26251e]/60 font-medium text-[12px]">Growth Rate:</span>
-                                <span className={growth > 0 ? "text-[#16A34A] font-semibold" : growth < 0 ? "text-[#DC2626] font-semibold" : "text-[#71717A] font-semibold"}>
+                                <span className="text-muted-foreground font-medium text-[12px]">Growth Rate:</span>
+                                <span className={growth > 0 ? "text-green-600 dark:text-green-400 font-semibold" : growth < 0 ? "text-red-600 dark:text-red-400 font-semibold" : "text-zinc-500 dark:text-zinc-400 font-semibold"}>
                                   {growth > 0 ? "+" : ""}{growth.toFixed(1)}%
                                 </span>
                               </div>
@@ -720,9 +720,9 @@ export const OrdersContent = () => {
                                   <div key={index} className="flex justify-between items-center text-[12px]">
                                     <div className="flex items-center gap-1.5">
                                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-                                      <span className="text-[#26251e]/80 capitalize">{entry.name}</span>
+                                      <span className="text-foreground/80 capitalize">{entry.name}</span>
                                     </div>
-                                    <span className="font-semibold text-[#26251e]">{entry.value}</span>
+                                    <span className="font-semibold text-foreground">{entry.value}</span>
                                   </div>
                                 ))}
                               </div>
@@ -758,9 +758,9 @@ export const OrdersContent = () => {
                 </ChartContainer>
               ) : (
                 // Fallback State when no data is available
-                <div className="flex flex-col items-center justify-center text-center p-6 bg-[#f7f7f4] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] w-full h-[250px]">
-                  <span className="text-[#26251e]/60 font-bold text-[13px]">No data available in this range</span>
-                  <span className="text-[11px] text-[#26251e]/40 mt-1 max-w-[280px]">There are no orders matching this filter segment to plot visual stats.</span>
+                <div className="flex flex-col items-center justify-center text-center p-6 bg-background border border-border rounded-[8px] w-full h-[250px]">
+                  <span className="text-muted-foreground font-bold text-[13px]">No data available in this range</span>
+                  <span className="text-[11px] text-muted-foreground/70 mt-1 max-w-[280px]">There are no orders matching this filter segment to plot visual stats.</span>
                 </div>
               )}
             </CardContent>

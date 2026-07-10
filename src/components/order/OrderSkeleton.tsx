@@ -54,7 +54,7 @@ const Bone: React.FC<BoneProps> = ({ width = "100%", height = 12, radius = 6, st
 /* ── KPI Stat Card Skeleton ──────────────────────────────────────────────── */
 const KpiCardSkeleton = () => (
   <div
-    className="bg-[#f2f1ed] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] p-5 shadow-sm flex flex-col justify-between"
+    className="bg-card border border-border rounded-[8px] p-5 shadow-sm flex flex-col justify-between"
     style={{ height: 130 }}
   >
     <div className="flex justify-between items-start">
@@ -71,9 +71,9 @@ const KpiCardSkeleton = () => (
 
 /* ── Chart Card Skeleton ─────────────────────────────────────────────────── */
 const ChartSkeleton = () => (
-  <div className="bg-[#f7f7f4] border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-[8px] shadow-sm overflow-hidden">
+  <div className="bg-background border border-border rounded-[8px] shadow-sm overflow-hidden">
     {/* header */}
-    <div className="flex items-center gap-2 border-b border-[color-mix(in_oklab,#26251e_10%,transparent)] px-6 py-4">
+    <div className="flex items-center gap-2 border-b border-border px-6 py-4">
       <div className="flex-1 flex flex-col gap-1.5">
         <Bone width={100} height={13} />
         <Bone width={70} height={10} />
@@ -181,7 +181,7 @@ const TableRowSkeleton = ({ opacity = 1 }: { opacity?: number }) => (
 /* ── Table Skeleton ──────────────────────────────────────────────────────── */
 const TableSkeleton = ({ rows = 8 }: { rows?: number }) => (
   <div
-    className="w-full overflow-hidden rounded-[8px] bg-[#f7f7f4]"
+    className="w-full overflow-hidden rounded-[8px] bg-background"
     style={{ border: "1px solid color-mix(in oklab, #26251e 10%, transparent)", boxShadow: "var(--mn-elevation-1)" }}
   >
     <div className="overflow-x-auto">
@@ -239,7 +239,7 @@ const OrderSkeleton: React.FC<OrderSkeletonProps> = ({ showGraph = true }) => {
   return (
     <>
       <InjectStyle />
-      <div className="flex flex-col gap-4 text-[#26251e] select-none py-1 pb-10">
+      <div className="flex flex-col gap-4 text-foreground select-none py-1 pb-10">
         {/* ── KPI Cards ── */}
         {showGraph && (
           <>

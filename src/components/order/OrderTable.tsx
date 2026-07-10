@@ -58,15 +58,15 @@ const renderStatusBadges = (order: any, orderId: string, handleOrderClick: any) 
         </span>
         {order?.batchSummary?.invoiceCount > 0 && (
           <span
-            className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/70 cursor-pointer hover:bg-[#ebeae5] transition-colors"
+            className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground/70 cursor-pointer hover:bg-accent transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               if (handleOrderClick) handleOrderClick(orderId, "Billing");
             }}
           >
-            <Truck size={12} className="shrink-0 text-[#26251e]/50" />
+            <Truck size={12} className="shrink-0 text-foreground/50" />
             Dispatch
-            <span className="inline-flex items-center justify-center px-1.5 h-4 text-[11px] font-bold bg-[#ebeae5] text-[#26251e]/70 rounded-full ml-0.5">
+            <span className="inline-flex items-center justify-center px-1.5 h-4 text-[11px] font-bold bg-accent text-foreground/70 rounded-full ml-0.5">
               {order?.batchSummary?.invoiceCount}
             </span>
           </span>
@@ -91,15 +91,15 @@ const renderStatusBadges = (order: any, orderId: string, handleOrderClick: any) 
         </span>
         {order?.batchSummary?.invoiceCount > 0 && (
           <span
-            className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/70 cursor-pointer hover:bg-[#ebeae5] transition-colors"
+            className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground/70 cursor-pointer hover:bg-accent transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               if (handleOrderClick) handleOrderClick(orderId, "Billing");
             }}
           >
-            <Truck size={12} className="shrink-0 text-[#26251e]/50" />
+            <Truck size={12} className="shrink-0 text-foreground/50" />
             Dispatch
-            <span className="inline-flex items-center justify-center px-1.5 h-4 text-[11px] font-bold bg-[#ebeae5] text-[#26251e]/70 rounded-full ml-0.5">
+            <span className="inline-flex items-center justify-center px-1.5 h-4 text-[11px] font-bold bg-accent text-foreground/70 rounded-full ml-0.5">
               {order?.batchSummary?.invoiceCount}
             </span>
           </span>
@@ -134,7 +134,7 @@ const renderGojDetails = (order: any, orderId: string, totalGojVal: number, tota
       rows.push({
         icon: "x",
         text: `${remainingBundle}~${remainingGoj}`,
-        cls: "text-[#26251e]/60 bg-[#f7f7f4] border-[color-mix(in_oklab,#26251e_10%,transparent)]",
+        cls: "text-muted-foreground bg-background border-border",
       });
     }
 
@@ -172,7 +172,7 @@ const renderGojDetails = (order: any, orderId: string, totalGojVal: number, tota
 
   return (
     <div className="flex flex-col gap-1 py-0.5 select-none min-w-[120px]">
-      <span className="font-semibold text-[#26251e] text-[13px] leading-tight">
+      <span className="font-semibold text-foreground text-[13px] leading-tight">
         Gry {totalBundleVal}~{totalGojVal}
       </span>
       {rows.length > 0 && (
@@ -186,9 +186,9 @@ const renderGojDetails = (order: any, orderId: string, totalGojVal: number, tota
                 <span>{rec.text}</span>
               </span>
               {rec.trend && (
-                <span className={`inline-flex items-center gap-0.5 px-1.5 py-[2px] rounded-[4px] border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[9px] font-bold ${rec.trendIsDown ? 'text-[#cf2d56]' : 'text-[#1f8a65]'}`}>
+                <span className={`inline-flex items-center gap-0.5 px-1.5 py-[2px] rounded-[4px] border border-border bg-background text-[9px] font-bold ${rec.trendIsDown ? 'text-[#cf2d56]' : 'text-[#1f8a65]'}`}>
                   {rec.trendIsDown ? <TrendingDown size={7} className="shrink-0" /> : <TrendingUp size={7} className="shrink-0" />}
-                  <span className="text-[#26251e]">{rec.trend}</span>
+                  <span className="text-foreground">{rec.trend}</span>
                 </span>
               )}
             </div>
@@ -206,10 +206,10 @@ const renderBillingBadges = (order: any, orderId: string) => {
 
   if (isCompleted) {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e] select-none">
-        <FileText size={12} className="shrink-0 text-[#26251e]/60" />
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground select-none">
+        <FileText size={12} className="shrink-0 text-muted-foreground" />
         Bill
-        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
           7
         </span>
       </span>
@@ -218,8 +218,8 @@ const renderBillingBadges = (order: any, orderId: string) => {
 
   if (s === "pending") {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/60 select-none">
-        <Clock size={12} className="shrink-0 text-[#26251e]/40" />
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-muted-foreground select-none">
+        <Clock size={12} className="shrink-0 text-muted-foreground/70" />
         pending
       </span>
     );
@@ -229,10 +229,10 @@ const renderBillingBadges = (order: any, orderId: string) => {
 
   if (index === 0) {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e] select-none">
-        <FileText size={12} className="shrink-0 text-[#26251e]/60" />
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground select-none">
+        <FileText size={12} className="shrink-0 text-muted-foreground" />
         U/B
-        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
           2
         </span>
       </span>
@@ -244,17 +244,17 @@ const renderBillingBadges = (order: any, orderId: string) => {
     const billN = getDummyIndex(orderId + "bl", 3);
     return (
       <div className="flex flex-col gap-0.5 select-none">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]">
-          <FileText size={12} className="shrink-0 text-[#26251e]/60" />
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+          <FileText size={12} className="shrink-0 text-muted-foreground" />
           U/B
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
             {ubN}
           </span>
         </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]">
-          <FileText size={12} className="shrink-0 text-[#26251e]/60" />
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+          <FileText size={12} className="shrink-0 text-muted-foreground" />
           Bill
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
             {billN}
           </span>
         </span>
@@ -265,17 +265,17 @@ const renderBillingBadges = (order: any, orderId: string) => {
   if (index === 2) {
     return (
       <div className="flex flex-col gap-0.5 select-none">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]">
-          <FileText size={12} className="shrink-0 text-[#26251e]/60" />
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+          <FileText size={12} className="shrink-0 text-muted-foreground" />
           U/B
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
             5
           </span>
         </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]">
-          <FileText size={12} className="shrink-0 text-[#26251e]/60" />
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+          <FileText size={12} className="shrink-0 text-muted-foreground" />
           Bill
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
             2
           </span>
         </span>
@@ -285,17 +285,17 @@ const renderBillingBadges = (order: any, orderId: string) => {
 
   return (
     <div className="flex flex-col gap-0.5 select-none">
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]">
-        <FileText size={12} className="shrink-0 text-[#26251e]/60" />
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+        <FileText size={12} className="shrink-0 text-muted-foreground" />
         U/B
-        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
           2
         </span>
       </span>
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]">
-        <FileText size={12} className="shrink-0 text-[#26251e]/60" />
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+        <FileText size={12} className="shrink-0 text-muted-foreground" />
         Bill
-        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
           0
         </span>
       </span>
@@ -310,10 +310,10 @@ const renderInventoryBadges = (order: any, orderId: string) => {
 
   if (isCompleted) {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e] select-none">
-        <Truck size={12} className="shrink-0 text-[#26251e]/60" />
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground select-none">
+        <Truck size={12} className="shrink-0 text-muted-foreground" />
         Trk
-        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
           7
         </span>
       </span>
@@ -322,8 +322,8 @@ const renderInventoryBadges = (order: any, orderId: string) => {
 
   if (s === "pending") {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]/60 select-none">
-        <Clock size={12} className="shrink-0 text-[#26251e]/40" />
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-muted-foreground select-none">
+        <Clock size={12} className="shrink-0 text-muted-foreground/70" />
         pending
       </span>
     );
@@ -333,10 +333,10 @@ const renderInventoryBadges = (order: any, orderId: string) => {
 
   if (index === 0) {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e] select-none">
-        <Truck size={12} className="shrink-0 text-[#26251e]/60" />
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground select-none">
+        <Truck size={12} className="shrink-0 text-muted-foreground" />
         U/Trk
-        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
           2
         </span>
       </span>
@@ -346,17 +346,17 @@ const renderInventoryBadges = (order: any, orderId: string) => {
   if (index === 1) {
     return (
       <div className="flex flex-col gap-0.5 select-none">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]">
-          <Truck size={12} className="shrink-0 text-[#26251e]/60" />
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+          <Truck size={12} className="shrink-0 text-muted-foreground" />
           U/Trk
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
             3
           </span>
         </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]">
-          <Truck size={12} className="shrink-0 text-[#26251e]/60" />
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+          <Truck size={12} className="shrink-0 text-muted-foreground" />
           Trk
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
             1
           </span>
         </span>
@@ -367,17 +367,17 @@ const renderInventoryBadges = (order: any, orderId: string) => {
   if (index === 2) {
     return (
       <div className="flex flex-col gap-0.5 select-none">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]">
-          <Truck size={12} className="shrink-0 text-[#26251e]/60" />
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+          <Truck size={12} className="shrink-0 text-muted-foreground" />
           U/Trk
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
             4
           </span>
         </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]">
-          <Truck size={12} className="shrink-0 text-[#26251e]/60" />
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+          <Truck size={12} className="shrink-0 text-muted-foreground" />
           Trk
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
             3
           </span>
         </span>
@@ -387,17 +387,17 @@ const renderInventoryBadges = (order: any, orderId: string) => {
 
   return (
     <div className="flex flex-col gap-0.5 select-none">
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]">
-        <Truck size={12} className="shrink-0 text-[#26251e]/60" />
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+        <Truck size={12} className="shrink-0 text-muted-foreground" />
         U/Trk
-        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
           1
         </span>
       </span>
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[color-mix(in_oklab,#26251e_10%,transparent)] bg-[#f7f7f4] text-[#26251e]">
-        <Truck size={12} className="shrink-0 text-[#26251e]/60" />
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+        <Truck size={12} className="shrink-0 text-muted-foreground" />
         Trk
-        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-[#f7f7f4] text-[#26251e]/60 border border-[color-mix(in_oklab,#26251e_10%,transparent)] rounded-full ml-0.5">
+        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
           1
         </span>
       </span>
@@ -412,12 +412,12 @@ const SortableHeader = ({ label, sortKey, sortConfig, onSort }: any) => {
     <button
       type="button"
       onClick={() => onSort(sortKey)}
-      className="inline-flex items-center gap-1 group cursor-pointer hover:text-[#26251e] transition-colors"
+      className="inline-flex items-center gap-1 group cursor-pointer hover:text-foreground transition-colors"
     >
       <span>{label}</span>
       <ChevronsUpDown
         size={12}
-        className={`shrink-0 transition-colors ${isActive ? "text-[#26251e]" : "text-[#26251e]/40 group-hover:text-[#26251e]/60"}`}
+        className={`shrink-0 transition-colors ${isActive ? "text-foreground" : "text-muted-foreground/70 group-hover:text-muted-foreground"}`}
       />
     </button>
   );
@@ -457,30 +457,30 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
 
   if (loadingOrders) {
     return (
-      <div className="flex flex-col justify-center items-center h-64 bg-[#f2f1ed] rounded-[8px] shadow-sm border border-[color-mix(in_oklab,#26251e_10%,transparent)]">
-        <div className="w-8 h-8 rounded-full animate-spin border-2 border-[color-mix(in_oklab,#26251e_10%,transparent)] border-t-[#26251e]" />
-        <p className="text-[11px] font-medium mt-3 text-[#26251e]/60">Loading orders...</p>
+      <div className="flex flex-col justify-center items-center h-64 bg-card rounded-[8px] shadow-sm border border-border">
+        <div className="w-8 h-8 rounded-full animate-spin border-2 border-border border-t-[#26251e]" />
+        <p className="text-[11px] font-medium mt-3 text-muted-foreground">Loading orders...</p>
       </div>
     );
   }
 
   if (!orders || orders.length === 0) {
     return (
-      <div className="flex flex-col justify-center items-center h-64 bg-[#f2f1ed] rounded-[8px] p-4 border border-[color-mix(in_oklab,#26251e_10%,transparent)] shadow-sm">
-        <AlertCircle className="w-8 h-8 mb-2 text-[#26251e]/40" />
-        <p className="font-semibold text-sm text-[#26251e]/60">No orders found.</p>
-        <p className="text-xs mt-1 text-[#26251e]/40">Try resetting the filters or create a new order.</p>
+      <div className="flex flex-col justify-center items-center h-64 bg-card rounded-[8px] p-4 border border-border shadow-sm">
+        <AlertCircle className="w-8 h-8 mb-2 text-muted-foreground/70" />
+        <p className="font-semibold text-sm text-muted-foreground">No orders found.</p>
+        <p className="text-xs mt-1 text-muted-foreground/70">Try resetting the filters or create a new order.</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full overflow-hidden rounded-[8px] bg-[#f7f7f4] border border-[color-mix(in_oklab,#26251e_10%,transparent)] shadow-sm">
+    <div className="w-full overflow-hidden rounded-[8px] bg-background border border-border shadow-sm">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr
-              className="text-[14px] font-semibold select-none bg-[#f2f1ed] text-[#26251e]/60 border-b border-[color-mix(in_oklab,#26251e_10%,transparent)]"
+              className="text-[14px] font-semibold select-none bg-card text-muted-foreground border-b border-border"
             >
               <th className="px-5 py-3.5 whitespace-nowrap font-semibold">Order Id</th>
               <th className="px-5 py-3.5 whitespace-nowrap font-semibold">Customer</th>
@@ -533,14 +533,14 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
               return (
                 <tr
                   key={order?._id || rowIndex}
-                  className="cursor-pointer transition-colors duration-100 group bg-[#f7f7f4] hover:bg-[#ebeae5]"
+                  className="cursor-pointer transition-colors duration-100 group bg-background hover:bg-accent"
                   onClick={() => handleOrderClick(order?._id)}
                 >
-                  <td className="px-5 py-3.5 font-medium text-[15px] whitespace-nowrap text-[#26251e]">
+                  <td className="px-5 py-3.5 font-medium text-[15px] whitespace-nowrap text-foreground">
                     <span className="font-mono text-[14px]">{displayId}</span>
                   </td>
 
-                  <td className="px-5 py-3.5 text-[15px] font-medium whitespace-nowrap max-w-[180px] text-[#26251e]">
+                  <td className="px-5 py-3.5 text-[15px] font-medium whitespace-nowrap max-w-[180px] text-foreground">
                     <span className="truncate block max-w-[160px]">
                       {order?.companyName || "N/A"}
                     </span>
@@ -548,11 +548,11 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
 
                   <td className="px-5 py-3.5 whitespace-nowrap">
                     <div className="flex flex-col gap-0.5">
-                      <div className="flex items-center gap-1 font-semibold text-[15px] text-[#26251e]">
-                        <ShoppingBag size={13} className="shrink-0 text-[#26251e]/40" />
+                      <div className="flex items-center gap-1 font-semibold text-[15px] text-foreground">
+                        <ShoppingBag size={13} className="shrink-0 text-muted-foreground/70" />
                         <span>{productCloth}</span>
                       </div>
-                      <div className="flex items-center gap-1 text-[13px] text-[#26251e]/60">
+                      <div className="flex items-center gap-1 text-[13px] text-muted-foreground">
                         <span className="font-medium"># {productQuality}</span>
                       </div>
                     </div>
@@ -582,7 +582,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
                           e.stopPropagation();
                           confirmDelete(order?._id);
                         }}
-                        className="p-1.5 rounded-[4px] text-[#26251e]/40 hover:text-[#cf2d56] hover:bg-[#cf2d56]/10 transition-all cursor-pointer opacity-0 group-hover:opacity-100"
+                        className="p-1.5 rounded-[4px] text-muted-foreground/70 hover:text-[#cf2d56] hover:bg-[#cf2d56]/10 transition-all cursor-pointer opacity-0 group-hover:opacity-100"
                         title="Delete Order"
                       >
                         <Trash2 size={15} />
@@ -590,7 +590,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
                       <button
                         type="button"
                         onClick={(e) => e.stopPropagation()}
-                        className="p-1.5 rounded-[4px] text-[#26251e]/40 hover:text-[#26251e]/60 hover:bg-[#ebeae5] transition-colors"
+                        className="p-1.5 rounded-[4px] text-muted-foreground/70 hover:text-muted-foreground hover:bg-accent transition-colors"
                       >
                         <MoreVertical size={15} />
                       </button>
