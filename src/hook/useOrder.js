@@ -116,7 +116,7 @@ const useOrders = (filters) => {
       if (sillName)      params.append("sillName",      sillName);
       if (quality)       params.append("quality",       quality);
 
-      const res = await fetch(`/api/order?${params.toString()}`);
+      const res = await fetch(`/api/order?${params.toString()}`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to fetch orders");
 
       const {

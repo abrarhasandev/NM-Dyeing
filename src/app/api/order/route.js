@@ -14,16 +14,16 @@ import { NextResponse } from "next/server";
  * native $gte / $lte on an indexed field — no $expr / $dateFromString needed.
  */
 function buildQuery(searchParams) {
-  const searchRaw    = searchParams.get("search")?.trim() || "";
-  const startDate    = searchParams.get("startDate") || "";
-  const endDate      = searchParams.get("endDate") || "";
-  const exactDate    = searchParams.get("date") || "";
-  const status       = searchParams.get("status") || "";
-  const clotheTypes  = searchParams.get("clotheTypes") || "";
+  const searchRaw = searchParams.get("search")?.trim() || "";
+  const startDate = searchParams.get("startDate") || "";
+  const endDate = searchParams.get("endDate") || "";
+  const exactDate = searchParams.get("date") || "";
+  const status = searchParams.get("status") || "";
+  const clotheTypes = searchParams.get("clotheTypes") || "";
   const finishingType = searchParams.get("finishingType") || "";
-  const colour       = searchParams.get("colour") || "";
-  const sillName     = searchParams.get("sillName") || "";
-  const quality      = searchParams.get("quality") || "";
+  const colour = searchParams.get("colour") || "";
+  const sillName = searchParams.get("sillName") || "";
+  const quality = searchParams.get("quality") || "";
 
   const query = {};
 
@@ -39,12 +39,12 @@ function buildQuery(searchParams) {
     const [d, m, y] = exactDate.split("/").map(Number);
     if (d && m && y) {
       const dayStart = new Date(Date.UTC(y, m - 1, d));
-      const dayEnd   = new Date(Date.UTC(y, m - 1, d, 23, 59, 59, 999));
+      const dayEnd = new Date(Date.UTC(y, m - 1, d, 23, 59, 59, 999));
       query.date = { $gte: dayStart, $lte: dayEnd };
     }
   } else if (startDate && endDate) {
     const parsedStart = new Date(startDate);
-    const parsedEnd   = new Date(endDate);
+    const parsedEnd = new Date(endDate);
     parsedEnd.setHours(23, 59, 59, 999);
     if (!isNaN(parsedStart) && !isNaN(parsedEnd)) {
       query.date = { $gte: parsedStart, $lte: parsedEnd };
@@ -61,11 +61,11 @@ function buildQuery(searchParams) {
     if (values.length > 0) query[key] = { $in: values };
   };
 
-  addMultiFilter("clotheType",    clotheTypes);
+  addMultiFilter("clotheType", clotheTypes);
   addMultiFilter("finishingType", finishingType);
-  addMultiFilter("colour",        colour);
-  addMultiFilter("sillName",      sillName);
-  addMultiFilter("quality",       quality);
+  addMultiFilter("colour", colour);
+  addMultiFilter("sillName", sillName);
+  addMultiFilter("quality", quality);
 
   return query;
 }
@@ -75,12 +75,12 @@ function buildQuery(searchParams) {
  */
 function buildPrevDateRange(startDate, endDate) {
   const parsedStart = new Date(startDate);
-  const parsedEnd   = new Date(endDate);
+  const parsedEnd = new Date(endDate);
   parsedEnd.setHours(23, 59, 59, 999);
   const duration = parsedEnd.getTime() - parsedStart.getTime();
   return {
     prevStart: new Date(parsedStart.getTime() - duration),
-    prevEnd:   new Date(parsedStart.getTime() - 1),
+    prevEnd: new Date(parsedStart.getTime() - 1),
   };
 }
 
@@ -107,16 +107,16 @@ async function runStatsAggregation(matchQuery) {
           {
             $group: {
               _id: null,
-              totalOrders:      { $sum: 1 },
-              totalGoj:         { $sum: { $ifNull: ["$totalGoj", 0] } },
-              uniqueCustomers:  { $addToSet: "$companyName" },
+              totalOrders: { $sum: 1 },
+              totalGoj: { $sum: { $ifNull: ["$totalGoj", 0] } },
+              uniqueCustomers: { $addToSet: "$companyName" },
             },
           },
           {
             $project: {
-              _id:             0,
-              totalOrders:     1,
-              totalGoj:        1,
+              _id: 0,
+              totalOrders: 1,
+              totalGoj: 1,
               uniqueCustomers: { $size: "$uniqueCustomers" },
             },
           },
@@ -133,9 +133,9 @@ async function runStatsAggregation(matchQuery) {
           },
           {
             $group: {
-              _id:       null,
-              count:     { $sum: 1 },
-              totalGoj:  { $sum: { $ifNull: ["$totalGoj", 0] } },
+              _id: null,
+              count: { $sum: 1 },
+              totalGoj: { $sum: { $ifNull: ["$totalGoj", 0] } },
             },
           },
         ],
@@ -145,9 +145,9 @@ async function runStatsAggregation(matchQuery) {
           {
             $group: {
               _id: {
-                year:  { $year:  "$date" },
+                year: { $year: "$date" },
                 month: { $month: "$date" },
-                day:   { $dayOfMonth: "$date" },
+                day: { $dayOfMonth: "$date" },
                 clothCat: {
                   $switch: {
                     branches: [
@@ -207,9 +207,9 @@ async function runPrevKpiAggregation(baseQuery, prevStart, prevEnd) {
     { $match: prevQuery },
     {
       $group: {
-        _id:      null,
+        _id: null,
         totalOrders: { $sum: 1 },
-        totalGoj:    { $sum: { $ifNull: ["$totalGoj", 0] } },
+        totalGoj: { $sum: { $ifNull: ["$totalGoj", 0] } },
       },
     },
   ]);
@@ -268,12 +268,12 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
 
     // ── Pagination ──────────────────────────────────────────────────────────
-    const page  = Math.max(1, parseInt(searchParams.get("page")) || 1);
+    const page = Math.max(1, parseInt(searchParams.get("page")) || 1);
     const limit = Math.min(100, parseInt(searchParams.get("limit")) || 12);
-    const skip  = (page - 1) * limit;
+    const skip = (page - 1) * limit;
 
     const startDate = searchParams.get("startDate") || "";
-    const endDate   = searchParams.get("endDate") || "";
+    const endDate = searchParams.get("endDate") || "";
 
     // ── Build query ─────────────────────────────────────────────────────────
     const query = buildQuery(searchParams);
@@ -320,12 +320,20 @@ export async function GET(req) {
             totalBatchBundle += b.rows.length;
             totalBatchGoj += b.rows.reduce((sum, row) => sum + (Number(row.goj) || 0), 0);
           }
-          
-          if (["delivered", "billing", "completed"].includes(b.status)) {
+
+          if (["billing", "completed"].includes(b.status)) {
             dispatchCount += 1;
             if (b.rows) {
               dispatchTotalBundle += b.rows.length;
-              dispatchTotalGoj += b.rows.reduce((sum, row) => sum + (Number(row.idx) || 0), 0);
+              dispatchTotalGoj += b.rows.reduce((sum, row) => {
+                const sumIdx = Array.isArray(row.idx)
+                  ? row.idx.reduce((s, x) => s + (Number(x) || 0), 0)
+                  : (Number(row.idx) || 0);
+                const sumExtras = Array.isArray(row.extraInputs)
+                  ? row.extraInputs.reduce((s, x) => s + (Number(x) || 0), 0)
+                  : (Number(row.extraInputs) || 0);
+                return sum + sumIdx + sumExtras;
+              }, 0);
               dispatchOriginalGoj += b.rows.reduce((sum, row) => sum + (Number(row.goj) || 0), 0);
             }
           }
@@ -354,15 +362,15 @@ export async function GET(req) {
       totalCount,
       // KPIs (replaces allFilteredOrders computation on the client)
       kpiData: {
-        totalOrders:      kpi.totalOrders,
-        totalGoj:         kpi.totalGoj,
-        uniqueCustomers:  kpi.uniqueCustomers,
-        activeCount:      active.count,
-        activeGoj:        active.totalGoj,
+        totalOrders: kpi.totalOrders,
+        totalGoj: kpi.totalGoj,
+        uniqueCustomers: kpi.uniqueCustomers,
+        activeCount: active.count,
+        activeGoj: active.totalGoj,
       },
       prevKpiData: {
         totalOrders: prevKpi.totalOrders,
-        totalGoj:    prevKpi.totalGoj,
+        totalGoj: prevKpi.totalGoj,
       },
       // Lightweight chart buckets (date + category + count only)
       chartData: chartRaw,

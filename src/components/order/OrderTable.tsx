@@ -115,7 +115,7 @@ const renderGojDetails = (order: any, orderId: string, totalGojVal: number, tota
   const isCompleted = ["done", "completed", "delivered", "completedprocess", "complete"].includes(status);
 
   const rows = [];
-  
+
   if (status !== "pending") {
     // Row 2: Remaining Unbatched
     if (remainingBundle > 0 || remainingGoj > 0) {
@@ -126,11 +126,15 @@ const renderGojDetails = (order: any, orderId: string, totalGojVal: number, tota
       });
     }
 
-    // Row 3: All Batches in process
-    if (batchCount > 0) {
+    // Row 3: Active Batches in process
+    const activeBatchCount = Math.max(0, batchCount - dispatchCount);
+    const activeBatchBundle = Math.max(0, batchBundle - dispatchTotalBundle);
+    const activeBatchGoj = Math.max(0, batchGoj - dispatchOriginalGoj);
+
+    if (activeBatchCount > 0) {
       rows.push({
         icon: "clock",
-        text: `${batchCount}/ ${batchBundle}~${batchGoj}`,
+        text: `${activeBatchCount}/ ${activeBatchBundle}~${activeBatchGoj}`,
         cls: "text-[#3a6a9f] bg-[#3a6a9f]/10 border-[#3a6a9f]/20",
       });
     }
@@ -416,7 +420,7 @@ interface OrderTableProps {
 
 // ─── Main Table Component ─────────────────────────────────────────────────────
 const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOrderClick, confirmDelete }) => {
-  const [sortConfig, setSortConfig] = useState<{key: string | null; dir: "asc" | "desc"}>({ key: null, dir: "asc" });
+  const [sortConfig, setSortConfig] = useState<{ key: string | null; dir: "asc" | "desc" }>({ key: null, dir: "asc" });
 
   const handleSort = (key: string) => {
     setSortConfig((prev) =>
@@ -492,27 +496,27 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
               const productCloth = order?.clotheType || DUMMY_CLOTH_TYPES[getDummyIndex(orderId, DUMMY_CLOTH_TYPES.length)];
               const productQuality = order?.quality || DUMMY_QUALITIES[getDummyIndex(orderId + "q", DUMMY_QUALITIES.length)];
               const resolvedStatus = order?.status || DUMMY_STATUSES[getDummyIndex(orderId + "s", DUMMY_STATUSES.length)];
-              
+
               const realGoj = order?.totalGoj !== null && order?.totalGoj !== undefined
                 ? order.totalGoj
                 : order?.tableData?.length > 0
-                ? order.tableData.reduce((sum: number, item: any) => sum + (item.goj || 0), 0)
-                : null;
+                  ? order.tableData.reduce((sum: number, item: any) => sum + (item.goj || 0), 0)
+                  : null;
               const totalGojVal = realGoj !== null ? realGoj : DUMMY_GOJ_VALUES[getDummyIndex(orderId + "g", DUMMY_GOJ_VALUES.length)];
 
               const realBundle = order?.totalBundle !== null && order?.totalBundle !== undefined && order?.totalBundle !== ""
                 ? Number(order.totalBundle)
                 : order?.tableData?.length > 0
-                ? order.tableData.length
-                : null;
+                  ? order.tableData.length
+                  : null;
               const totalBundleVal = realBundle !== null ? realBundle : (totalGojVal >= 80000 ? 83 : 53);
 
               const rawId = order?.orderId || order?._id || "";
               const displayId = rawId.startsWith("#ord-")
                 ? rawId.slice(0, 22) + "..."
                 : rawId
-                ? "#ord-" + rawId.slice(-16)
-                : `#ord-${orderId.slice(-16)}`;
+                  ? "#ord-" + rawId.slice(-16)
+                  : `#ord-${orderId.slice(-16)}`;
 
               return (
                 <tr
