@@ -85,12 +85,11 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
         <div className="border-b-[0.5px] border-black/20 pb-1">
           <div className="flex flex-col items-center">
             <div className="flex items-center gap-2 -mb-2 justify-center">
-              <Image
+              <img
                 src="/Image/logo.png"
                 alt="Company Logo"
-                width={35}
-                height={35}
-                priority
+                width="35"
+                height="35"
                 className="object-contain"
               />
 
@@ -110,12 +109,11 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
 
               <IoLogoWhatsapp className="text-green-600 text-base" />
 
-              <Image
+              <img
                 src="/Image/bkash.png"
-                width={12}
-                height={12}
+                width="12"
+                height="12"
                 alt="bKash"
-                priority
               />
             </p>
           </div>

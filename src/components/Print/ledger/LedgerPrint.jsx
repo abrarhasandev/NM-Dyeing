@@ -95,12 +95,11 @@ export default function LedgerPrint({
 
              justify-center"
             >
-              <Image
+              <img
                 src="/Image/logo.png"
                 alt="Company Logo"
-                width={35}
-                height={35}
-                priority
+                width="35"
+                height="35"
                 className="object-contain"
               />
 
@@ -120,12 +119,11 @@ export default function LedgerPrint({
 
               <IoLogoWhatsapp className="text-green-600 text-base" />
 
-              <Image
+              <img
                 src="/Image/bkash.png"
-                width={12}
-                height={12}
+                width="12"
+                height="12"
                 alt="bKash"
-                priority
               />
             </p>
           </div>

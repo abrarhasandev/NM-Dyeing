@@ -59,14 +59,11 @@ export default function PrintBillingInvoice({ order }) {
         <div className="flex flex-col items-center">
           {/* LOGO + TITLE */}
           <div className="flex items-center gap-3 justify-center">
-            <Image
+            <img
               src="/Image/logo.png"
               alt="Company Logo"
-              width={60}
-              height={60}
-              priority
-              unoptimized
-              loading="eager"
+              width="60"
+              height="60"
               className="object-contain"
             />
             <h1 className="text-2xl text-center -mb-3">
@@ -82,14 +79,11 @@ export default function PrintBillingInvoice({ order }) {
             <span>01711201870</span>
             <span>01782155151</span>
             <IoLogoWhatsapp className="text-green-600 text-xl" />
-            <Image
+            <img
               src="/Image/bkash.png"
-              width={18}
-              unoptimized
-              height={18}
+              width="18"
+              height="18"
               alt="bKash"
-              priority
-              loading="eager"
             />
           </p>
         </div>

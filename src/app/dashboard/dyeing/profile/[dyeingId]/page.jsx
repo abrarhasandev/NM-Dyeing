@@ -221,16 +221,30 @@ export default function DyeingProfileLedger({ params }) {
   };
 
   const handlePrint = () => {
-    if (!printRef.current) return;
-    const printArea = printRef.current.cloneNode(true);
-    const tempDiv = document.createElement("div");
-    tempDiv.className = "print-only";
-    tempDiv.appendChild(printArea);
-    document.body.appendChild(tempDiv);
-    window.print();
     setTimeout(() => {
-      document.body.removeChild(tempDiv);
-    }, 500);
+      if (!printRef.current) return;
+      const printArea = printRef.current.cloneNode(true);
+      const tempDiv = document.createElement("div");
+      tempDiv.className = "print-only";
+      tempDiv.appendChild(printArea);
+      document.body.appendChild(tempDiv);
+
+      const images = tempDiv.getElementsByTagName("img");
+      const promises = Array.from(images).map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      });
+
+      Promise.all(promises).then(() => {
+        window.print();
+        setTimeout(() => {
+          document.body.removeChild(tempDiv);
+        }, 500);
+      });
+    }, 100);
   };
 
   const isCurrentView = selectedView === "current";
@@ -367,7 +381,7 @@ export default function DyeingProfileLedger({ params }) {
             <div className="text-[10px] text-gray-400 font-medium order-2 sm:order-1 uppercase">OFFICIAL STATEMENT • {new Date().toLocaleString()}</div>
             <div className="text-center order-1 sm:order-2"><div className="w-40 h-px bg-gray-200 mb-2"></div><p className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">Authorized Signature</p></div>
           </div>
-          <div style={{ display: "none" }}>
+          <div className="absolute opacity-0 pointer-events-none w-0 h-0 overflow-hidden">
             <div ref={printRef}>
               <LedgerPrint
                 customer={{ companyName: dyeing?.name, address: dyeing?.location }}

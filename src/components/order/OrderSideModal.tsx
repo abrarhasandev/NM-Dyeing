@@ -73,16 +73,30 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
   };
 
   const handlePrint = () => {
-    if (!printRef.current) return;
-    const printArea = printRef.current.cloneNode(true) as HTMLElement;
-    const tempDiv = document.createElement("div");
-    tempDiv.className = "print-only";
-    tempDiv.appendChild(printArea);
-    document.body.appendChild(tempDiv);
-    window.print();
     setTimeout(() => {
-      document.body.removeChild(tempDiv);
-    }, 500);
+      if (!printRef.current) return;
+      const printArea = printRef.current.cloneNode(true) as HTMLElement;
+      const tempDiv = document.createElement("div");
+      tempDiv.className = "print-only";
+      tempDiv.appendChild(printArea);
+      document.body.appendChild(tempDiv);
+
+      const images = tempDiv.getElementsByTagName("img");
+      const promises = Array.from(images).map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      });
+
+      Promise.all(promises).then(() => {
+        window.print();
+        setTimeout(() => {
+          document.body.removeChild(tempDiv);
+        }, 500);
+      });
+    }, 100);
   };
 
   const handleCopy = (text: string, label: string) => {
@@ -247,7 +261,7 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                             >
                               <FaPrint size={14} /> Print
                             </button>
-                            <div style={{ display: "none" }}>
+                            <div className="absolute opacity-0 pointer-events-none w-0 h-0 overflow-hidden">
                               <div ref={printRef}>
                                 <OrderInvoicePrint order={selectedOrder} />
                               </div>

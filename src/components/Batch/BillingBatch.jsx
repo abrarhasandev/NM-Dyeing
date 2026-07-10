@@ -147,21 +147,38 @@ export default function BillingBatch({ orderId, fetchOrders }) {
 
   useEffect(() => {
     if (!selectedInvoiceToPrint) return;
-    const printArea = printRef.current.cloneNode(true);
-    const tempDiv = document.createElement("div");
-    tempDiv.style.position = "absolute";
-    tempDiv.style.top = "0";
-    tempDiv.style.left = "0";
-    tempDiv.style.width = "100%";
-    tempDiv.style.background = "white";
-    tempDiv.style.zIndex = "9999";
-    tempDiv.appendChild(printArea);
-    document.body.appendChild(tempDiv);
-    window.print();
+    
+    // Give a tiny delay for React to render the component into printRef
     setTimeout(() => {
-      document.body.removeChild(tempDiv);
-      setSelectedInvoiceToPrint(null);
-    }, 500);
+      if (!printRef.current) return;
+      const printArea = printRef.current.cloneNode(true);
+      const tempDiv = document.createElement("div");
+      tempDiv.style.position = "absolute";
+      tempDiv.style.top = "0";
+      tempDiv.style.left = "0";
+      tempDiv.style.width = "100%";
+      tempDiv.style.background = "white";
+      tempDiv.style.zIndex = "9999";
+      tempDiv.appendChild(printArea);
+      document.body.appendChild(tempDiv);
+
+      const images = tempDiv.getElementsByTagName("img");
+      const promises = Array.from(images).map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      });
+
+      Promise.all(promises).then(() => {
+        window.print();
+        setTimeout(() => {
+          document.body.removeChild(tempDiv);
+          setSelectedInvoiceToPrint(null);
+        }, 500);
+      });
+    }, 100);
   }, [selectedInvoiceToPrint]);
 
   useEffect(() => {
@@ -521,7 +538,7 @@ export default function BillingBatch({ orderId, fetchOrders }) {
       })}
 
       {/* Hidden printable area */}
-      <div style={{ display: "none" }}>
+      <div className="absolute opacity-0 pointer-events-none w-0 h-0 overflow-hidden">
         <div ref={printRef} className="print-only">
           {selectedInvoiceToPrint && (
             <PrintBillingInvoice order={selectedInvoiceToPrint} />

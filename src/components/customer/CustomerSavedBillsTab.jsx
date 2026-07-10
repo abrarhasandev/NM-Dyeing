@@ -47,11 +47,23 @@ function CustomerSavedBillsTab({ customerId, selectedView, availableRows, onInvo
             tempDiv.className = "print-only";
             tempDiv.appendChild(printArea);
             document.body.appendChild(tempDiv);
-            window.print();
-            setTimeout(() => {
-                document.body.removeChild(tempDiv);
-                setPrintingInvoice(null);
-            }, 500);
+
+            const images = tempDiv.getElementsByTagName("img");
+            const promises = Array.from(images).map((img) => {
+                if (img.complete) return Promise.resolve();
+                return new Promise((resolve) => {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                });
+            });
+
+            Promise.all(promises).then(() => {
+                window.print();
+                setTimeout(() => {
+                    document.body.removeChild(tempDiv);
+                    setPrintingInvoice(null);
+                }, 500);
+            });
         }, 100);
     };
 
@@ -395,7 +407,7 @@ function CustomerSavedBillsTab({ customerId, selectedView, availableRows, onInvo
                 </div>
             )}
 
-            <div style={{ display: "none" }}>
+            <div className="absolute opacity-0 pointer-events-none w-0 h-0 overflow-hidden">
                 <div ref={printRef}>
                     <SavedInvoicePrint invoice={printingInvoice} companyAddress={companyAddress} />
                 </div>
