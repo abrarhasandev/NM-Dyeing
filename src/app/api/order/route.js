@@ -298,11 +298,18 @@ export async function POST(req) {
       goj: row.goj,
     }));
 
-    // Parse incoming date string "DD/MM/YYYY" → Date for new orders
+    // Parse incoming date string
     let parsedDate = null;
     if (rawDate && typeof rawDate === "string") {
-      const [d, m, y] = rawDate.split("/").map(Number);
-      if (d && m && y) parsedDate = new Date(Date.UTC(y, m - 1, d));
+      if (rawDate.includes("/")) {
+        // Fallback for older formats "DD/MM/YYYY"
+        const [d, m, y] = rawDate.split("/").map(Number);
+        if (d && m && y) parsedDate = new Date(Date.UTC(y, m - 1, d));
+      } else {
+        // Standard ISO format "YYYY-MM-DD" sent by frontend
+        const parsed = new Date(rawDate);
+        if (!isNaN(parsed)) parsedDate = parsed;
+      }
     } else if (rawDate instanceof Date) {
       parsedDate = rawDate;
     }
@@ -349,7 +356,7 @@ export async function GET(req) {
     const [totalCount, orders, { kpi, active, chartRaw }] = await Promise.all([
       Order.countDocuments(query),
       Order.find(query)
-        .sort({ createdAt: -1 })
+        .sort({ date: -1, createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .lean(),

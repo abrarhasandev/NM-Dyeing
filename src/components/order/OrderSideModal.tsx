@@ -189,7 +189,7 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                             #{selectedOrder?.invoiceNumber || "N/A"}
                           </p>
                           <p className="text-[11px] font-medium text-muted-foreground mt-1">
-                            {formatDate(selectedOrder?.createdAt)}
+                            {formatDate(selectedOrder?.date || selectedOrder?.createdAt)}
                           </p>
                         </div>
                       </div>

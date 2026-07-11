@@ -6,14 +6,6 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      default: function () {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0");
-        const day = String(now.getDate()).padStart(2, "0");
-        const random = Math.floor(Math.random() * 900) + 100;
-        return `#ord-${year}-${month}${day}-${random}`;
-      },
     },
     customerId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -72,6 +64,23 @@ const orderSchema = new mongoose.Schema(
 );
 
 // ════════════════════════════════════════════════════════════════
+//  PRE-VALIDATE HOOK — generate orderId based on selected date
+// ════════════════════════════════════════════════════════════════
+orderSchema.pre("validate", function (next) {
+  if (!this.orderId) {
+    const targetDate = this.date || new Date();
+    // Using getUTCFullYear because if the frontend sends "YYYY-MM-DD", 
+    // it's parsed as UTC midnight.
+    const year = targetDate.getUTCFullYear();
+    const month = String(targetDate.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(targetDate.getUTCDate()).padStart(2, "0");
+    const random = Math.floor(Math.random() * 900) + 100;
+    this.orderId = `#ord-${year}-${month}${day}-${random}`;
+  }
+  next();
+});
+
+// ════════════════════════════════════════════════════════════════
 //  INDEXES  — eliminate full-collection scans (COLLSCAN)
 // ════════════════════════════════════════════════════════════════
 
@@ -104,5 +113,6 @@ orderSchema.index(
 
 // ════════════════════════════════════════════════════════════════
 
-const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
+delete mongoose.models.Order;
+const Order = mongoose.model("Order", orderSchema);
 module.exports = Order;

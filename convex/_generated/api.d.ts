@@ -8,21 +8,13 @@
  * @module
  */
 
-import type * as inventory from "../inventory.js";
-import type * as suppliers from "../suppliers.js";
-import type * as users from "../users.js";
-
 import type {
   ApiFromModules,
   FilterApi,
   FunctionReference,
 } from "convex/server";
 
-declare const fullApi: ApiFromModules<{
-  inventory: typeof inventory;
-  suppliers: typeof suppliers;
-  users: typeof users;
-}>;
+declare const fullApi: ApiFromModules<{}>;
 
 /**
  * A utility for referencing Convex functions in your app's public API.
