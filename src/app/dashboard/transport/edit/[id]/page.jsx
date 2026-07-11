@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../../../convex/_generated/api";
+import { api } from "../../../../../../convex/_generated/api";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useDocumentTitle } from "@/hook/useDocumentTitle";
