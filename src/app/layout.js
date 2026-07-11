@@ -2,6 +2,7 @@ import { Geist, Geist_Mono, Inter, Roboto } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import NextAuthProvider from "@/Providers/NextAuthProvider";
+import ConvexClientProvider from "@/Providers/ConvexClientProvider";
 import SessionWrapper from "@/components/SessionWrapper";
 import "react-datepicker/dist/react-datepicker.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -73,10 +74,12 @@ export default async function RootLayout({ children }) {
       <body className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${roboto.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <NextAuthProvider>
-            <SessionWrapper defaultOpen={defaultOpen}>
-              {children}
-              <Toaster position="bottom-right" />
-            </SessionWrapper>
+            <ConvexClientProvider>
+              <SessionWrapper defaultOpen={defaultOpen}>
+                {children}
+                <Toaster position="bottom-right" />
+              </SessionWrapper>
+            </ConvexClientProvider>
           </NextAuthProvider>
         </ThemeProvider>
       </body>
