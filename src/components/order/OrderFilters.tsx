@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { Search, SlidersHorizontal, ChevronDown, ChevronUp, BarChart3, Calendar as CalendarIcon, X, Plus } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronDown, ChevronUp, BarChart3, Calendar as CalendarIcon, X, Plus, Trash2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,7 @@ interface OrderFiltersProps {
   data: any;
   showGraph: boolean;
   setShowGraph: (val: boolean) => void;
+  isTrashMode?: boolean;
 }
 
 const OrderFilters: React.FC<OrderFiltersProps> = ({
@@ -64,6 +65,7 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
   data,
   showGraph,
   setShowGraph,
+  isTrashMode = false,
 }) => {
   const [localStartDate, setLocalStartDate] = React.useState<Date | null>(customStartDate);
   const [localEndDate, setLocalEndDate] = React.useState<Date | null>(customEndDate);
@@ -132,22 +134,24 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
           </div>
 
           {/* Graph Toggle Switch */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-[4px] text-[11px] font-medium select-none bg-card border border-border text-muted-foreground">
-            <BarChart3 size={13} className="text-muted-foreground/70" />
-            <span>Graph</span>
-              <button
-                type="button"
-                onClick={() => setShowGraph(!showGraph)}
-                className={`relative inline-flex h-[18px] w-8 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  showGraph ? "bg-foreground" : "bg-foreground/20"
-                }`}
-              >
-              <span
-                className="pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-background shadow ring-0 transition duration-200 ease-in-out"
-                style={{ transform: showGraph ? "translateX(14px)" : "translateX(0px)", marginTop: "1px" }}
-              />
-            </button>
-          </div>
+          {!isTrashMode && (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-[4px] text-[11px] font-medium select-none bg-card border border-border text-muted-foreground">
+              <BarChart3 size={13} className="text-muted-foreground/70" />
+              <span>Graph</span>
+                <button
+                  type="button"
+                  onClick={() => setShowGraph(!showGraph)}
+                  className={`relative inline-flex h-[18px] w-8 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    showGraph ? "bg-foreground" : "bg-foreground/20"
+                  }`}
+                >
+                <span
+                  className="pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-background shadow ring-0 transition duration-200 ease-in-out"
+                  style={{ transform: showGraph ? "translateX(14px)" : "translateX(0px)", marginTop: "1px" }}
+                />
+              </button>
+            </div>
+          )}
 
           {/* Advanced Filters Toggle Button */}
           <button
@@ -164,13 +168,25 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
             {showMoreFilters ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
           </button>
 
+          {/* Trash Button */}
+          {!isTrashMode && (
+            <Link
+              href="/dashboard/order/trash"
+              className="inline-flex items-center justify-center gap-1.5 bg-background border border-border text-muted-foreground hover:text-foreground text-[11px] font-medium px-3 py-2 rounded-[4px] transition-colors shadow-sm cursor-pointer"
+            >
+              <Trash2 size={13} /> Trash
+            </Link>
+          )}
+
           {/* New Order Button */}
-          <Link
-            href="/dashboard/createOrder"
-            className="inline-flex items-center justify-center gap-1.5 bg-[#f54e00] hover:bg-[#c43e00] text-primary-foreground text-[11px] font-medium px-3 py-2 rounded-[4px] transition-colors shadow-sm cursor-pointer"
-          >
-            <Plus size={13} /> New Order
-          </Link>
+          {!isTrashMode && (
+            <Link
+              href="/dashboard/createOrder"
+              className="inline-flex items-center justify-center gap-1.5 bg-[#f54e00] hover:bg-[#c43e00] text-primary-foreground text-[11px] font-medium px-3 py-2 rounded-[4px] transition-colors shadow-sm cursor-pointer"
+            >
+              <Plus size={13} /> New Order
+            </Link>
+          )}
         </div>
       </div>
 

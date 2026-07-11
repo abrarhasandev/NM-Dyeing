@@ -25,8 +25,15 @@ function buildQuery(searchParams) {
   const colour = searchParams.get("colour") || "";
   const sillName = searchParams.get("sillName") || "";
   const quality = searchParams.get("quality") || "";
+  const isTrash = searchParams.get("isTrash") === "true";
 
   const query = {};
+
+  if (isTrash) {
+    query.isTrash = true;
+  } else {
+    query.isTrash = { $ne: true };
+  }
 
   // ── Text search — use $text index if available, fall back to $regex ────────
   if (searchRaw) {

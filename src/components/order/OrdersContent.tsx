@@ -52,7 +52,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export const OrdersContent = () => {
+export const OrdersContent = ({ isTrashMode = false }: { isTrashMode?: boolean }) => {
   const { data } = useAppData();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -210,6 +210,7 @@ export const OrdersContent = () => {
     setSelectedOrder,
     fetchSingleOrder,
     deleteOrder,
+    restoreOrder,
     fetchOrders,
   } = useOrders({
     currentPage,
@@ -224,6 +225,7 @@ export const OrdersContent = () => {
     colour,
     sillName,
     quality,
+    isTrash: isTrashMode,
     skip: !isInitialized,
   });
 
@@ -262,13 +264,15 @@ export const OrdersContent = () => {
 
   // Handlers
   const handleOrderClick = (id, tab) => {
-    const url = tab ? `/dashboard/order?id=${id}&tab=${tab}` : `/dashboard/order?id=${id}`;
+    const basePath = isTrashMode ? "/dashboard/order/trash" : "/dashboard/order";
+    const url = tab ? `${basePath}?id=${id}&tab=${tab}` : `${basePath}?id=${id}`;
     router.push(url, { scroll: false });
   };
 
   const closeModal = () => {
     setSelectedOrder(null);
-    router.push("/dashboard/order", { scroll: false });
+    const basePath = isTrashMode ? "/dashboard/order/trash" : "/dashboard/order";
+    router.push(basePath, { scroll: false });
   };
 
   const confirmDelete = (id) => {
@@ -277,7 +281,7 @@ export const OrdersContent = () => {
   };
 
   const handleDelete = async () => {
-    await deleteOrder(orderToDelete);
+    await deleteOrder(orderToDelete, isTrashMode);
     setShowConfirmModal(false);
     setOrderToDelete(null);
     if (selectedOrder && selectedOrder._id === orderToDelete) {
@@ -491,7 +495,7 @@ export const OrdersContent = () => {
     >
 
       {/* KPI Stats Cards & Chart Section (Collapsible) */}
-      {showGraph && (
+      {!isTrashMode && showGraph && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Card 1: Total Orders */}
@@ -815,6 +819,7 @@ export const OrdersContent = () => {
         data={data}
         showGraph={showGraph}
         setShowGraph={handleToggleGraph}
+        isTrashMode={isTrashMode}
       />
 
       {/* Order Table list */}
@@ -823,6 +828,8 @@ export const OrdersContent = () => {
         loadingOrders={loadingOrders}
         handleOrderClick={handleOrderClick}
         confirmDelete={confirmDelete}
+        isTrashMode={isTrashMode}
+        restoreOrder={restoreOrder}
       />
 
       {/* Pagination */}
@@ -854,6 +861,7 @@ export const OrdersContent = () => {
         showConfirmModal={showConfirmModal}
         onCancel={() => setShowConfirmModal(false)}
         onConfirm={handleDelete}
+        isTrashMode={isTrashMode}
       />
     </div>
   );

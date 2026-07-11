@@ -57,7 +57,14 @@ export async function DELETE(request, { params }) {
       });
     }
 
-    await Order.deleteOne({ _id: id });
+    const { searchParams } = new URL(request.url);
+    const isPermanent = searchParams.get("permanent") === "true";
+
+    if (isPermanent) {
+      await Order.deleteOne({ _id: id });
+    } else {
+      await Order.findByIdAndUpdate(id, { isTrash: true });
+    }
 
     return new Response(
       JSON.stringify({ message: "Order deleted successfully" }),
@@ -93,6 +100,19 @@ export async function PUT(request, { params }) {
         ...row,
         rollNo: index + 1,
       }));
+    }
+
+    // Parse incoming date string robustly like POST does
+    if (body.date && typeof body.date === "string") {
+      if (body.date.includes("/")) {
+        const [d, m, y] = body.date.split("/").map(Number);
+        if (d && m && y) {
+          body.date = new Date(Date.UTC(y, m - 1, d));
+        }
+      } else {
+        const parsed = new Date(body.date);
+        if (!isNaN(parsed)) body.date = parsed;
+      }
     }
 
     const order = await Order.findById(id);

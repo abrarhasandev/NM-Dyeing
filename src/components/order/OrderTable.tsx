@@ -438,10 +438,12 @@ interface OrderTableProps {
   loadingOrders: boolean;
   handleOrderClick: (id: string, tab?: string) => void;
   confirmDelete: (id: string) => void;
+  isTrashMode?: boolean;
+  restoreOrder?: (id: string) => void;
 }
 
 // ─── Main Table Component ─────────────────────────────────────────────────────
-const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOrderClick, confirmDelete }) => {
+const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOrderClick, confirmDelete, isTrashMode, restoreOrder }) => {
   const router = useRouter();
   const [sortConfig, setSortConfig] = useState<{ key: string | null; dir: "asc" | "desc" }>({ key: null, dir: "asc" });
   const [forceEditOrderId, setForceEditOrderId] = useState<string | null>(null);
@@ -599,32 +601,60 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-40 rounded-lg bg-card border border-border shadow-md">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const currentStatus = order?.status?.toLowerCase() || "pending";
-                              if (currentStatus !== "pending") {
-                                setForceEditOrderId(order?._id);
-                              } else {
-                                router.push(`/dashboard/order/update/${order?._id}`);
-                              }
-                            }}
-                            className="cursor-pointer flex items-center gap-2"
-                          >
-                            <Edit size={14} className="text-muted-foreground" />
-                            <span>Edit Order</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator className="bg-border" />
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              confirmDelete(order?._id);
-                            }}
-                            className="text-[#cf2d56] focus:text-[#cf2d56] focus:bg-[#cf2d56]/10 cursor-pointer flex items-center gap-2"
-                          >
-                            <Trash2 size={14} />
-                            <span>Delete Order</span>
-                          </DropdownMenuItem>
+                          {isTrashMode ? (
+                            <>
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (restoreOrder) restoreOrder(order?._id);
+                                }}
+                                className="cursor-pointer flex items-center gap-2 text-[#1f8a65] focus:text-[#1f8a65] focus:bg-[#1f8a65]/10"
+                              >
+                                <CheckCircle2 size={14} />
+                                <span>Restore Order</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator className="bg-border" />
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  confirmDelete(order?._id);
+                                }}
+                                className="text-[#cf2d56] focus:text-[#cf2d56] focus:bg-[#cf2d56]/10 cursor-pointer flex items-center gap-2"
+                              >
+                                <Trash2 size={14} />
+                                <span>Permanent Delete</span>
+                              </DropdownMenuItem>
+                            </>
+                          ) : (
+                            <>
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const currentStatus = order?.status?.toLowerCase() || "pending";
+                                  if (currentStatus !== "pending") {
+                                    setForceEditOrderId(order?._id);
+                                  } else {
+                                    router.push(`/dashboard/order/update/${order?._id}`);
+                                  }
+                                }}
+                                className="cursor-pointer flex items-center gap-2"
+                              >
+                                <Edit size={14} className="text-muted-foreground" />
+                                <span>Edit Order</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator className="bg-border" />
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  confirmDelete(order?._id);
+                                }}
+                                className="text-[#cf2d56] focus:text-[#cf2d56] focus:bg-[#cf2d56]/10 cursor-pointer flex items-center gap-2"
+                              >
+                                <Trash2 size={14} />
+                                <span>Delete Order</span>
+                              </DropdownMenuItem>
+                            </>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>

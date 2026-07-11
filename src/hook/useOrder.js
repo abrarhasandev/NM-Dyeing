@@ -33,6 +33,7 @@ const useOrders = (filters) => {
     colour,
     sillName,
     quality,
+    isTrash,
     skip,
   } = filters;
 
@@ -115,6 +116,7 @@ const useOrders = (filters) => {
       if (colour)        params.append("colour",        colour);
       if (sillName)      params.append("sillName",      sillName);
       if (quality)       params.append("quality",       quality);
+      if (isTrash)       params.append("isTrash",       "true");
 
       const res = await fetch(`/api/order?${params.toString()}`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to fetch orders");
@@ -164,15 +166,29 @@ const useOrders = (filters) => {
   };
 
   // ── Delete order then refresh list ────────────────────────────────────────
-  const deleteOrder = async (id) => {
+  const deleteOrder = async (id, permanent = false) => {
     try {
-      const res = await fetch(`/api/order/${id}`, { method: "DELETE" });
+      const url = permanent ? `/api/order/${id}?permanent=true` : `/api/order/${id}`;
+      const res = await fetch(url, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete order");
       await fetchOrders();
-      toast.success("Order deleted successfully.");
+      toast.success(permanent ? "Order permanently deleted." : "Order moved to trash.");
     } catch (err) {
       console.error(err);
       toast.error("Error deleting order. Please try again.");
+    }
+  };
+
+  // ── Restore order from trash then refresh list ────────────────────────────
+  const restoreOrder = async (id) => {
+    try {
+      const res = await fetch(`/api/order/${id}/restore`, { method: "PATCH" });
+      if (!res.ok) throw new Error("Failed to restore order");
+      await fetchOrders();
+      toast.success("Order restored successfully.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Error restoring order. Please try again.");
     }
   };
 
@@ -194,6 +210,7 @@ const useOrders = (filters) => {
     colour,
     sillName,
     quality,
+    isTrash,
   ]);
 
   return {
@@ -210,6 +227,7 @@ const useOrders = (filters) => {
     setSelectedOrder,
     fetchSingleOrder,
     deleteOrder,
+    restoreOrder,
     fetchOrders,
   };
 };

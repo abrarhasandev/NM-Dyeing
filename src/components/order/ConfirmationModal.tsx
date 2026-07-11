@@ -5,9 +5,10 @@ interface ConfirmationModalProps {
   showConfirmModal: boolean;
   onCancel: () => void;
   onConfirm: () => void;
+  isTrashMode?: boolean;
 }
 
-const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ showConfirmModal, onCancel, onConfirm }) => {
+const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ showConfirmModal, onCancel, onConfirm, isTrashMode }) => {
   if (!showConfirmModal) return null;
 
   return (
@@ -27,12 +28,14 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ showConfirmModal,
 
         {/* Title */}
         <h3 className="font-semibold mb-2 text-[16px] leading-6 text-foreground">
-          Delete Order?
+          {isTrashMode ? "Permanently Delete Order?" : "Delete Order?"}
         </h3>
 
         {/* Description */}
         <p className="mb-8 text-[14px] leading-5 text-muted-foreground max-w-[280px]">
-          Are you sure you want to delete this order? This action cannot be undone.
+          {isTrashMode 
+            ? "Are you sure you want to permanently delete this order? This action cannot be undone." 
+            : "Are you sure you want to delete this order? It will be moved to the trash."}
         </p>
 
         {/* Actions */}

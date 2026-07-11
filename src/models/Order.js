@@ -59,6 +59,10 @@ const orderSchema = new mongoose.Schema(
         goj: Number,
       },
     ],
+    isTrash: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

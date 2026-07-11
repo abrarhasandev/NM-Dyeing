@@ -271,7 +271,7 @@ const Page = () => {
               <label className="text-[13px] font-semibold text-[#26251e]/80 dark:text-[#f7f7f4]/80">Dyeing Name</label>
               <SearchableSelect
                 id="dyeingName"
-                value={formData.dyeingId}
+                value={formData.dyeingName}
                 onChange={(e) => {
                   const selected = data?.dyeings?.find((d) => d.name === e.target.value);
                   setFormData((prev) => ({
