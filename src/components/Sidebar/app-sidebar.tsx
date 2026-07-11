@@ -8,6 +8,7 @@ import {
     ShoppingCart,
     Users,
     Palette,
+    Truck,
     CalendarDays,
     WalletCards,
     ShieldCheck,
@@ -41,6 +42,11 @@ const navigationItems = [
         title: "Dyeing",
         url: "/dashboard/dyeing",
         icon: Palette,
+    },
+    {
+        title: "Transport",
+        url: "/dashboard/transport",
+        icon: Truck,
     },
     {
         title: "Calender",

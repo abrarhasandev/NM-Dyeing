@@ -5,6 +5,7 @@ import NextAuthProvider from "@/Providers/NextAuthProvider";
 import SessionWrapper from "@/components/SessionWrapper";
 import "react-datepicker/dist/react-datepicker.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import ConvexClientProvider from "@/Providers/ConvexClientProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -71,14 +72,16 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${roboto.variable}`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <NextAuthProvider>
-            <SessionWrapper defaultOpen={defaultOpen}>
-              {children}
-              <Toaster position="bottom-right" />
-            </SessionWrapper>
-          </NextAuthProvider>
-        </ThemeProvider>
+        <ConvexClientProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <NextAuthProvider>
+              <SessionWrapper defaultOpen={defaultOpen}>
+                {children}
+                <Toaster position="bottom-right" />
+              </SessionWrapper>
+            </NextAuthProvider>
+          </ThemeProvider>
+        </ConvexClientProvider>
       </body>
     </html>
   );

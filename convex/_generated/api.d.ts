@@ -8,13 +8,17 @@
  * @module
  */
 
+import type * as transportEmployees from "../transportEmployees.js";
+
 import type {
   ApiFromModules,
   FilterApi,
   FunctionReference,
 } from "convex/server";
 
-declare const fullApi: ApiFromModules<{}>;
+declare const fullApi: ApiFromModules<{
+  transportEmployees: typeof transportEmployees;
+}>;
 
 /**
  * A utility for referencing Convex functions in your app's public API.
