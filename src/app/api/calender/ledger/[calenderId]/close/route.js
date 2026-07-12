@@ -5,6 +5,10 @@ import Payment from "@/models/Payment";
 import Calender from "@/models/Calender";
 import LedgerSnapshot from "@/models/LedgerSnapshot";
 import mongoose from "mongoose";
+import {
+  mirrorLedgerSnapshotUpsert,
+  mirrorCalenderUpsert,
+} from "@/lib/orders/convexServer";
 
 export async function POST(req, { params }) {
     try {
@@ -93,7 +97,16 @@ export async function POST(req, { params }) {
         });
 
         // Wipe initial info from actual entity so it isn't carried double into next snapshot
-        await Calender.findByIdAndUpdate(objId, { initialCharge: 0, initialPayment: 0, initialDate: null }); return NextResponse.json({ success: true, message: "Calender Ledger closed successfully", snapshotId: snapshot._id });
+        const wipedCalender = await Calender.findByIdAndUpdate(
+            objId,
+            { initialCharge: 0, initialPayment: 0, initialDate: null },
+            { new: true }
+        );
+
+        await mirrorLedgerSnapshotUpsert(snapshot);
+        if (wipedCalender) await mirrorCalenderUpsert(wipedCalender);
+
+        return NextResponse.json({ success: true, message: "Calender Ledger closed successfully", snapshotId: snapshot._id });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }

@@ -1,6 +1,7 @@
 import connectDB from "@/lib/db";
 import Batch from "@/models/Batch";
 import { NextResponse } from "next/server";
+import { mirrorBatchUpsert } from "@/lib/orders/convexServer";
 
 export async function POST(req) {
   await connectDB();
@@ -74,6 +75,7 @@ export async function POST(req) {
 
       existing.batches.push(newBatch);
       await existing.save();
+      await mirrorBatchUpsert(existing);
 
       return NextResponse.json(existing, { status: 200 });
     } else {
@@ -81,6 +83,7 @@ export async function POST(req) {
         orderId,
         batches: [newBatch],
       });
+      await mirrorBatchUpsert(created);
 
       return NextResponse.json(created, { status: 201 });
     }
@@ -126,6 +129,7 @@ export async function PATCH(req) {
     };
 
     await batchDoc.save();
+    await mirrorBatchUpsert(batchDoc);
 
     return NextResponse.json(batchDoc, { status: 200 });
   } catch (err) {

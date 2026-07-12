@@ -1,6 +1,9 @@
 import connectDB from "@/lib/db";
 import Process from "@/models/menu/Process";
-import mongoose from "mongoose";
+import {
+  mirrorProcessUpsert,
+  mirrorProcessRemove,
+} from "@/lib/orders/convexServer";
 
 export async function PUT(req, { params }) {
   try {
@@ -28,6 +31,8 @@ export async function PUT(req, { params }) {
       });
     }
 
+    await mirrorProcessUpsert(updated);
+
     return new Response(JSON.stringify(updated), { status: 200 });
   } catch (err) {
     return new Response(JSON.stringify({ error: "Failed to update" }), {
@@ -47,6 +52,8 @@ export async function DELETE(req, { params }) {
         status: 404,
       });
     }
+
+    await mirrorProcessRemove(String(deleted._id));
 
     return new Response(JSON.stringify({ message: "Deleted successfully" }), {
       status: 200,

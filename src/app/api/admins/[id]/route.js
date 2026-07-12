@@ -1,6 +1,7 @@
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
+import { mirrorUserRemove } from "@/lib/orders/convexServer";
 
 export async function DELETE(request, { params }) {
   try {
@@ -11,6 +12,8 @@ export async function DELETE(request, { params }) {
     if (!deletedAdmin) {
       return NextResponse.json({ message: "Admin not found" }, { status: 404 });
     }
+
+    await mirrorUserRemove(String(deletedAdmin._id));
 
     return NextResponse.json({ message: "Admin deleted successfully" }, { status: 200 });
   } catch (error) {

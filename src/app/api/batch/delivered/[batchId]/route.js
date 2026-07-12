@@ -2,6 +2,7 @@ import connectDB from "@/lib/db";
 import Batch from "@/models/Batch";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
+import { mirrorBatchUpsert } from "@/lib/orders/convexServer";
 
 
 export async function GET(req, { params }) {
@@ -58,6 +59,7 @@ export async function PUT(req, { params }) {
     batch.rows = updatedRows;
 
     await batchDoc.save();
+    await mirrorBatchUpsert(batchDoc);
 
     return NextResponse.json({
       message: "Batch updated successfully",

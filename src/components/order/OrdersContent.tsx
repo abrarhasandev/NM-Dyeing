@@ -22,7 +22,7 @@ import OrderTable from "@/components/order/OrderTable";
 import PaginationControls from "@/components/order/PaginationControls";
 import OrderSkeleton from "@/components/order/OrderSkeleton";
 import useAppData from "@/hook/useAppData";
-import useOrders from "@/hook/useOrder";
+import useOrders from "@/hooks/useOrders";
 import { useDocumentTitle } from "@/hook/useDocumentTitle";
 import dayjs from "dayjs";
 import { toast } from "sonner";

@@ -1,6 +1,10 @@
 import connectDB from "@/lib/db";
 import Calender from "@/models/Calender";
 import { NextResponse } from "next/server";
+import {
+  mirrorCalenderUpsert,
+  mirrorCalenderRemove,
+} from "@/lib/orders/convexServer";
 
 // ✅ GET single calender
 export async function GET(req, { params }) {
@@ -27,6 +31,7 @@ export async function PUT(req, { params }) {
     if (!updated) {
       return NextResponse.json({ error: "Calender not found" }, { status: 404 });
     }
+    await mirrorCalenderUpsert(updated);
     return NextResponse.json(updated);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -51,6 +56,8 @@ export async function PATCH(req, { params }) {
     if (!updated)
       return NextResponse.json({ error: "Calender not found" }, { status: 404 });
 
+    await mirrorCalenderUpsert(updated);
+
     return NextResponse.json({ success: true, initialCharge: updated.initialCharge, initialPayment: updated.initialPayment, initialDate: updated.initialDate });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -65,6 +72,7 @@ export async function DELETE(req, { params }) {
     if (!deleted) {
       return NextResponse.json({ error: "Calender not found" }, { status: 404 });
     }
+    await mirrorCalenderRemove(String(deleted._id));
     return NextResponse.json({ message: "Calender deleted successfully" });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

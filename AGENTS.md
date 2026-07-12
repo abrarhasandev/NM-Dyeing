@@ -1,200 +1,202 @@
 # NM-Dyeing — Agent Rules (Production-Safe Modernization)
 
-This app is **in production**. Prefer **small, local, reversible** improvements over big-bang rewrites.  
-**Database schema, migrations, and data ownership are out of scope for agents** — the owner manages the database. Do not redesign DB models, indexes, or migrations unless explicitly asked.
+This app is **in production**. Prefer **small, local, reversible** improvements over big-bang rewrites.
+
+## Non-negotiable data rules
+
+1. **Do not change the live MongoDB schema, indexes, collections, or production data** unless the owner explicitly requests it **and** you are 100% certain of impact, rollback, and compatibility.
+2. **Long-term destination data platform is Convex** (full migration planned). Work *toward* that architecture without forcing premature cutovers.
+3. **Hybrid is intentional today:** most domains stay on MongoDB + Next Route Handlers; **transport employees** already live on Convex. Keep both stable until a domain is deliberately migrated.
+4. Agents may **read** models/API code to wire features; they must not “improve” the database as a side quest.
 
 ---
 
-## 1. Target architecture (what we are moving toward)
+## 1. Target architecture
 
-| Layer | Technology (canonical) | Notes |
-|--------|------------------------|--------|
-| Framework | **Next.js App Router** (current major) | Keep App Router; no Pages Router. |
-| Language | **TypeScript** (`.ts` / `.tsx`) | New code only in TS. Migrate JS/JSX only when touched. |
-| UI | **React 19** + **Tailwind CSS 4** + **shadcn/ui** | `components.json` is source of truth (`tsx: true`). |
-| UI primitives | **shadcn (Base UI / current registry style)** under `src/components/ui/*` | Prefer TSX primitives; do not reintroduce Radix-only duplicates when the TSX Base UI version exists. |
-| Icons | **lucide-react** | Prefer lucide for new UI; migrate react-icons only when editing that file. |
-| Auth | **NextAuth v5 (Auth.js)** | Edge-safe config in `auth.config.*`; Node secrets in `auth.*`. |
-| Route protection | **Root `proxy.js`** (Next.js 16 proxy convention) | Do not invent a parallel middleware without reason. |
-| HTTP API | **Next.js Route Handlers** under `src/app/api/**/route.ts` | Business HTTP stays on Route Handlers. |
-| Client data | **`fetch`** via shared hooks / thin API helpers | Do not reintroduce axios. |
-| Domain data (primary) | **MongoDB via existing app models + API routes** | Agent does **not** redesign DB. |
-| Secondary backend | **Convex** (currently transport employees only) | Do not expand Convex to new domains unless explicitly requested. Keep transport on Convex until a deliberate cutover is planned. |
-| Dates | **dayjs** (app logic) + **react-day-picker** / shadcn calendar (UI) | Prefer dayjs for formatting/parsing; avoid adding new date libraries. |
-| Toasts | **sonner** | Keep consistent. |
-| Path alias | `@/*` → `./src/*` | Always use `@/` imports. |
+### 1.1 End state (future)
 
-### Intended folder layout (canonical)
+| Layer | Canonical technology |
+|--------|----------------------|
+| Framework | **Next.js App Router** |
+| Language | **TypeScript** (`.ts` / `.tsx`) |
+| UI | **React 19** + **Tailwind CSS 4** + **shadcn/ui** (`components.json`, `tsx: true`) |
+| UI primitives | `src/components/ui/*` (current shadcn/Base UI style) — **no dual JSX twins** |
+| Icons | **lucide-react** |
+| Auth | **NextAuth v5 (Auth.js)** + root **`proxy.js`** |
+| Domain data (destination) | **Convex** (queries/mutations/actions + schema in `convex/`) |
+| Client data access | Convex React hooks **or** thin adapters — UI must not talk to raw DB |
+| Dates | **dayjs** (logic) + shadcn calendar / react-day-picker (UI) |
+| Toasts | **sonner** |
+| Path alias | `@/*` → `./src/*` |
+| Config | **`tsconfig.json` only** (no `jsconfig.json`) |
+
+### 1.2 Current state (production hybrid — respect it)
+
+| Concern | Today | Rule |
+|---------|--------|------|
+| Most business domains | Mongo models + `src/app/api/**` + `fetch` hooks | Keep working; no silent rewrite |
+| Transport employees | `convex/transportEmployees.ts` | Stay on Convex |
+| Auth users / sessions | NextAuth + existing User model path | Do not move without explicit plan |
+| New **greenfield** domain (no Mongo surface yet) | Prefer **Convex first** if owner agrees for that feature | Still no Mongo schema invention |
+| Migrating an existing Mongo domain | **Only when tasked**, domain-by-domain, with dual-read/write or freeze plan | Never big-bang |
+
+### 1.3 Intended folder layout
 
 ```text
 src/
-  app/                 # routes only (pages + route handlers)
+  app/                 # routes only (thin pages + route handlers while hybrid lasts)
   components/
-    ui/                # design-system primitives only
-    <domain>/          # feature UI (order, batch, ledger, …)
-  hooks/               # shared React hooks (rename from hook/ over time)
-  lib/                 # pure utils, clients, shared helpers (no React UI)
-  types/               # shared TS types / DTOs (create as needed)
-  providers/           # app-wide client providers (rename from Providers/ over time)
-  models/              # existing Mongoose models — owner-owned; minimal agent edits
+    ui/                # design-system primitives only (single extension per module)
+    <domain>/          # feature UI
+  hooks/               # shared React hooks (migrate from hook/ over time)
+  lib/                 # pure utils + adapters (no React UI)
+  types/               # shared DTOs (grow when a second consumer needs them)
+  providers/           # app-wide providers (migrate from Providers/ over time)
+  models/              # Mongoose models — hybrid era only; no agent schema redesign
+convex/                # Convex schema + functions (destination backend)
 ```
+
+### 1.4 Convex migration principles (structural — not a dump of data)
+
+When implementing or refactoring **for a task**, prefer boundaries that make a later Convex cutover safe:
+
+1. **UI → adapter → backend.** Pages/components should call hooks or small modules (`src/hooks/*`, `src/lib/*`), not scatter raw `fetch('/api/...')` forever without structure.
+2. **Keep domain language stable** (Order, Batch, Customer, Dyeing, Calender, Ledger, Payment…). Convex tables later should map cleanly to these names.
+3. **Do not expand Mongo coupling** in new code: avoid new cross-collection logic inlined in giant pages; put it in one server module so it can be reimplemented as a Convex function later.
+4. **Do not expand Convex to a second Mongo-backed domain** without an explicit migration task (avoids half-migrated dual sources of truth).
+5. **Transport remains the Convex reference implementation** for patterns (schema.ts, queries/mutations, client hooks).
+6. **No dual-write / data backfill scripts** unless the owner requests that migration wave and approves data impact.
 
 ---
 
 ## 2. Hard production constraints
 
-1. **No big-bang migrations.** Never convert the whole repo, whole domain tree, or all API routes in one change.
-2. **Boy Scout rule:** when you edit a file for a real task, leave *that file* closer to the target architecture (see §3).
-3. **Behavior first.** Refactors that ship with a feature must preserve user-visible behavior unless the task says otherwise.
-4. **Do not flip global safety switches “for convenience.”** Especially avoid enabling broader TS failure modes without a plan. Today `typescript.ignoreBuildErrors` is `true` — do not expand that; prefer reducing errors in files you touch.
-5. **Do not expand dual backends.** New features default to **existing Next API + primary data path**. Convex stays limited to its current domain unless the user asks.
-6. **Do not commit secrets.** Never put `.env` / credentials in code or commits.
+1. **No big-bang migrations** (TS, Convex, or URL renames across the app).
+2. **Boy Scout rule:** when you edit a file for a real task, leave *that file* closer to the target.
+3. **Behavior first.** Preserve user-visible behavior unless the task says otherwise.
+4. Do not expand `typescript.ignoreBuildErrors`; prefer fixing types in files you touch.
+5. **No Mongo schema/index/data changes** without 100% certainty + explicit owner approval.
+6. **No secrets** in code or commits.
 7. **Scope discipline.** No drive-by refactors of unrelated folders.
+8. **Design tokens:** product UI should stay consistent with existing app theme / `cursor-design-md.md` cues (neutral surfaces, accent `#f54e00` where already used for primary CTAs). Do not introduce a second visual system.
 
 ---
 
-## 3. Gradual modernization checklist (apply only to files you already touch)
+## 3. Gradual modernization checklist (only files you already touch)
 
 ### 3.1 Language & extensions
 
 | Situation | Action |
 |-----------|--------|
-| **New file** | Always `.ts` or `.tsx`. Never add new `.js`/`.jsx` under `src/`. |
-| **Editing existing `.jsx`** | Prefer rename to `.tsx` *in the same PR/change* if the file is small/medium and types are easy; otherwise add JSDoc/`// @ts-check` only if helpful, and leave a clean path for next touch. |
-| **Editing existing `.js` (API/lib/hook)** | Prefer `.ts` when the change is non-trivial and imports stay resolvable. Update all import paths that referenced the old extension only if required by resolution. |
-| **Root/scripts one-offs** | Do not promote `check_db.js`, `replace_colors.js`, etc. into app architecture. Move/ignore later; don’t import them from `src/`. |
+| **New file under `src/` or `convex/`** | Always `.ts` / `.tsx`. Never add new `.js`/`.jsx` under `src/`. |
+| **Editing existing `.jsx`/`.js`** | Prefer convert to TS when low-risk; otherwise leave working JS and improve structure slightly. |
+| **Dual basename** (`foo.js` + `foo.ts`) | **Forbidden.** Canonical is the TS twin; delete the other only after import audit. |
+| **Root one-offs** | Do not import into app runtime. |
 
-**TypeScript policy (phased):**
+**TypeScript policy:** `allowJs: true`, `strict: false` for now. Add local types on touched TS files. Do not enable global `strict` unprompted.
 
-- Phase A (now): `allowJs: true`, `strict: false` is acceptable.
-- When editing a TS/TSX file: add **local** types for props, return values, and public helpers.
-- Do **not** turn on `strict: true` globally until the owner requests it.
-- Create `src/types/` for shared domain types **when a second consumer needs them** — not preemptively for the whole app.
+### 3.2 Resolved duals (do not reintroduce)
 
-### 3.2 Config duals (resolve when you touch related files)
+| Item | Canonical | Status |
+|------|-----------|--------|
+| Utils | `src/lib/utils.ts` | JS twin removed |
+| Button | `src/components/ui/button.tsx` | JSX twin removed; must forward refs for Radix `asChild` parents |
+| Sidebar shell | `app-sidebar.tsx` + `nav-main` + `nav-user` | Legacy `Sidebar.jsx` / unused `nav-projects` removed |
+| Project config | `tsconfig.json` only | `jsconfig.json` removed; includes JS/JSX for hybrid era |
 
-| Dual | Canonical | Action when touched |
-|------|-----------|---------------------|
-| `jsconfig.json` + `tsconfig.json` | **`tsconfig.json` only** | Do not add new path aliases only in jsconfig. Prefer extending/keeping tsconfig as single source. |
-| `src/lib/utils.js` + `utils.ts` | **`utils.ts`** | Delete the JS twin only after confirming no extension-specific imports break; keep single `cn` export. |
-| `src/components/ui/button.jsx` + `button.tsx` | **`button.tsx` (shadcn current)** | Point imports at `@/components/ui/button`; remove the unused twin when no longer imported. |
-| `src/hook/*` vs `components.json` `hooks` alias | **`src/hooks/`** | New hooks go in `src/hooks/`. When editing a hook in `src/hook/`, move that one file to `src/hooks/` and fix imports. |
-| `src/Providers/` | **`src/providers/`** (lowercase) | Rename only the file/folder you touch; update imports in the same change. |
-| `Sidebar.jsx` vs `app-sidebar.tsx` | **`app-sidebar.tsx` + nav-\*.tsx** | `SessionWrapper` already uses AppSidebar. Do not revive `Sidebar.jsx`. Delete only when confirmed unused. |
+### 3.3 UI structure
 
-### 3.3 UI & component structure
+- Keep pages thin; extract when editing oversized files.
+- New feature folders: lowercase domain names.
+- Ledger triples (customer/dyeing/calender): extract shared pieces only for the part you change.
+- `"use client"` only when required.
 
-- **Pages stay thin.** `page.tsx` should compose hooks + feature components. Avoid growing 400–700+ line pages further; extract when you edit them.
-- **Feature folders:** put domain UI under `src/components/<domain>/` with **consistent lowercase domain names** for *new* folders (`order`, `batch`, `ledger`, `print`, …). Existing PascalCase folders (`OrderStatus`, `Batch`) may remain until a dedicated rename pass.
-- **No triple-copy ledgers.** Customer / dyeing / calender ledger UIs are near-duplicates. When you touch one:
-  - Prefer extracting **shared** pieces under `src/components/ledger/` (or similar) *for the parts you change*, parameterized by entity type.
-  - Do not rewrite all three ledgers in one go.
-- **Duplicate basenames** (`DeliveredBatchList`, `CloseModal`, …): when editing, prefer one shared module + thin wrappers rather than copy-paste fixes in both places.
-- **`"use client"`:** only on components that need browser APIs, hooks, or event handlers. Do not mark whole trees client-side “just in case.”
-- **Server Components** remain the default for new pages/layouts where data can be server-fetched without breaking auth/session patterns already used.
+### 3.4 API / server (hybrid era)
 
-### 3.4 API / server structure
+- New/heavily edited route handlers → prefer `route.ts`.
+- Handlers: parse → authz → helper → `NextResponse`.
+- Do not invent tRPC/GraphQL unless asked.
+- When a domain is **migrating to Convex**, prefer implementing Convex functions and thinning the Route Handler rather than growing Mongo logic.
 
-- New or heavily edited route handlers: **`route.ts`**, typed request/response helpers, consistent `NextResponse` JSON errors.
-- Keep handlers focused: parse → authorize (if needed beyond proxy) → call small helpers → respond. Extract pure helpers to `src/lib/` when a route grows during your edit.
-- Prefer **shared validation patterns** (simple zod later is fine if already a dependency; do not add heavy new stacks without ask).
-- Do not create a second parallel API style (e.g. tRPC) unless the owner requests it.
+### 3.5 Dependencies
 
-### 3.5 Data access boundaries (no DB redesign)
-
-- Continue using existing models/routes as the owner defined them.
-- Agents may **read** models to wire features correctly but must not “fix” schema, rename collections, or run destructive migrations unprompted.
-- Convex: only for existing transport-employee usage; no new Convex tables/features unless asked.
-
-### 3.6 Dependencies & stack hygiene (when you touch package surface)
-
-Prefer consolidating toward one library per concern **only when already editing that code path**:
-
-| Concern | Prefer | Avoid adding / re-expanding |
-|---------|--------|-----------------------------|
-| Password hashing | existing `bcrypt` usage | second hash library for new code |
-| HTTP client | `fetch` | axios |
-| Dates | `dayjs` | extra date libs for new code |
-| Date picker UI | shadcn calendar / react-day-picker | new picker libraries |
+| Concern | Prefer | Avoid |
+|---------|--------|--------|
+| Password hashing | `bcrypt` (current) | adding `bcryptjs` again |
+| HTTP | `fetch` | axios |
+| Dates | `dayjs` | new date libraries |
 | Icons | lucide-react | new icon packs |
-| Select | existing UI select / established SearchableSelect | more select libraries |
-| Package typos | remove dead packages when noticed (`mongose` security stub is not a real ODM) | leave drive-by dependency churn |
+| ODM typo packages | real `mongoose` only while hybrid lasts | `mongose` security stub |
 
-Do **not** run mass dependency upgrades across the monorepo without an explicit request.
+### 3.6 Naming
 
-### 3.7 Naming conventions (new code)
+- Components: `PascalCase.tsx`
+- Hooks: `useSomething.ts`
+- New routes: kebab-case; **do not rename production URLs** without redirects + owner approval
 
-- Files: `kebab-case` for multi-word non-component modules if new; React components may stay `PascalCase.tsx` to match shadcn.
-- Components: `PascalCase`.
-- Hooks: `useSomething.ts`.
-- Route segments: prefer **kebab-case** for *new* paths (`process-list` not `pocess-list`). Do not rename existing production URLs without an explicit redirect plan.
-- Fix typos in **new** code only; URL renames need owner approval.
+### 3.7 Quality gates
 
-### 3.8 Quality gates (proportional)
-
-- For non-trivial edits: run lint/build on the changed area when practical (`npm run lint`, `npm run build` if time allows).
-- No requirement to introduce a full test suite in incidental PRs; if you add pure helpers, a small unit test is welcome when a test runner already exists.
-- Do not disable lint/TS for whole directories to land a change.
+- Run lint/build for non-trivial changes when practical.
+- Do not disable lint/TS for whole trees to land a change.
 
 ---
 
-## 4. Priority order when modernizing “while doing other work”
+## 4. Priority when modernizing mid-task
 
-Apply the **first applicable** step that fits the file you are already changing:
-
-1. **Remove immediate duals** in that file’s dependency (wrong button/utils import, dead import of old Sidebar).
-2. **Convert that file** to `.ts`/`.tsx` if low-risk.
-3. **Add types** for exported functions/props.
-4. **Extract** one oversized chunk (modal, table, form section) if the file is already hard to edit.
-5. **Deduplicate** only the sibling you must also touch for the feature to work.
-6. **Stop.** Do not cascade into the rest of the domain.
+1. Remove/avoid dual modules for the file you touch.
+2. Convert that file to TS if low-risk.
+3. Add types for exports/props.
+4. Extract one oversized chunk if it blocks safe editing.
+5. If the task is a **named Convex domain migration**, implement Convex side + adapter; keep Mongo path until cutover is proven.
+6. **Stop.** Do not cascade.
 
 ---
 
 ## 5. Explicitly out of scope (unless the user asks)
 
-- Full TypeScript strict-mode cutover
-- Rewriting all API routes to TS in one pass
-- Migrating all entities from Mongo/API to Convex (or the reverse)
-- Database migrations, index strategy, data backfills
-- Redesigning auth product requirements
-- Mass renaming of production URLs
-- Adding a new state library (Redux, Zustand, etc.) without need
-- Introducing a second CSS system (CSS modules, styled-components) alongside Tailwind
+- Full strict-mode TypeScript cutover
+- Converting all API routes or all pages in one pass
+- Mongo → Convex migration of a domain without an explicit task
+- Any Mongo schema/index/data migration without 100% certainty + approval
+- Mass production URL renames
+- New global state libraries or second CSS systems
 
 ---
 
-## 6. Definition of “done” for a normal feature task
+## 6. Definition of done (normal feature)
 
-- Feature works with **no intentional regression** on the paths touched.
-- **No new** `.js`/`.jsx` under `src/`.
-- No new dual files (`foo.js` + `foo.ts`).
-- Imports use `@/…`.
-- Stack choices match §1 for all *new* code.
-- Any modernization was limited to **files required by the task** (plus their direct twins if deleting a dual).
+- No intentional regression on touched paths
+- No new `.js`/`.jsx` under `src/`
+- No new dual files
+- `@/` imports
+- Stack choices match §1 for new code
+- **Zero unsolicited database changes**
+- Modernization limited to files required by the task
 
 ---
 
-## 7. Suggested long-term backlog (owner-driven; agents only when tasked)
-
-These are **planned waves**, not automatic work:
+## 7. Wave backlog (owner-driven)
 
 | Wave | Focus | Risk |
 |------|--------|------|
-| W0 | Delete confirmed dead duals (`button.jsx` vs `tsx`, `utils.js` vs `ts`, unused `Sidebar.jsx`) after import audit | Low |
-| W1 | Single config (`tsconfig` only); hooks folder rename file-by-file | Low |
-| W2 | Convert `src/lib/*` and hooks to TS | Low–med |
-| W3 | Convert API routes domain-by-domain to `route.ts` | Med |
-| W4 | Convert dashboard pages feature-by-feature to TSX; thin pages | Med |
-| W5 | Shared ledger component extraction | Med |
-| W6 | Dependency cleanup (date/icon/select/hash duplicates; remove dead packages) | Low–med |
-| W7 | Enable stricter TS gradually; turn off `ignoreBuildErrors` only when green | High (do last) |
+| W0 | Dead duals / dead packages / single tsconfig | Low — **done baseline** |
+| W1 | `hook/` → `hooks/`, `Providers/` → `providers/` file-by-file | Low |
+| W2 | `lib/` + hooks → TS | Low–med |
+| W3 | API routes → `route.ts` domain-by-domain | Med |
+| W4 | Pages → thin TSX + feature components | Med |
+| W5 | Shared ledger extraction | Med |
+| W6 | Dependency consolidation (dates/icons) | Low–med |
+| W7 | Stricter TS; turn off `ignoreBuildErrors` when green | High |
+| **C1** | Document domain inventory for Convex (no data move) | Low |
+| **C2** | Migrate one non-critical domain to Convex with owner plan | High |
+| **C3** | Expand domain-by-domain; retire Mongo models only after cutover | High |
+| **C4** | Auth/session strategy on Convex era (explicit design) | High |
 
-Agents may execute **one small slice of one wave** when it coincides with a user task or when the user names the wave.
+Agents execute **one small slice** of one wave when tasked or when it coincides with a feature.
 
 ---
 
 ## 8. Communication
 
-When a task conflicts with these rules (e.g. user asks for a full rewrite), **explain the production risk** and propose a phased plan instead of a single destructive PR.
-**Do not mention database redesign** as part of “architecture cleanup” unless the user explicitly opens that topic.
+If asked for a full rewrite or full Convex cutover in one shot, **refuse the big bang**, explain production risk, and propose phased waves (C1→C2…).  
+Never treat “architecture cleanup” as permission to alter the database.

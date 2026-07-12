@@ -6,6 +6,11 @@ import BillingSummary from "@/models/BillingSummary";
 import Payment from "@/models/Payment";
 import customers from "@/models/customers";
 import mongoose from "mongoose";
+import {
+  mirrorSavedInvoiceUpsert,
+  mirrorBillingSummaryUpsert,
+  mirrorPaymentUpsert,
+} from "@/lib/orders/convexServer";
 
 export async function POST(req, { params }) {
   try {
@@ -69,15 +74,23 @@ export async function POST(req, { params }) {
 
     for (const record of records) {
       if (record.modelType === "BillingSummary" && record.recordId) {
-        await BillingSummary.findByIdAndUpdate(record.recordId, {
-          isSavedInLedger: true,
-        });
+        const updated = await BillingSummary.findByIdAndUpdate(
+          record.recordId,
+          { isSavedInLedger: true },
+          { new: true }
+        );
+        if (updated) await mirrorBillingSummaryUpsert(updated);
       } else if (record.modelType === "Payment" && record.recordId) {
-        await Payment.findByIdAndUpdate(record.recordId, {
-          isSavedInLedger: true,
-        });
+        const updated = await Payment.findByIdAndUpdate(
+          record.recordId,
+          { isSavedInLedger: true },
+          { new: true }
+        );
+        if (updated) await mirrorPaymentUpsert(updated);
       }
     }
+
+    await mirrorSavedInvoiceUpsert(savedInvoice);
 
     return NextResponse.json({
       success: true,

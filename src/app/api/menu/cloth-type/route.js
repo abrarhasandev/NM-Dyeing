@@ -1,7 +1,6 @@
 import connectDB from "@/lib/db";
 import ClothType from "@/models/menu/ClothType";
-
-
+import { mirrorClothTypeUpsert } from "@/lib/orders/convexServer";
 
 export async function POST(req) {
   try {
@@ -15,6 +14,7 @@ export async function POST(req) {
     }
 
     const newType = await ClothType.create({ name });
+    await mirrorClothTypeUpsert(newType);
 
     return new Response(JSON.stringify(newType), { status: 201 });
   } catch (error) {

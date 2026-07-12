@@ -1,6 +1,7 @@
 import connectDB from "@/lib/db";
 import Batch from "@/models/Batch"; // আপনার Batch মডেল
 import Order from "@/models/Order"; // আপনার Order মডেল
+import { mirrorBatchUpsert } from "@/lib/orders/convexServer";
 
 export async function GET(req, { params }) {
   await connectDB();
@@ -155,6 +156,9 @@ export async function PATCH(req, { params }) {
         status: 404,
       });
     }
+
+    const refreshed = await Batch.findOne({ "batches._id": embeddedBatchId });
+    if (refreshed) await mirrorBatchUpsert(refreshed);
 
     return new Response(
       JSON.stringify({ message: "Batch updated successfully" }),

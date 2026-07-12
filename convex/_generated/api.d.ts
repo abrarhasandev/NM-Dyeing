@@ -8,7 +8,20 @@
  * @module
  */
 
+import type * as batches from "../batches.js";
+import type * as billingSummaries from "../billingSummaries.js";
+import type * as calenders from "../calenders.js";
+import type * as customers from "../customers.js";
+import type * as dyeings from "../dyeings.js";
+import type * as invoices from "../invoices.js";
+import type * as ledgerSnapshots from "../ledgerSnapshots.js";
+import type * as lib_mirrorAuth from "../lib/mirrorAuth.js";
+import type * as menu from "../menu.js";
+import type * as orders from "../orders.js";
+import type * as payments from "../payments.js";
+import type * as savedInvoices from "../savedInvoices.js";
 import type * as transportEmployees from "../transportEmployees.js";
+import type * as users from "../users.js";
 
 import type {
   ApiFromModules,
@@ -17,7 +30,20 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  batches: typeof batches;
+  billingSummaries: typeof billingSummaries;
+  calenders: typeof calenders;
+  customers: typeof customers;
+  dyeings: typeof dyeings;
+  invoices: typeof invoices;
+  ledgerSnapshots: typeof ledgerSnapshots;
+  "lib/mirrorAuth": typeof lib_mirrorAuth;
+  menu: typeof menu;
+  orders: typeof orders;
+  payments: typeof payments;
+  savedInvoices: typeof savedInvoices;
   transportEmployees: typeof transportEmployees;
+  users: typeof users;
 }>;
 
 /**

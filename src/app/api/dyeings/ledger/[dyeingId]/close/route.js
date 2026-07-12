@@ -5,6 +5,10 @@ import Payment from "@/models/Payment";
 import Dyeing from "@/models/Dyeing";
 import LedgerSnapshot from "@/models/LedgerSnapshot";
 import mongoose from "mongoose";
+import {
+  mirrorLedgerSnapshotUpsert,
+  mirrorDyeingUpsert,
+} from "@/lib/orders/convexServer";
 
 export async function POST(req, { params }) {
     try {
@@ -92,7 +96,14 @@ export async function POST(req, { params }) {
         });
 
         // Wipe initial info from actual entity so it isn't carried double into next snapshot
-        await Dyeing.findByIdAndUpdate(objId, { initialCharge: 0, initialPayment: 0, initialDate: null });
+        const wipedDyeing = await Dyeing.findByIdAndUpdate(
+            objId,
+            { initialCharge: 0, initialPayment: 0, initialDate: null },
+            { new: true }
+        );
+
+        await mirrorLedgerSnapshotUpsert(snapshot);
+        if (wipedDyeing) await mirrorDyeingUpsert(wipedDyeing);
 
         return NextResponse.json({ success: true, message: "Dyeing Ledger closed successfully", snapshotId: snapshot._id });
     } catch (error) {

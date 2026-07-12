@@ -1,6 +1,7 @@
 import connectDB from "@/lib/db";
 import Calender from "@/models/Calender";
 import { NextResponse } from "next/server";
+import { mirrorCalenderUpsert } from "@/lib/orders/convexServer";
 
 // ✅ GET all calenders
 export async function GET() {
@@ -19,6 +20,7 @@ export async function POST(req) {
     await connectDB();
     const body = await req.json();
     const calender = await Calender.create(body);
+    await mirrorCalenderUpsert(calender);
     return NextResponse.json(calender, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

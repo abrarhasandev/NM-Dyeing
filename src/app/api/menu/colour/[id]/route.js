@@ -2,6 +2,10 @@
 
 import connectDB from "@/lib/db";
 import Colour from "@/models/menu/Colour";
+import {
+  mirrorColourUpsert,
+  mirrorColourRemove,
+} from "@/lib/orders/convexServer";
 
 export async function PUT(req, { params }) {
   try {
@@ -23,6 +27,8 @@ export async function PUT(req, { params }) {
       return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
     }
 
+    await mirrorColourUpsert(updated);
+
     return new Response(JSON.stringify(updated), { status: 200 });
   } catch (error) {
     console.error(error);
@@ -40,6 +46,8 @@ export async function DELETE(_, { params }) {
     if (!deleted) {
       return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
     }
+
+    await mirrorColourRemove(String(deleted._id));
 
     return new Response(JSON.stringify({ message: "Deleted" }), { status: 200 });
   } catch (error) {

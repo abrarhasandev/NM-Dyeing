@@ -1,7 +1,10 @@
-
 import connectDB from "@/lib/db";
 import Quality from "@/models/menu/Quality";
 import mongoose from "mongoose";
+import {
+  mirrorQualityUpsert,
+  mirrorQualityRemove,
+} from "@/lib/orders/convexServer";
 
 export async function PUT(req, { params }) {
   const { id } = params;
@@ -16,13 +19,15 @@ export async function PUT(req, { params }) {
   }
 
   try {
-    await connectDB(); 
+    await connectDB();
 
     const result = await Quality.findByIdAndUpdate(id, { name }, { new: true });
 
     if (!result) {
       return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
     }
+
+    await mirrorQualityUpsert(result);
 
     return new Response(JSON.stringify({ updated: true }), { status: 200 });
   } catch (error) {
@@ -31,27 +36,28 @@ export async function PUT(req, { params }) {
   }
 }
 
-
 export async function DELETE(req, { params }) {
-    const { id } = params;
-  
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return new Response(JSON.stringify({ error: "Invalid ID format" }), { status: 400 });
-    }
-  
-    try {
-      await connectDB();
-  
-      const result = await Quality.findByIdAndDelete(id);
-  
-      if (!result) {
-        return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
-      }
-  
-      return new Response(JSON.stringify({ deleted: true }), { status: 200 });
-    } catch (error) {
-      console.error("DELETE error:", error);
-      return new Response(JSON.stringify({ error: "Server error" }), { status: 500 });
-    }
+  const { id } = params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return new Response(JSON.stringify({ error: "Invalid ID format" }), { status: 400 });
   }
-  
+
+  try {
+    await connectDB();
+
+    const result = await Quality.findByIdAndDelete(id);
+
+    if (!result) {
+      return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+    }
+
+    await mirrorQualityRemove(String(result._id));
+
+    return new Response(JSON.stringify({ deleted: true }), { status: 200 });
+  } catch (error) {
+    console.error("DELETE error:", error);
+    return new Response(JSON.stringify({ error: "Server error" }), { status: 500 });
+  }
+}
+

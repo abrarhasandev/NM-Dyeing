@@ -1,6 +1,6 @@
 import connectDB from "@/lib/db";
 import FinishingType from "@/models/menu/FinishingType";
-
+import { mirrorFinishingTypeUpsert } from "@/lib/orders/convexServer";
 
 export async function POST(req) {
   try {
@@ -14,6 +14,7 @@ export async function POST(req) {
     }
 
     const newType = await FinishingType.create({ name });
+    await mirrorFinishingTypeUpsert(newType);
 
     return new Response(JSON.stringify(newType), { status: 201 });
   } catch (error) {

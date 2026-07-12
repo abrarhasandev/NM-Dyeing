@@ -1,6 +1,6 @@
 import connectDB from "@/lib/db";
 import Process from "@/models/menu/Process";
-
+import { mirrorProcessUpsert } from "@/lib/orders/convexServer";
 
 export async function GET() {
   try {
@@ -28,6 +28,7 @@ export async function POST(req) {
     }
 
     const newProcess = await Process.create({ name, price });
+    await mirrorProcessUpsert(newProcess);
     return new Response(JSON.stringify(newProcess), { status: 201 });
   } catch (err) {
     return new Response(JSON.stringify({ error: "Failed to create" }), {

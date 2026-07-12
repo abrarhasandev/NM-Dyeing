@@ -2,6 +2,7 @@ import connectDB from "@/lib/db";
 import Batch from "@/models/Batch";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
+import { mirrorBatchUpsert } from "@/lib/orders/convexServer";
 
 export async function PUT(req, { params }) {
   try {
@@ -23,6 +24,8 @@ export async function PUT(req, { params }) {
     if (!batchDoc) {
       return NextResponse.json({ error: "Batch not found" }, { status: 404 });
     }
+
+    await mirrorBatchUpsert(batchDoc);
 
     return NextResponse.json({ success: true, batchDoc });
   } catch (error) {

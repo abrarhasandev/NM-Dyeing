@@ -1,6 +1,7 @@
 import connectDB from "@/lib/db";
 import Order from "@/models/Order";
 import mongoose from "mongoose";
+import { mirrorOrderRestore } from "@/lib/orders/convexServer";
 
 export async function PATCH(request, { params }) {
   try {
@@ -26,6 +27,8 @@ export async function PATCH(request, { params }) {
         headers: { "Content-Type": "application/json" },
       });
     }
+
+    await mirrorOrderRestore(id);
 
     return new Response(
       JSON.stringify({ message: "Order restored successfully", order }),

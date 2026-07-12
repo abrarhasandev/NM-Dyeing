@@ -5,6 +5,7 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { auth } from "@/auth";
+import { mirrorUserUpsert } from "@/lib/orders/convexServer";
 
 const registerLimiter = rateLimit({ intervalMs: 60 * 60 * 1000, limit: 5 });
 const VALID_ROLES = ["admin", "user", "moderator"];
@@ -84,6 +85,9 @@ export async function POST(request) {
       password: hashedPassword,
       role: assignedRole,
     });
+
+    // Structural mirror only (password never sent to Convex)
+    await mirrorUserUpsert(newUser);
 
     return NextResponse.json(
       {

@@ -6,7 +6,6 @@ const { auth } = NextAuth(authConfig);
 
 const proxyHandler = auth(function proxy(req) {
   const { pathname } = req.nextUrl;
-  console.log("Proxy middleware executed for:", pathname);
 
   // Allow Auth.js endpoints to proceed without checks
   if (pathname.startsWith("/api/auth")) {

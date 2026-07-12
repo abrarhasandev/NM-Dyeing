@@ -1,6 +1,12 @@
 import connectDB from "@/lib/db";
 import Order from "@/models/Order";
 import mongoose from "mongoose";
+import {
+  mirrorOrderUpsert,
+  mirrorOrderPatchStatus,
+  mirrorOrderTrash,
+  mirrorOrderRemove,
+} from "@/lib/orders/convexServer";
 
 export async function GET(request, { params }) {
   try {
@@ -62,8 +68,10 @@ export async function DELETE(request, { params }) {
 
     if (isPermanent) {
       await Order.deleteOne({ _id: id });
+      await mirrorOrderRemove(id);
     } else {
       await Order.findByIdAndUpdate(id, { isTrash: true });
+      await mirrorOrderTrash(id);
     }
 
     return new Response(
@@ -124,6 +132,7 @@ export async function PUT(request, { params }) {
 
     Object.assign(order, body);
     await order.save();
+    await mirrorOrderUpsert(order.toObject ? order.toObject() : order);
 
     return new Response(
       JSON.stringify({ message: "Order updated successfully", order }),
@@ -173,6 +182,8 @@ export async function PATCH(request, { params }) {
         status: 404,
       });
     }
+
+    await mirrorOrderPatchStatus(id, status);
 
     return new Response(
       JSON.stringify({

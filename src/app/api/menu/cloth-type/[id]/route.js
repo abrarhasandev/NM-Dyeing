@@ -1,8 +1,10 @@
-
 import connectDB from "@/lib/db";
 import ClothType from "@/models/menu/ClothType";
-
 import mongoose from "mongoose";
+import {
+  mirrorClothTypeUpsert,
+  mirrorClothTypeRemove,
+} from "@/lib/orders/convexServer";
 
 export async function PUT(req, { params }) {
   const { id } = params;
@@ -17,13 +19,15 @@ export async function PUT(req, { params }) {
   }
 
   try {
-    await connectDB(); 
+    await connectDB();
 
     const result = await ClothType.findByIdAndUpdate(id, { name }, { new: true });
 
     if (!result) {
       return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
     }
+
+    await mirrorClothTypeUpsert(result);
 
     return new Response(JSON.stringify({ updated: true }), { status: 200 });
   } catch (error) {
@@ -32,27 +36,28 @@ export async function PUT(req, { params }) {
   }
 }
 
-
 export async function DELETE(req, { params }) {
-    const { id } = params;
-  
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return new Response(JSON.stringify({ error: "Invalid ID format" }), { status: 400 });
-    }
-  
-    try {
-      await connectDB();
-  
-      const result = await ClothType.findByIdAndDelete(id);
-  
-      if (!result) {
-        return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
-      }
-  
-      return new Response(JSON.stringify({ deleted: true }), { status: 200 });
-    } catch (error) {
-      console.error("DELETE error:", error);
-      return new Response(JSON.stringify({ error: "Server error" }), { status: 500 });
-    }
+  const { id } = params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return new Response(JSON.stringify({ error: "Invalid ID format" }), { status: 400 });
   }
-  
+
+  try {
+    await connectDB();
+
+    const result = await ClothType.findByIdAndDelete(id);
+
+    if (!result) {
+      return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+    }
+
+    await mirrorClothTypeRemove(String(result._id));
+
+    return new Response(JSON.stringify({ deleted: true }), { status: 200 });
+  } catch (error) {
+    console.error("DELETE error:", error);
+    return new Response(JSON.stringify({ error: "Server error" }), { status: 500 });
+  }
+}
+

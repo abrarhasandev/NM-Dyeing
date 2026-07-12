@@ -2,6 +2,10 @@
 import connectDB from "@/lib/db";
 import SillName from "@/models/menu/SillName";
 import mongoose from "mongoose";
+import {
+  mirrorSillNameUpsert,
+  mirrorSillNameRemove,
+} from "@/lib/orders/convexServer";
 
 export async function PUT(req, { params }) {
   const { id } = params;
@@ -23,6 +27,8 @@ export async function PUT(req, { params }) {
     if (!result) {
       return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
     }
+
+    await mirrorSillNameUpsert(result);
 
     return new Response(JSON.stringify({ updated: true }), { status: 200 });
   } catch (error) {
@@ -46,6 +52,8 @@ export async function DELETE(req, { params }) {
     if (!result) {
       return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
     }
+
+    await mirrorSillNameRemove(String(result._id));
 
     return new Response(JSON.stringify({ deleted: true }), { status: 200 });
   } catch (error) {

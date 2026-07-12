@@ -1,5 +1,9 @@
 import connectDB from "@/lib/db";
 import Customer from "@/models/customers";
+import {
+  mirrorCustomerUpsert,
+  mirrorCustomerRemove,
+} from "@/lib/orders/convexServer";
 
 // Get single customer
 export async function GET(req, { params }) {
@@ -44,6 +48,8 @@ export async function PUT(req, { params }) {
       });
     }
 
+    await mirrorCustomerUpsert(updatedCustomer);
+
     return new Response(JSON.stringify(updatedCustomer), { status: 200 });
   } catch (err) {
     console.error("PUT Error:", err);
@@ -69,6 +75,8 @@ export async function PATCH(req, { params }) {
     if (!updated)
       return new Response(JSON.stringify({ error: "Customer not found" }), { status: 404 });
 
+    await mirrorCustomerUpsert(updated);
+
     return new Response(JSON.stringify({ success: true, initialCharge: updated.initialCharge, initialPayment: updated.initialPayment, initialDate: updated.initialDate }), { status: 200 });
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
@@ -87,6 +95,8 @@ export async function DELETE(req, { params }) {
         status: 404,
       });
     }
+
+    await mirrorCustomerRemove(String(deletedCustomer._id));
 
     return new Response(JSON.stringify({ message: "Customer deleted" }), {
       status: 200,

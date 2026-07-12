@@ -4,6 +4,7 @@ import Order from "@/models/Order";
 import Batch from "@/models/Batch";
 import BillingSummary from "@/models/BillingSummary";
 import { NextResponse } from "next/server";
+import { mirrorOrderUpsert } from "@/lib/orders/convexServer";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  HELPERS
@@ -330,6 +331,8 @@ export async function POST(req) {
     });
 
     const savedOrder = await order.save();
+    // Soft dual-write to Convex when ORDER_CONVEX_MIRROR=true (never fails the request)
+    await mirrorOrderUpsert(savedOrder.toObject ? savedOrder.toObject() : savedOrder);
     return NextResponse.json(savedOrder, { status: 201 });
   } catch (error) {
     console.error("Error creating order:", error);

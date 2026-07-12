@@ -4,6 +4,12 @@ import SavedInvoice from "@/models/SavedInvoice";
 import BillingSummary from "@/models/BillingSummary";
 import Payment from "@/models/Payment";
 import mongoose from "mongoose";
+import {
+  mirrorSavedInvoiceUpsert,
+  mirrorSavedInvoiceRemove,
+  mirrorBillingSummaryUpsert,
+  mirrorPaymentUpsert,
+} from "@/lib/orders/convexServer";
 
 export async function PATCH(req, { params }) {
     try {
@@ -28,14 +34,26 @@ export async function PATCH(req, { params }) {
 
             if (invoice.records.length === 0) {
                 await SavedInvoice.findByIdAndDelete(invoiceId);
+                await mirrorSavedInvoiceRemove(String(invoiceId));
             } else {
                 await invoice.save();
+                await mirrorSavedInvoiceUpsert(invoice);
             }
 
             if (modelType === "BillingSummary" && recordId) {
-                await BillingSummary.findByIdAndUpdate(recordId, { isSavedInLedger: false });
+                const updated = await BillingSummary.findByIdAndUpdate(
+                  recordId,
+                  { isSavedInLedger: false },
+                  { new: true }
+                );
+                if (updated) await mirrorBillingSummaryUpsert(updated);
             } else if (modelType === "Payment" && recordId) {
-                await Payment.findByIdAndUpdate(recordId, { isSavedInLedger: false });
+                const updated = await Payment.findByIdAndUpdate(
+                  recordId,
+                  { isSavedInLedger: false },
+                  { new: true }
+                );
+                if (updated) await mirrorPaymentUpsert(updated);
             }
             return NextResponse.json({ success: true, deletedInvoice: invoice.records.length === 0 });
         }
@@ -45,12 +63,23 @@ export async function PATCH(req, { params }) {
         invoice.totalCharge += totalCharge;
         invoice.totalPayment += totalPayment;
         await invoice.save();
+        await mirrorSavedInvoiceUpsert(invoice);
 
         for (const record of records) {
             if (record.modelType === "BillingSummary" && record.recordId) {
-                await BillingSummary.findByIdAndUpdate(record.recordId, { isSavedInLedger: true });
+                const updated = await BillingSummary.findByIdAndUpdate(
+                  record.recordId,
+                  { isSavedInLedger: true },
+                  { new: true }
+                );
+                if (updated) await mirrorBillingSummaryUpsert(updated);
             } else if (record.modelType === "Payment" && record.recordId) {
-                await Payment.findByIdAndUpdate(record.recordId, { isSavedInLedger: true });
+                const updated = await Payment.findByIdAndUpdate(
+                  record.recordId,
+                  { isSavedInLedger: true },
+                  { new: true }
+                );
+                if (updated) await mirrorPaymentUpsert(updated);
             }
         }
         return NextResponse.json({ success: true });

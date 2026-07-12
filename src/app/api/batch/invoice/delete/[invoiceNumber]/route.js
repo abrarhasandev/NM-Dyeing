@@ -1,8 +1,11 @@
-
 import connectDB from "@/lib/db";
 import Batch from "@/models/Batch";
 import Invoice from "@/models/Invoice";
 import { NextResponse } from "next/server";
+import {
+  mirrorBatchUpsert,
+  mirrorInvoiceRemove,
+} from "@/lib/orders/convexServer";
 
 export async function DELETE(req, { params }) {
   try {
@@ -48,9 +51,12 @@ export async function DELETE(req, { params }) {
 
     batchDoc.batches = updatedBatches;
     await batchDoc.save();
+    await mirrorBatchUpsert(batchDoc);
 
     // 🗑️ Delete the invoice from database
+    const invoiceMongoId = invoice._id?.toString?.() || String(invoice._id);
     await Invoice.deleteOne({ invoiceNumber });
+    await mirrorInvoiceRemove(invoiceMongoId);
 
     return NextResponse.json({
       success: true,

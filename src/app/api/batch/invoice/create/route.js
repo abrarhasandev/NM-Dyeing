@@ -2,6 +2,10 @@ import connectDB from "@/lib/db";
 import Batch from "@/models/Batch";
 import Invoice from "@/models/Invoice";
 import { NextResponse } from "next/server";
+import {
+  mirrorBatchUpsert,
+  mirrorInvoiceUpsert,
+} from "@/lib/orders/convexServer";
 
 function generateInvoiceNumber() {
   const timestamp = Date.now().toString().slice(-6);
@@ -43,6 +47,7 @@ export async function POST(req) {
     // ✅ Mark as modified so Mongoose saves nested updates
     batchDoc.markModified("batches");
     await batchDoc.save();
+    await mirrorBatchUpsert(batchDoc);
 
     // ✅ Create a new invoice document
     const newInvoice = await Invoice.create({
@@ -52,6 +57,7 @@ export async function POST(req) {
       totalAmount: 0, // later calculate dynamically
       status: "unpaid",
     });
+    await mirrorInvoiceUpsert(newInvoice);
 
     return NextResponse.json({
       success: true,

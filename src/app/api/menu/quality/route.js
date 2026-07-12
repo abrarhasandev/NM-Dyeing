@@ -1,6 +1,6 @@
 import connectDB from "@/lib/db";
 import Quality from "@/models/menu/Quality";
-
+import { mirrorQualityUpsert } from "@/lib/orders/convexServer";
 
 export async function POST(req) {
   try {
@@ -14,6 +14,7 @@ export async function POST(req) {
     }
 
     const newType = await Quality.create({ name: name.trim() });
+    await mirrorQualityUpsert(newType);
 
     return new Response(JSON.stringify(newType), { status: 201 });
   } catch (error) {

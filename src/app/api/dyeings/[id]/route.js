@@ -1,6 +1,10 @@
 import connectDB from "@/lib/db";
 import Dyeing from "@/models/Dyeing";
 import { NextResponse } from "next/server";
+import {
+  mirrorDyeingUpsert,
+  mirrorDyeingRemove,
+} from "@/lib/orders/convexServer";
 
 // GET single dyeing
 export async function GET(req, { params }) {
@@ -27,6 +31,7 @@ export async function PUT(req, { params }) {
     if (!dyeing) {
       return NextResponse.json({ error: "Dyeing not found" }, { status: 404 });
     }
+    await mirrorDyeingUpsert(dyeing);
     return NextResponse.json(dyeing);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -51,6 +56,8 @@ export async function PATCH(req, { params }) {
     if (!updated)
       return NextResponse.json({ error: "Dyeing not found" }, { status: 404 });
 
+    await mirrorDyeingUpsert(updated);
+
     return NextResponse.json({ success: true, initialCharge: updated.initialCharge, initialPayment: updated.initialPayment, initialDate: updated.initialDate });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -65,6 +72,7 @@ export async function DELETE(req, { params }) {
     if (!dyeing) {
       return NextResponse.json({ error: "Dyeing not found" }, { status: 404 });
     }
+    await mirrorDyeingRemove(String(dyeing._id));
     return NextResponse.json({ message: "Dyeing deleted successfully" });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

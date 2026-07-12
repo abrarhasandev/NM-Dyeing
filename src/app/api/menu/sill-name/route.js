@@ -1,6 +1,7 @@
 // POST and GET handlers
 import connectDB from "@/lib/db";
 import SillName from "@/models/menu/SillName";
+import { mirrorSillNameUpsert } from "@/lib/orders/convexServer";
 
 export async function POST(req) {
   try {
@@ -14,6 +15,7 @@ export async function POST(req) {
     }
 
     const newType = await SillName.create({ name: name.trim() });
+    await mirrorSillNameUpsert(newType);
 
     return new Response(JSON.stringify(newType), { status: 201 });
   } catch (error) {

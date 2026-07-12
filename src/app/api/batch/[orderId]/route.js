@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Batch from "@/models/Batch";
 import mongoose from "mongoose";
+import { mirrorBatchUpsert } from "@/lib/orders/convexServer";
 
 
 // export async function GET(req, { params }) {
@@ -91,6 +92,7 @@ export async function DELETE(req, { params }) {
     );
 
     await batchDoc.save();
+    await mirrorBatchUpsert(batchDoc);
 
     return NextResponse.json(
       { message: "Batch deleted successfully", batches: batchDoc.batches },

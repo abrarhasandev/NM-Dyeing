@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono, Inter, Roboto } from "next/font/google";
+import { cookies } from "next/headers";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import NextAuthProvider from "@/Providers/NextAuthProvider";
@@ -17,7 +18,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Figma design system fonts
+// Design-system fonts (see cursor-design-md.md / product UI tokens)
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -46,7 +47,7 @@ export const metadata = {
   openGraph: {
     title: "NM - Garments Inventory Solution",
     description: "Streamline your garments business with our advanced inventory tracking system.",
-    url: "https://yourdomain.com", 
+    url: "https://yourdomain.com",
     siteName: "NM Inventory",
     locale: "en_US",
     type: "website",
@@ -61,8 +62,6 @@ export const metadata = {
     follow: true,
   },
 };
-
-import { cookies } from "next/headers";
 
 export default async function RootLayout({ children }) {
   const cookieStore = await cookies();

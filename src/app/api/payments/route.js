@@ -2,6 +2,10 @@ import connectDB from "@/lib/db";
 import Payment from "@/models/Payment";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
+import {
+  mirrorPaymentUpsert,
+  mirrorPaymentRemove,
+} from "@/lib/orders/convexServer";
 
 export async function GET(req) {
   try {
@@ -48,6 +52,7 @@ export async function POST(req) {
     else if (type === "calendar") paymentData.calenderId = userId; 
 
     const payment = await Payment.create(paymentData);
+    await mirrorPaymentUpsert(payment);
     return NextResponse.json(payment, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -65,6 +70,7 @@ export async function PUT(req) {
     const updatedPayment = await Payment.findByIdAndUpdate(id, updateData, {
       new: true,
     });
+    if (updatedPayment) await mirrorPaymentUpsert(updatedPayment);
     return NextResponse.json(updatedPayment, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -80,6 +86,7 @@ export async function DELETE(req) {
     if (!id) return NextResponse.json({ error: "ID missing" }, { status: 400 });
 
     await Payment.findByIdAndDelete(id);
+    await mirrorPaymentRemove(String(id));
     return NextResponse.json({ message: "Deleted" }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

@@ -5,6 +5,10 @@ import Payment from "@/models/Payment";
 import customers from "@/models/customers";
 import LedgerSnapshot from "@/models/LedgerSnapshot";
 import mongoose from "mongoose";
+import {
+  mirrorLedgerSnapshotUpsert,
+  mirrorCustomerUpsert,
+} from "@/lib/orders/convexServer";
 
 export async function POST(req, { params }) {
     try {
@@ -92,7 +96,14 @@ export async function POST(req, { params }) {
         });
 
         // Wipe initial info from actual entity so it isn't carried double into next snapshot
-        await customers.findByIdAndUpdate(objId, { initialCharge: 0, initialPayment: 0, initialDate: null });
+        const wipedCustomer = await customers.findByIdAndUpdate(
+          objId,
+          { initialCharge: 0, initialPayment: 0, initialDate: null },
+          { new: true }
+        );
+
+        await mirrorLedgerSnapshotUpsert(snapshot);
+        if (wipedCustomer) await mirrorCustomerUpsert(wipedCustomer);
 
         return NextResponse.json({ success: true, message: "Ledger closed successfully", snapshotId: snapshot._id });
     } catch (error) {

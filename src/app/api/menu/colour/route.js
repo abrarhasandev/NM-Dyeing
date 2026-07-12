@@ -2,6 +2,7 @@
 
 import connectDB from "@/lib/db";
 import Colour from "@/models/menu/Colour";
+import { mirrorColourUpsert } from "@/lib/orders/convexServer";
 
 export async function GET() {
   try {
@@ -24,6 +25,7 @@ export async function POST(req) {
     }
 
     const newColour = await Colour.create({ name: name.trim() });
+    await mirrorColourUpsert(newColour);
     return new Response(JSON.stringify(newColour), { status: 201 });
   } catch (error) {
     console.error(error);

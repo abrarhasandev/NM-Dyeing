@@ -1,5 +1,6 @@
 import connectDB from "@/lib/db";
 import Customer from "@/models/customers";
+import { mirrorCustomerUpsert } from "@/lib/orders/convexServer";
 
 export async function POST(req) {
   try {
@@ -20,6 +21,8 @@ export async function POST(req) {
       ...body,
       searchText: body.searchText || "",
     });
+
+    await mirrorCustomerUpsert(customer);
 
     return new Response(
       JSON.stringify({ message: "Customer created", customer }),

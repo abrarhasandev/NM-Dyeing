@@ -1,5 +1,6 @@
 import connectDB from "@/lib/db";
 import BillingSummary from "@/models/BillingSummary";
+import { mirrorBillingSummaryUpsert } from "@/lib/orders/convexServer";
 
 export async function POST(req) {
   await connectDB();
@@ -8,6 +9,7 @@ export async function POST(req) {
     const body = await req.json();
 
     const summary = await BillingSummary.create(body);
+    await mirrorBillingSummaryUpsert(summary);
 
     return Response.json({ success: true, data: summary }, { status: 201 });
   } catch (error) {
