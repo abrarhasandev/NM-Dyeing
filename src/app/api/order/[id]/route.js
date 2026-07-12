@@ -7,7 +7,7 @@ import {
   mirrorOrderTrash,
   mirrorOrderRemove,
 } from "@/lib/orders/convexServer";
-import { requireAuth } from "@/lib/requireAuth";
+import { requireAuth, requireAdmin } from "@/lib/requireAuth";
 
 export async function GET(request, { params }) {
   const { error: __authError } = await requireAuth();
@@ -47,7 +47,7 @@ export async function GET(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-  const { error: __authError } = await requireAuth();
+  const { error: __authError } = await requireAdmin();
   if (__authError) return __authError;
 
   try {
@@ -113,23 +113,35 @@ export async function PUT(request, { params }) {
 
     const body = await request.json();
 
-    if (body.tableData && Array.isArray(body.tableData)) {
-      body.tableData = body.tableData.map((row, index) => ({
+    // ── Mass-assignment protection — only allow known editable fields ────────
+    const ALLOWED_FIELDS = [
+      "companyName", "orderNo", "chalanNo", "date", "clotheType",
+      "finishingType", "colour", "sillName", "quality", "process",
+      "totalGoj", "tableData", "remark", "status", "transporterName",
+    ];
+
+    const safeUpdate = {};
+    for (const key of ALLOWED_FIELDS) {
+      if (key in body) safeUpdate[key] = body[key];
+    }
+
+    if (safeUpdate.tableData && Array.isArray(safeUpdate.tableData)) {
+      safeUpdate.tableData = safeUpdate.tableData.map((row, index) => ({
         ...row,
         rollNo: index + 1,
       }));
     }
 
     // Parse incoming date string robustly like POST does
-    if (body.date && typeof body.date === "string") {
-      if (body.date.includes("/")) {
-        const [d, m, y] = body.date.split("/").map(Number);
+    if (safeUpdate.date && typeof safeUpdate.date === "string") {
+      if (safeUpdate.date.includes("/")) {
+        const [d, m, y] = safeUpdate.date.split("/").map(Number);
         if (d && m && y) {
-          body.date = new Date(Date.UTC(y, m - 1, d));
+          safeUpdate.date = new Date(Date.UTC(y, m - 1, d));
         }
       } else {
-        const parsed = new Date(body.date);
-        if (!isNaN(parsed)) body.date = parsed;
+        const parsed = new Date(safeUpdate.date);
+        if (!isNaN(parsed)) safeUpdate.date = parsed;
       }
     }
 
@@ -140,7 +152,7 @@ export async function PUT(request, { params }) {
       });
     }
 
-    Object.assign(order, body);
+    Object.assign(order, safeUpdate);
     await order.save();
     await mirrorOrderUpsert(order.toObject ? order.toObject() : order);
 

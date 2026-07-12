@@ -4,7 +4,7 @@ import {
   mirrorCustomerUpsert,
   mirrorCustomerRemove,
 } from "@/lib/orders/convexServer";
-import { requireAuth } from "@/lib/requireAuth";
+import { requireAuth, requireAdmin } from "@/lib/requireAuth";
 
 // Get single customer
 export async function GET(req, { params }) {
@@ -95,7 +95,7 @@ export async function PATCH(req, { params }) {
 
 // Delete customer
 export async function DELETE(req, { params }) {
-  const { error: __authError } = await requireAuth();
+  const { error: __authError } = await requireAdmin();
   if (__authError) return __authError;
 
   try {

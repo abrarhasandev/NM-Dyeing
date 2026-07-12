@@ -87,8 +87,10 @@ export default function SessionWrapper({ children, defaultOpen = true }) {
     if (status === "unauthenticated" && !isPublic) {
       const callback = encodeURIComponent(pathname);
       router.replace(`/login?callbackUrl=${callback}`);
+    } else if (status === "authenticated" && isPublic && session?.user?.email && session.user.role === "admin") {
+      router.replace("/dashboard/order");
     }
-  }, [status, router, pathname, isPublic]);
+  }, [status, router, pathname, isPublic, session]);
 
   // Never paint protected UI until session is known
   if (status === "loading") {
@@ -100,9 +102,7 @@ export default function SessionWrapper({ children, defaultOpen = true }) {
 
   // Public routes (login): no app chrome
   if (isPublic) {
-    // Only send admins into the app — avoids login ↔ dashboard loops
     if (status === "authenticated" && session?.user?.email && isAdmin) {
-      router.replace("/dashboard/order");
       return <AuthLoadingScreen />;
     }
     return <>{children}</>;

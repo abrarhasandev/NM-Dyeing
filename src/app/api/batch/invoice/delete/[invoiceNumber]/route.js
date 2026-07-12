@@ -6,10 +6,10 @@ import {
   mirrorBatchUpsert,
   mirrorInvoiceRemove,
 } from "@/lib/orders/convexServer";
-import { requireAuth } from "@/lib/requireAuth";
+import { requireAdmin } from "@/lib/requireAuth";
 
 export async function DELETE(req, { params }) {
-  const { error: __authError } = await requireAuth();
+  const { error: __authError } = await requireAdmin();
   if (__authError) return __authError;
 
   try {

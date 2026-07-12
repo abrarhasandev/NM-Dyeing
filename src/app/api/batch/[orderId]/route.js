@@ -3,7 +3,7 @@ import connectDB from "@/lib/db";
 import Batch from "@/models/Batch";
 import mongoose from "mongoose";
 import { mirrorBatchUpsert } from "@/lib/orders/convexServer";
-import { requireAuth } from "@/lib/requireAuth";
+import { requireAuth, requireAdmin } from "@/lib/requireAuth";
 
 
 
@@ -40,7 +40,7 @@ export async function GET(req, { params }) {
 
 // ✅ DELETE a specific batch by orderId + batchId (from query)
 export async function DELETE(req, { params }) {
-  const { error: __authError } = await requireAuth();
+  const { error: __authError } = await requireAdmin();
   if (__authError) return __authError;
 
   await connectDB();

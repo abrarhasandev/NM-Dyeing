@@ -1,5 +1,5 @@
 const buckets = new Map();
-const MAX_BUCKETS = 10000;
+const MAX_BUCKETS = 5000;
 let pruneTimer = null;
 
 function startPruning(intervalMs) {
@@ -9,6 +9,7 @@ function startPruning(intervalMs) {
     for (const [key, bucket] of buckets) {
       if (now > bucket.resetAt) buckets.delete(key);
     }
+    // Hard cap eviction — prevent memory exhaustion from attacker spray
     if (buckets.size > MAX_BUCKETS) {
       const excess = buckets.size - MAX_BUCKETS;
       let evicted = 0;
@@ -21,23 +22,47 @@ function startPruning(intervalMs) {
   pruneTimer.unref?.();
 }
 
+/**
+ * In-memory sliding-window rate limiter with progressive backoff.
+ *
+ * After the initial `limit` is exhausted within `intervalMs`, subsequent
+ * violations double the lockout window (capped at 4× the original interval).
+ * This makes credential-stuffing increasingly expensive.
+ *
+ * @param {{ intervalMs: number; limit: number }} options
+ */
 export function rateLimit({ intervalMs, limit }) {
   startPruning(intervalMs);
   return {
     check(key) {
       const now = Date.now();
       let bucket = buckets.get(key);
+
       if (!bucket || now > bucket.resetAt) {
+        // Evict oldest if at capacity
         if (buckets.size >= MAX_BUCKETS) {
           const oldest = buckets.keys().next().value;
           if (oldest !== undefined) buckets.delete(oldest);
         }
-        bucket = { count: 1, resetAt: now + intervalMs };
+        bucket = { count: 1, resetAt: now + intervalMs, violations: 0 };
         buckets.set(key, bucket);
         return { success: true, remaining: limit - 1 };
       }
+
       bucket.count++;
-      return { success: bucket.count <= limit, remaining: Math.max(0, limit - bucket.count) };
+
+      if (bucket.count > limit) {
+        // Progressive backoff — extend lockout on repeated violations
+        // Cap at 4× the original interval to avoid infinite lockout
+        if (bucket.violations < 3) {
+          bucket.violations++;
+          const backoff = Math.min(intervalMs * (1 << bucket.violations), intervalMs * 4);
+          bucket.resetAt = now + backoff;
+        }
+        return { success: false, remaining: 0 };
+      }
+
+      return { success: true, remaining: Math.max(0, limit - bucket.count) };
     },
   };
 }
@@ -47,9 +72,11 @@ export function getClientIp(req) {
   if (!headers) return "unknown";
   const getHeader = (name) =>
     typeof headers.get === "function" ? headers.get(name) : headers[name];
+
+  // Only trust the first (leftmost) value — closest to the real client
   const forwarded = getHeader("x-forwarded-for");
   if (forwarded) return String(forwarded).split(",")[0].trim();
   const realIp = getHeader("x-real-ip");
-  if (realIp) return String(realIp);
+  if (realIp) return String(realIp).trim();
   return "unknown";
 }

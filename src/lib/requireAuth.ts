@@ -44,6 +44,27 @@ export async function requireAuth(options?: {
   };
 }
 
+/**
+ * Require admin role — use for all destructive operations (DELETE, permanent edits).
+ */
 export async function requireAdmin() {
   return requireAuth({ roles: ["admin"] });
+}
+
+/**
+ * Require admin role for write/destructive operations.
+ * Includes an audit log entry for traceability.
+ *
+ * @param operation  A short label like "DELETE order" for the audit log.
+ */
+export async function requireAdminForWrite(operation: string) {
+  const result = await requireAuth({ roles: ["admin"] });
+
+  if (!result.error && result.session?.user) {
+    console.info(
+      `[AUDIT] ${operation} by ${result.session.user.email} (role=${result.session.user.role}) at ${new Date().toISOString()}`
+    );
+  }
+
+  return result;
 }

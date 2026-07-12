@@ -6,7 +6,7 @@ import {
   mirrorPaymentUpsert,
   mirrorPaymentRemove,
 } from "@/lib/orders/convexServer";
-import { requireAuth } from "@/lib/requireAuth";
+import { requireAuth, requireAdmin } from "@/lib/requireAuth";
 
 export async function GET(req) {
   const { error: __authError } = await requireAuth();
@@ -88,7 +88,7 @@ export async function PUT(req) {
 }
 
 export async function DELETE(req) {
-  const { error: __authError } = await requireAuth();
+  const { error: __authError } = await requireAdmin();
   if (__authError) return __authError;
 
   try {

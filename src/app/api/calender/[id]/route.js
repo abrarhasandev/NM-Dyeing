@@ -5,7 +5,7 @@ import {
   mirrorCalenderUpsert,
   mirrorCalenderRemove,
 } from "@/lib/orders/convexServer";
-import { requireAuth } from "@/lib/requireAuth";
+import { requireAuth, requireAdmin } from "@/lib/requireAuth";
 
 // ✅ GET single calender
 export async function GET(req, { params }) {
@@ -76,7 +76,7 @@ export async function PATCH(req, { params }) {
 
 // ✅ DELETE calender
 export async function DELETE(req, { params }) {
-  const { error: __authError } = await requireAuth();
+  const { error: __authError } = await requireAdmin();
   if (__authError) return __authError;
 
   try {

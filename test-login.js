@@ -1,25 +1,29 @@
-import "dotenv/config";
-import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import User from "./src/models/User.js";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config({ path: ".env" });
 
-async function test() {
-  const uri = process.env.MONGO_URI;
-  if (!uri) { console.log("NO MONGO_URI"); return; }
-  await mongoose.connect(uri);
-
-  const email = "random@example.com";
-  const password = "password123";
-
-  const user = await User.findOne({ email }).select("+password name email role");
+const userSchema = new mongoose.Schema({
+    password: { type: String },
+  });
   
-  if (!user) {
-    console.log("User not found!");
-  } else {
-    console.log("User found:", user);
-  }
-  
-  await mongoose.disconnect();
+const User = mongoose.models.User || mongoose.model("User", userSchema);
+
+async function testLogin() {
+    console.time("connectDB");
+    await mongoose.connect(process.env.MONGO_URI, { dbName: "garments_db" });
+    console.timeEnd("connectDB");
+
+    console.time("findOne");
+    const user = await User.findOne({ email: "admin@gmail.com" }).lean();
+    console.timeEnd("findOne");
+
+    if (user && user.password) {
+        console.time("bcrypt");
+        await bcrypt.compare("12345678", user.password);
+        console.timeEnd("bcrypt");
+    }
+
+    mongoose.disconnect();
 }
-
-test();
+testLogin();

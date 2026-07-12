@@ -6,7 +6,11 @@ import User from "@/models/User";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { authConfig } from "@/auth.config";
 
-const loginLimiter = rateLimit({ intervalMs: 15 * 60 * 1000, limit: 10 });
+// ── Rate limiters ────────────────────────────────────────────────────────────
+// Per-IP: prevents brute-force spray from a single source
+const ipLimiter = rateLimit({ intervalMs: 15 * 60 * 1000, limit: 7 });
+// Per-email: prevents credential stuffing across rotating IPs
+const emailLimiter = rateLimit({ intervalMs: 15 * 60 * 1000, limit: 5 });
 
 function normalizeEmail(email) {
   return String(email || "")
@@ -27,9 +31,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials, request) {
         const ip = getClientIp(request);
-        const { success } = loginLimiter.check(`login:${ip}`);
-        if (!success) {
-          throw new Error("Too many login attempts. Please try again later.");
+
+        // ── Dual rate limiting: IP + email ───────────────────────────────────
+        const { success: ipOk } = ipLimiter.check(`login:ip:${ip}`);
+        if (!ipOk) {
+          throw new Error("Too many attempts. Please try again later.");
         }
 
         const email = normalizeEmail(credentials?.email);
@@ -44,10 +50,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
+        // Per-email rate limit (checked after validation to avoid
+        // wasting bucket entries on malformed input)
+        const { success: emailOk } = emailLimiter.check(`login:email:${email}`);
+        if (!emailOk) {
+          throw new Error("Too many attempts. Please try again later.");
+        }
+
+        // Guard against bcrypt DoS with extremely long passwords
+        if (password.length > 128) {
+          return null;
+        }
+
         await connectDB();
 
         const user = await User.findOne({ email }).select(
-          "+password name email role"
+          "password name email role"
         );
 
         // Valid dummy hash so bcrypt.compare never throws on missing users
@@ -91,6 +109,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       // Google / other providers are disabled unless explicitly re-enabled later
       return false;
+    },
+  },
+
+  events: {
+    /**
+     * Audit log — fires on every successful sign-in.
+     * In production, pipe this to a structured log sink.
+     */
+    async signIn({ user }) {
+      console.info(
+        `[AUTH] Sign-in: ${user?.email} (role=${user?.role}) at ${new Date().toISOString()}`
+      );
     },
   },
 });

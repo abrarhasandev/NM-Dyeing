@@ -130,7 +130,7 @@ function SignInForm() {
               type="password"
               autoComplete="current-password"
               required
-              minLength={1}
+              minLength={8}
               className="block w-full px-4 py-2 border rounded-lg focus:border-[#f54e00] focus:ring focus:ring-[#f54e00]/30 bg-background"
             />
           </div>

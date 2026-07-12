@@ -10,12 +10,38 @@ import { mirrorUserUpsert } from "@/lib/orders/convexServer";
 const registerLimiter = rateLimit({ intervalMs: 60 * 60 * 1000, limit: 5 });
 const VALID_ROLES = ["admin", "user", "moderator"];
 
+/**
+ * Strong password policy:
+ *  - 8–128 characters
+ *  - At least one uppercase letter
+ *  - At least one lowercase letter
+ *  - At least one digit
+ *  - At least one special character
+ *
+ * Max 128 chars prevents bcrypt DoS (bcrypt truncates at 72 bytes anyway,
+ * but extremely long inputs still consume CPU in pre-hash processing).
+ */
 function validatePassword(pw) {
-  if (typeof pw !== "string" || pw.length < 8) {
+  if (typeof pw !== "string") {
+    return "Password is required";
+  }
+  if (pw.length < 8) {
     return "Password must be at least 8 characters long";
   }
-  if (!/[A-Za-z]/.test(pw) || !/\d/.test(pw)) {
-    return "Password must contain at least one letter and one number";
+  if (pw.length > 128) {
+    return "Password must not exceed 128 characters";
+  }
+  if (!/[A-Z]/.test(pw)) {
+    return "Password must contain at least one uppercase letter";
+  }
+  if (!/[a-z]/.test(pw)) {
+    return "Password must contain at least one lowercase letter";
+  }
+  if (!/\d/.test(pw)) {
+    return "Password must contain at least one digit";
+  }
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pw)) {
+    return "Password must contain at least one special character";
   }
   return null;
 }
@@ -38,11 +64,21 @@ export async function POST(request) {
       );
     }
 
-    const { name, email, password, role } = await request.json();
+    const { name, email: rawEmail, password, role } = await request.json();
+    const email = rawEmail ? String(rawEmail).trim().toLowerCase() : undefined;
 
     if (!name || !email || !password) {
       return NextResponse.json(
         { error: "All fields are required" },
+        { status: 400 }
+      );
+    }
+
+    // Sanitize name — strip HTML/script tags
+    const sanitizedName = String(name).trim().replace(/<[^>]*>/g, "");
+    if (!sanitizedName || sanitizedName.length > 100) {
+      return NextResponse.json(
+        { error: "Name must be 1-100 characters" },
         { status: 400 }
       );
     }
@@ -64,8 +100,9 @@ export async function POST(request) {
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
+      // Generic message — don't confirm whether an email is registered
       return NextResponse.json(
-        { error: "User already exists" },
+        { error: "Registration failed. Please try a different email." },
         { status: 409 }
       );
     }
@@ -75,7 +112,7 @@ export async function POST(request) {
     const assignedRole = VALID_ROLES.includes(role) ? role : "user";
 
     const newUser = await User.create({
-      name,
+      name: sanitizedName,
       email,
       password: hashedPassword,
       role: assignedRole,

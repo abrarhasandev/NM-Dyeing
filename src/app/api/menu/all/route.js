@@ -25,14 +25,28 @@ import Calender      from "@/models/Calender";
 import Dyeing        from "@/models/Dyeing";
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/requireAuth";
-
 export const dynamic = "force-dynamic"; // Disable Next.js static cache; we manage our own
+
+// In-memory cache to prevent multiple parallel database hits on page refreshes
+let menuCache = null;
+let lastFetchTime = 0;
+const CACHE_TTL = 15000; // 15 seconds
 
 export async function GET() {
   const { error: __authError } = await requireAuth();
   if (__authError) return __authError;
 
   try {
+    const now = Date.now();
+    if (menuCache && now - lastFetchTime < CACHE_TTL) {
+      return NextResponse.json(menuCache, {
+        headers: {
+          "Cache-Control": "private, max-age=120, stale-while-revalidate=600",
+          "X-Cache": "HIT",
+        },
+      });
+    }
+
     await connectDB();
 
     // All 9 queries fire simultaneously — single wait
@@ -58,7 +72,7 @@ export async function GET() {
       Dyeing.find().lean(),
     ]);
 
-    const payload = {
+    menuCache = {
       clotheTypes,
       finishingTypes,
       colours,
@@ -69,11 +83,13 @@ export async function GET() {
       calender,
       dyeings,
     };
+    lastFetchTime = now;
 
-    return NextResponse.json(payload, {
+    return NextResponse.json(menuCache, {
       headers: {
         // Browser: 2 min fresh | serve stale 10 min while revalidating
         "Cache-Control": "private, max-age=120, stale-while-revalidate=600",
+        "X-Cache": "MISS",
       },
     });
   } catch (error) {

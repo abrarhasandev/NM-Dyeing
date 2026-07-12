@@ -3,6 +3,16 @@
  * No Node-only imports (bcrypt, mongoose, etc.).
  * Used by proxy.js; full authorize logic lives in auth.js.
  */
+
+// ── Startup guard — fail loud if AUTH_SECRET is missing or weak ──────────────
+const authSecret = process.env.AUTH_SECRET;
+if (!authSecret || authSecret.length < 32) {
+  throw new Error(
+    "AUTH_SECRET must be set and at least 32 characters long. " +
+      "Generate one with: openssl rand -hex 64"
+  );
+}
+
 export const authConfig = {
   trustHost: true,
 
@@ -34,13 +44,21 @@ export const authConfig = {
       return isAuthenticated;
     },
 
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
+      // Initial sign-in — populate token with user data
       if (user) {
         token.id = user.id;
         token.role = user.role;
         token.email = user.email;
         token.name = user.name;
+        token.iat = Math.floor(Date.now() / 1000);
       }
+
+      // On session refresh (updateAge interval), mark for potential revalidation
+      if (trigger === "update") {
+        token.iat = Math.floor(Date.now() / 1000);
+      }
+
       return token;
     },
 
@@ -67,8 +85,9 @@ export const authConfig = {
 
   session: {
     strategy: "jwt",
-    maxAge: 8 * 60 * 60, // 8 hours
+    maxAge: 4 * 60 * 60,     // 4 hours (reduced from 8h)
+    updateAge: 15 * 60,       // Refresh JWT every 15 minutes
   },
 
-  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  secret: authSecret,
 };
