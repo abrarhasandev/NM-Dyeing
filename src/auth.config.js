@@ -1,3 +1,14 @@
+// Prevent NextAuth from defaulting to localhost in production/Vercel environments
+// if environment variables were misconfigured or copied from development.
+if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
+  if (process.env.NEXTAUTH_URL && process.env.NEXTAUTH_URL.includes("localhost")) {
+    delete process.env.NEXTAUTH_URL;
+  }
+  if (process.env.AUTH_URL && process.env.AUTH_URL.includes("localhost")) {
+    delete process.env.AUTH_URL;
+  }
+}
+
 /**
  * Edge / proxy-compatible auth configuration.
  * No Node-only imports (bcrypt, mongoose, etc.).
@@ -75,7 +86,19 @@ export const authConfig = {
     async redirect({ url, baseUrl }) {
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       try {
-        if (new URL(url).origin === baseUrl) return url;
+        const parsedUrl = new URL(url);
+        const parsedBase = new URL(baseUrl);
+        
+        // If the redirect URL points to localhost but the base URL is production,
+        // sanitize it to point to the production host instead of leaking localhost.
+        if (parsedUrl.hostname === "localhost" && parsedBase.hostname !== "localhost") {
+          parsedUrl.protocol = parsedBase.protocol;
+          parsedUrl.host = parsedBase.host;
+          parsedUrl.port = parsedBase.port;
+          return parsedUrl.toString();
+        }
+        
+        if (parsedUrl.origin === parsedBase.origin) return url;
       } catch {
         /* ignore invalid url */
       }
