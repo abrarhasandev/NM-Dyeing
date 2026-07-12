@@ -125,7 +125,13 @@ const FilterBarSkeleton = () => (
 );
 
 /* ── Table Row Skeleton ──────────────────────────────────────────────────── */
-const TableRowSkeleton = ({ opacity = 1 }: { opacity?: number }) => (
+const TableRowSkeleton = ({
+  opacity = 1,
+  hideInventory = false,
+}: {
+  opacity?: number;
+  hideInventory?: boolean;
+}) => (
   <tr
     className="border-b border-border bg-card"
     style={{
@@ -163,10 +169,12 @@ const TableRowSkeleton = ({ opacity = 1 }: { opacity?: number }) => (
     <td className="px-5 py-3.5">
       <Bone width={64} height={20} radius={99} />
     </td>
-    {/* Inventory */}
-    <td className="px-5 py-3.5">
-      <Bone width={64} height={20} radius={99} />
-    </td>
+    {/* Inventory — hidden on Transport Management order list */}
+    {!hideInventory && (
+      <td className="px-5 py-3.5">
+        <Bone width={64} height={20} radius={99} />
+      </td>
+    )}
     {/* Actions */}
     <td className="px-5 py-3.5">
       <div className="flex justify-end gap-1">
@@ -178,34 +186,47 @@ const TableRowSkeleton = ({ opacity = 1 }: { opacity?: number }) => (
 );
 
 /* ── Table Skeleton ──────────────────────────────────────────────────────── */
-const TableSkeleton = ({ rows = 8 }: { rows?: number }) => (
-  <div
-    className="w-full overflow-hidden rounded-[8px] bg-background border border-border shadow-sm"
-  >
-    <div className="overflow-x-auto">
-      <table className="w-full text-left border-collapse">
-        {/* thead ghost */}
-        <thead>
-          <tr className="border-b border-border bg-muted/50">
-            {[120, 100, 80, 70, 90, 65, 70, 36].map((w, i) => (
-              <th key={i} className="px-5 py-3.5">
-                <Bone width={w} height={11} />
-              </th>
+const TableSkeleton = ({
+  rows = 8,
+  hideInventory = false,
+}: {
+  rows?: number;
+  hideInventory?: boolean;
+}) => {
+  const headerWidths = hideInventory
+    ? [120, 100, 80, 70, 90, 65, 36]
+    : [120, 100, 80, 70, 90, 65, 70, 36];
+
+  return (
+    <div
+      className="w-full overflow-hidden rounded-[8px] bg-background border border-border shadow-sm"
+    >
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          {/* thead ghost */}
+          <thead>
+            <tr className="border-b border-border bg-muted/50">
+              {headerWidths.map((w, i) => (
+                <th key={i} className="px-5 py-3.5">
+                  <Bone width={w} height={11} />
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: rows }).map((_, i) => (
+              <TableRowSkeleton
+                key={i}
+                opacity={1 - (i / rows) * 0.55}
+                hideInventory={hideInventory}
+              />
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {Array.from({ length: rows }).map((_, i) => (
-            <TableRowSkeleton
-              key={i}
-              opacity={1 - (i / rows) * 0.55}
-            />
-          ))}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 /* ── Pagination Skeleton ─────────────────────────────────────────────────── */
 const PaginationSkeleton = () => (
@@ -226,9 +247,14 @@ const PaginationSkeleton = () => (
 /* ── Full Orders Page Skeleton ───────────────────────────────────────────── */
 interface OrderSkeletonProps {
   showGraph?: boolean;
+  /** Transport Management — hide Inventory column ghost. */
+  isTransportMode?: boolean;
 }
 
-const OrderSkeleton: React.FC<OrderSkeletonProps> = ({ showGraph = true }) => {
+const OrderSkeleton: React.FC<OrderSkeletonProps> = ({
+  showGraph = true,
+  isTransportMode = false,
+}) => {
   return (
     <>
       <InjectStyle />
@@ -252,7 +278,7 @@ const OrderSkeleton: React.FC<OrderSkeletonProps> = ({ showGraph = true }) => {
         <FilterBarSkeleton />
 
         {/* ── Order Table ── */}
-        <TableSkeleton rows={8} />
+        <TableSkeleton rows={8} hideInventory={isTransportMode} />
 
         {/* ── Pagination ── */}
         <PaginationSkeleton />

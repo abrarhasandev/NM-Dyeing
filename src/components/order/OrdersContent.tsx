@@ -26,6 +26,10 @@ import useOrders from "@/hooks/useOrders";
 import { useDocumentTitle } from "@/hook/useDocumentTitle";
 import dayjs from "dayjs";
 import { toast } from "sonner";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
+import AddTransportOrderModal from "@/components/transport/AddTransportOrderModal";
 
 // Import Recharts & Shadcn Chart UI
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
@@ -52,7 +56,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export const OrdersContent = ({ isTrashMode = false, transporterName = "" }: { isTrashMode?: boolean, transporterName?: string }) => {
+export const OrdersContent = ({
+  isTrashMode = false,
+  transporterName = "",
+  isTransportMode = false,
+  transportEmployeeId = "",
+}: {
+  isTrashMode?: boolean;
+  transporterName?: string;
+  /** Transport Management section only — scoped UI + manual history. */
+  isTransportMode?: boolean;
+  /** Convex transportEmployees id for manual history rows. */
+  transportEmployeeId?: string;
+}) => {
   const { data } = useAppData();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -81,10 +97,18 @@ export const OrdersContent = ({ isTrashMode = false, transporterName = "" }: { i
 
   const [isInitialized, setIsInitialized] = useState(false);
 
+  const filterStorageKey = isTransportMode
+    ? (transportEmployeeId ? `orders_filters_transport_${transportEmployeeId}` : "orders_filters_transport")
+    : (isTrashMode ? "orders_filters_trash" : "orders_filters");
+
+  const graphStorageKey = isTransportMode
+    ? (transportEmployeeId ? `showGraph_transport_${transportEmployeeId}` : "showGraph_transport")
+    : (isTrashMode ? "showGraph_trash" : "showGraph");
+
   // Load filters from localStorage on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const savedFilters = localStorage.getItem("orders_filters");
+      const savedFilters = localStorage.getItem(filterStorageKey);
       if (savedFilters) {
         try {
           const parsed = JSON.parse(savedFilters);
@@ -105,7 +129,7 @@ export const OrdersContent = ({ isTrashMode = false, transporterName = "" }: { i
           if (parsed.currentPage !== undefined) setCurrentPage(parsed.currentPage);
           if (parsed.itemsPerPage !== undefined) setItemsPerPage(parsed.itemsPerPage);
         } catch (e) {
-          console.error("Failed to parse orders_filters from localStorage", e);
+          console.error(`Failed to parse ${filterStorageKey} from localStorage`, e);
         }
       }
       setIsInitialized(true);
@@ -131,9 +155,10 @@ export const OrdersContent = ({ isTrashMode = false, transporterName = "" }: { i
       currentPage,
       itemsPerPage,
     };
-    localStorage.setItem("orders_filters", JSON.stringify(filtersToSave));
+    localStorage.setItem(filterStorageKey, JSON.stringify(filtersToSave));
   }, [
     isInitialized,
+    filterStorageKey,
     searchTerm,
     dateRange,
     customStartDate,
@@ -152,7 +177,7 @@ export const OrdersContent = ({ isTrashMode = false, transporterName = "" }: { i
   // Load showGraph preference on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const savedShowGraph = localStorage.getItem("showGraph");
+      const savedShowGraph = localStorage.getItem(graphStorageKey);
       if (savedShowGraph !== null) {
         setShowGraph(savedShowGraph === "true");
       }
@@ -163,7 +188,7 @@ export const OrdersContent = ({ isTrashMode = false, transporterName = "" }: { i
   const handleToggleGraph = (value) => {
     setShowGraph(value);
     if (typeof window !== "undefined") {
-      localStorage.setItem("showGraph", String(value));
+      localStorage.setItem(graphStorageKey, String(value));
     }
   };
 
@@ -173,6 +198,19 @@ export const OrdersContent = ({ isTrashMode = false, transporterName = "" }: { i
   // Confirmation Modal
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState(null);
+
+  // Transport Management: Add Order (manual Convex history)
+  const [showAddTransportOrder, setShowAddTransportOrder] = useState(false);
+  const transportEmployeeConvexId = transportEmployeeId
+    ? (transportEmployeeId as Id<"transportEmployees">)
+    : null;
+  const manualTransportOrders = useQuery(
+    api.transportOrders.listByEmployee,
+    isTransportMode && transportEmployeeConvexId
+      ? { transportEmployeeId: transportEmployeeConvexId }
+      : "skip"
+  );
+  const removeTransportOrder = useMutation(api.transportOrders.remove);
 
   // Debounce search input
   useEffect(() => {
@@ -289,6 +327,75 @@ export const OrdersContent = ({ isTrashMode = false, transporterName = "" }: { i
       closeModal();
     }
   };
+
+  const handleDeleteTransportOrder = async (id: string) => {
+    try {
+      await removeTransportOrder({ id: id as Id<"transportOrders"> });
+      toast.success("Transport order history removed");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to remove transport order history");
+    }
+  };
+
+  /** Map Convex transport history rows into OrderTable shape (+ light client filters). */
+  const mappedManualOrders = useMemo(() => {
+    if (!isTransportMode || !manualTransportOrders) return [];
+
+    const q = (debouncedSearchTerm || "").trim().toLowerCase();
+
+    return manualTransportOrders
+      .filter((row) => {
+        if (status && (row.status || "").toLowerCase() !== status.toLowerCase()) {
+          return false;
+        }
+        if (clotheType && row.clotheType !== clotheType) return false;
+        if (quality && row.quality !== quality) return false;
+        if (colour && row.colour !== colour) return false;
+        if (finishingType && row.finishingType !== finishingType) return false;
+        if (q) {
+          const hay = `${row.displayOrderId || ""} ${row.companyName || ""} ${row.linkedOrderId || ""}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      })
+      .map((row) => ({
+        _id: row._id,
+        orderId: row.displayOrderId,
+        companyName: row.companyName,
+        clotheType: row.clotheType,
+        quality: row.quality,
+        colour: row.colour,
+        finishingType: row.finishingType,
+        status: row.status,
+        totalGoj: row.totalGoj,
+        totalBundle: row.totalBundle,
+        transporterName: row.transporterName,
+        date: row.date,
+        note: row.note,
+        linkedOrderId: row.linkedOrderId,
+        isManualTransport: true,
+        isTrash: false,
+        tableData: [],
+        batchSummary: null,
+      }));
+  }, [
+    isTransportMode,
+    manualTransportOrders,
+    debouncedSearchTerm,
+    status,
+    clotheType,
+    quality,
+    colour,
+    finishingType,
+  ]);
+
+  /** System orders (Mongo) + manual transport history (Convex). Manual first. */
+  const displayOrders = useMemo(() => {
+    if (!isTransportMode) return orders;
+    const system = orders || [];
+    return [...mappedManualOrders, ...system];
+  }, [isTransportMode, orders, mappedManualOrders]);
 
   const handleCustomApply = (startDate, endDate) => {
     if (!startDate || !endDate) {
@@ -484,7 +591,7 @@ export const OrdersContent = ({ isTrashMode = false, transporterName = "" }: { i
         }}
       >
         <style>{`@keyframes mn-content-fade-in { from { opacity: 0; } to { opacity: 1; } }`}</style>
-        <OrderSkeleton showGraph={showGraph} />
+        <OrderSkeleton showGraph={showGraph} isTransportMode={isTransportMode} />
       </div>
     );
   }
@@ -821,16 +928,20 @@ export const OrdersContent = ({ isTrashMode = false, transporterName = "" }: { i
         showGraph={showGraph}
         setShowGraph={handleToggleGraph}
         isTrashMode={isTrashMode}
+        isTransportMode={isTransportMode}
+        onAddOrder={() => setShowAddTransportOrder(true)}
       />
 
       {/* Order Table list */}
       <OrderTable
-        orders={orders}
+        orders={displayOrders}
         loadingOrders={loadingOrders}
         handleOrderClick={handleOrderClick}
         confirmDelete={confirmDelete}
         isTrashMode={isTrashMode}
         restoreOrder={restoreOrder}
+        isTransportMode={isTransportMode}
+        onDeleteTransportOrder={handleDeleteTransportOrder}
       />
 
       {/* Pagination */}
@@ -864,6 +975,16 @@ export const OrdersContent = ({ isTrashMode = false, transporterName = "" }: { i
         onConfirm={handleDelete}
         isTrashMode={isTrashMode}
       />
+
+      {/* Transport Management only: manual history Add Order */}
+      {isTransportMode && transportEmployeeConvexId && (
+        <AddTransportOrderModal
+          open={showAddTransportOrder}
+          onClose={() => setShowAddTransportOrder(false)}
+          transportEmployeeId={transportEmployeeConvexId}
+          transporterName={transporterName}
+        />
+      )}
     </div>
   );
 };

@@ -36,6 +36,10 @@ interface OrderFiltersProps {
   showGraph: boolean;
   setShowGraph: (val: boolean) => void;
   isTrashMode?: boolean;
+  /** Transport Management order list only — hides Trash, uses Add Order CTA. */
+  isTransportMode?: boolean;
+  /** Opens transport-only manual history modal (not Create Order). */
+  onAddOrder?: () => void;
 }
 
 const OrderFilters: React.FC<OrderFiltersProps> = ({
@@ -66,6 +70,8 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
   showGraph,
   setShowGraph,
   isTrashMode = false,
+  isTransportMode = false,
+  onAddOrder,
 }) => {
   const [localStartDate, setLocalStartDate] = React.useState<Date | null>(customStartDate);
   const [localEndDate, setLocalEndDate] = React.useState<Date | null>(customEndDate);
@@ -168,8 +174,8 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
             {showMoreFilters ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
           </button>
 
-          {/* Trash Button */}
-          {!isTrashMode && (
+          {/* Trash — main Orders only (hidden in Transport Management) */}
+          {!isTrashMode && !isTransportMode && (
             <Link
               href="/dashboard/order/trash"
               className="inline-flex items-center justify-center gap-1.5 bg-background border border-border text-muted-foreground hover:text-foreground text-[11px] font-medium px-3 py-2 rounded-[4px] transition-colors shadow-sm cursor-pointer"
@@ -178,8 +184,19 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
             </Link>
           )}
 
-          {/* New Order Button */}
-          {!isTrashMode && (
+          {/* Transport Management: Add Order (manual history, not Create Order) */}
+          {!isTrashMode && isTransportMode && (
+            <button
+              type="button"
+              onClick={() => onAddOrder?.()}
+              className="inline-flex items-center justify-center gap-1.5 bg-[#f54e00] hover:bg-[#c43e00] text-primary-foreground text-[11px] font-medium px-3 py-2 rounded-[4px] transition-colors shadow-sm cursor-pointer"
+            >
+              <Plus size={13} /> Add Order
+            </button>
+          )}
+
+          {/* Main Orders: New Order → create production order */}
+          {!isTrashMode && !isTransportMode && (
             <Link
               href="/dashboard/createOrder"
               className="inline-flex items-center justify-center gap-1.5 bg-[#f54e00] hover:bg-[#c43e00] text-primary-foreground text-[11px] font-medium px-3 py-2 rounded-[4px] transition-colors shadow-sm cursor-pointer"

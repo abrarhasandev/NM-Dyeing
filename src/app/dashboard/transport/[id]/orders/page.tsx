@@ -8,9 +8,12 @@ import { Truck, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useDocumentTitle } from "@/hook/useDocumentTitle";
 
-export default function TransportOrdersPage({ params }) {
+import { Id } from "../../../../../../convex/_generated/dataModel";
+
+export default function TransportOrdersPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params);
-  const employee = useQuery(api.transportEmployees.getById, { id: unwrappedParams.id });
+  const employeeId = unwrappedParams.id as Id<"transportEmployees">;
+  const employee = useQuery(api.transportEmployees.getById, { id: employeeId });
 
   useDocumentTitle(employee ? `Orders - ${employee.name}` : "Transport Orders");
 
@@ -32,16 +35,28 @@ export default function TransportOrdersPage({ params }) {
           <ArrowLeft size={20} />
         </Link>
         <div className="flex items-center gap-3">
-          <div className="bg-primary/10 p-2.5 rounded-md border border-primary/20 shadow-sm">
-            <Truck className="text-primary" size={24} />
-          </div>
+          <Link href={`/dashboard/transport/profile/${employee._id}`}>
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden border border-border shadow-sm hover:opacity-80 transition-opacity cursor-pointer">
+              {employee.avatar ? (
+                <img src={employee.avatar} alt={employee.name} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-lg font-bold text-primary">
+                  {employee.name?.charAt(0)?.toUpperCase()}
+                </span>
+              )}
+            </div>
+          </Link>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground">{employee.name}'s Orders</h1>
           </div>
         </div>
       </div>
       <div className="flex-1 mt-4">
-        <OrdersContent transporterName={employee.name} />
+        <OrdersContent
+          transporterName={employee.name}
+          isTransportMode
+          transportEmployeeId={employee._id}
+        />
       </div>
     </div>
   );

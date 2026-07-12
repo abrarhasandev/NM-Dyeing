@@ -145,6 +145,35 @@ export default defineSchema({
   }),
 
   /**
+   * Manual transport order history (Transport Management only).
+   * Greenfield Convex domain — not a dyeing production order.
+   * Used to record trips / loads against a transporter without Create Order.
+   */
+  transportOrders: defineTable({
+    transportEmployeeId: v.id("transportEmployees"),
+    transporterName: v.string(),
+    displayOrderId: v.string(),
+    companyName: v.string(),
+    clotheType: v.optional(v.string()),
+    quality: v.optional(v.string()),
+    colour: v.optional(v.string()),
+    finishingType: v.optional(v.string()),
+    totalGoj: v.optional(v.number()),
+    totalBundle: v.optional(v.number()),
+    status: v.string(),
+    date: v.number(),
+    note: v.optional(v.string()),
+    /** Optional reference to a system dyeing order (display only / audit). */
+    linkedOrderId: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_transportEmployeeId", ["transportEmployeeId"])
+    .index("by_transporterName", ["transporterName"])
+    .index("by_transportEmployeeId_date", ["transportEmployeeId", "date"])
+    .index("by_displayOrderId", ["displayOrderId"]),
+
+  /**
    * Orders mirror.
    * mongoId = original Mongo ObjectId hex — Batch/Invoice FKs use this during dual period.
    */

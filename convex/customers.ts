@@ -27,6 +27,13 @@ export const getByMongoId = query({
   },
 });
 
+export const getAll = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("customers").collect();
+  },
+});
+
 export const countAll = query({
   args: {},
   handler: async (ctx) => {

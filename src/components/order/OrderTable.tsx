@@ -440,10 +440,23 @@ interface OrderTableProps {
   confirmDelete: (id: string) => void;
   isTrashMode?: boolean;
   restoreOrder?: (id: string) => void;
+  /** Transport Management only — hide Inventory column. */
+  isTransportMode?: boolean;
+  /** Delete manual Convex transport history row. */
+  onDeleteTransportOrder?: (id: string) => void;
 }
 
 // ─── Main Table Component ─────────────────────────────────────────────────────
-const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOrderClick, confirmDelete, isTrashMode, restoreOrder }) => {
+const OrderTable: React.FC<OrderTableProps> = ({
+  orders,
+  loadingOrders,
+  handleOrderClick,
+  confirmDelete,
+  isTrashMode,
+  restoreOrder,
+  isTransportMode = false,
+  onDeleteTransportOrder,
+}) => {
   const router = useRouter();
   const [sortConfig, setSortConfig] = useState<{ key: string | null; dir: "asc" | "desc" }>({ key: null, dir: "asc" });
   const [forceEditOrderId, setForceEditOrderId] = useState<string | null>(null);
@@ -508,9 +521,11 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
               <th className="px-5 py-3.5 whitespace-nowrap">
                 <SortableHeader label="Billing" sortKey="paymentMethod" sortConfig={sortConfig} onSort={handleSort} />
               </th>
-              <th className="px-5 py-3.5 whitespace-nowrap">
-                <SortableHeader label="Inventory" sortKey="inventory" sortConfig={sortConfig} onSort={handleSort} />
-              </th>
+              {!isTransportMode && (
+                <th className="px-5 py-3.5 whitespace-nowrap">
+                  <SortableHeader label="Inventory" sortKey="inventory" sortConfig={sortConfig} onSort={handleSort} />
+                </th>
+              )}
               <th className="px-5 py-3.5 w-10" />
             </tr>
           </thead>
@@ -538,17 +553,24 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
               const totalBundleVal = realBundle !== null ? realBundle : (totalGojVal >= 80000 ? 83 : 53);
 
               const rawId = order?.orderId || order?._id || "";
-              const displayId = rawId.startsWith("#ord-")
-                ? rawId.slice(0, 22) + "..."
-                : rawId
-                  ? "#ord-" + rawId.slice(-16)
-                  : `#ord-${orderId.slice(-16)}`;
+              const displayId = order?.isManualTransport
+                ? (rawId.length > 22 ? rawId.slice(0, 22) + "..." : rawId)
+                : rawId.startsWith("#ord-")
+                  ? rawId.slice(0, 22) + "..."
+                  : rawId
+                    ? "#ord-" + rawId.slice(-16)
+                    : `#ord-${orderId.slice(-16)}`;
 
               return (
                 <tr
                   key={order?._id || rowIndex}
-                  className="cursor-pointer transition-colors duration-100 group bg-background hover:bg-accent"
-                  onClick={() => handleOrderClick(order?._id)}
+                  className={`transition-colors duration-100 group bg-background hover:bg-accent ${
+                    order?.isManualTransport ? "cursor-default" : "cursor-pointer"
+                  }`}
+                  onClick={() => {
+                    if (order?.isManualTransport) return;
+                    handleOrderClick(order?._id);
+                  }}
                 >
                   <td className="px-5 py-3.5 font-medium text-[15px] whitespace-nowrap text-foreground">
                     <span className="font-mono text-[14px]">{displayId}</span>
@@ -581,12 +603,21 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
                   </td>
 
                   <td className="px-5 py-3.5 whitespace-nowrap">
-                    {renderBillingBadges(order, orderId)}
+                    {order?.isManualTransport ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-muted-foreground select-none">
+                        <FileText size={12} className="shrink-0 text-muted-foreground/70" />
+                        history
+                      </span>
+                    ) : (
+                      renderBillingBadges(order, orderId)
+                    )}
                   </td>
 
-                  <td className="px-5 py-3.5 whitespace-nowrap">
-                    {renderInventoryBadges(order, orderId)}
-                  </td>
+                  {!isTransportMode && (
+                    <td className="px-5 py-3.5 whitespace-nowrap">
+                      {renderInventoryBadges(order, orderId)}
+                    </td>
+                  )}
 
                   <td className="px-5 py-3.5 whitespace-nowrap text-right">
                     <div className="flex justify-end items-center gap-1">
@@ -625,6 +656,17 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, loadingOrders, handleOr
                                 <span>Permanent Delete</span>
                               </DropdownMenuItem>
                             </>
+                          ) : order?.isManualTransport ? (
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (onDeleteTransportOrder) onDeleteTransportOrder(order?._id);
+                              }}
+                              className="text-[#cf2d56] focus:text-[#cf2d56] focus:bg-[#cf2d56]/10 cursor-pointer flex items-center gap-2"
+                            >
+                              <Trash2 size={14} />
+                              <span>Remove History</span>
+                            </DropdownMenuItem>
                           ) : (
                             <>
                               <DropdownMenuItem
