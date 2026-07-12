@@ -5,9 +5,13 @@ import {
   mirrorCalenderUpsert,
   mirrorCalenderRemove,
 } from "@/lib/orders/convexServer";
+import { requireAuth } from "@/lib/requireAuth";
 
 // ✅ GET single calender
 export async function GET(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const calender = await Calender.findById(params.id);
@@ -22,6 +26,9 @@ export async function GET(req, { params }) {
 
 // ✅ UPDATE calender
 export async function PUT(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const body = await req.json();
@@ -40,6 +47,9 @@ export async function PUT(req, { params }) {
 
 // ✅ PATCH — set ledger initial amount
 export async function PATCH(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const { initialCharge, initialPayment, initialDate } = await req.json();
@@ -66,6 +76,9 @@ export async function PATCH(req, { params }) {
 
 // ✅ DELETE calender
 export async function DELETE(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const deleted = await Calender.findByIdAndDelete(params.id);

@@ -7,34 +7,6 @@ import React from "react";
    ─────────────────────────────────────────────────────────────────────────── */
 
 // Inject the shimmer keyframe once into the document (no external CSS required)
-const SHIMMER_STYLE = `
-  @keyframes mn-shimmer {
-    0%   { background-position: -800px 0; }
-    100% { background-position:  800px 0; }
-  }
-  .mn-skeleton {
-    background: linear-gradient(
-      90deg,
-      var(--border) 25%,
-      var(--muted) 37%,
-      var(--border) 63%
-    );
-    background-size: 800px 100%;
-    animation: mn-shimmer 1.5s infinite linear;
-    border-radius: 6px;
-  }
-`;
-
-function InjectStyle() {
-  React.useEffect(() => {
-    if (document.getElementById("mn-skeleton-style")) return;
-    const tag = document.createElement("style");
-    tag.id = "mn-skeleton-style";
-    tag.textContent = SHIMMER_STYLE;
-    document.head.appendChild(tag);
-  }, []);
-  return null;
-}
 
 /* ── Primitive ───────────────────────────────────────────────────────────── */
 interface BoneProps {
@@ -256,8 +228,6 @@ const OrderSkeleton: React.FC<OrderSkeletonProps> = ({
   isTransportMode = false,
 }) => {
   return (
-    <>
-      <InjectStyle />
       <div className="flex flex-col gap-4 text-foreground select-none py-1 pb-10">
         {/* ── KPI Cards ── */}
         {showGraph && (
@@ -283,7 +253,6 @@ const OrderSkeleton: React.FC<OrderSkeletonProps> = ({
         {/* ── Pagination ── */}
         <PaginationSkeleton />
       </div>
-    </>
   );
 };
 

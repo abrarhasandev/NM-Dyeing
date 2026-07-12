@@ -4,7 +4,7 @@ import connectDB from "@/lib/db";
 
 import User from "@/models/User";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
-import { auth } from "@/auth";
+import { requireAdmin } from "@/lib/requireAuth";
 import { mirrorUserUpsert } from "@/lib/orders/convexServer";
 
 const registerLimiter = rateLimit({ intervalMs: 60 * 60 * 1000, limit: 5 });
@@ -26,13 +26,8 @@ function isValidEmail(email) {
 
 export async function POST(request) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    if (session.user.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const { error } = await requireAdmin();
+    if (error) return error;
 
     const ip = getClientIp(request);
     const { success } = registerLimiter.check(`register:${ip}`);

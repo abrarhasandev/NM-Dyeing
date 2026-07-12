@@ -6,8 +6,12 @@ import Calender from "@/models/Calender";
 import LedgerSnapshot from "@/models/LedgerSnapshot";
 import SavedInvoice from "@/models/SavedInvoice";
 import mongoose from "mongoose";
+import { requireAuth } from "@/lib/requireAuth";
 
 export async function GET(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const resolvedParams = await params;

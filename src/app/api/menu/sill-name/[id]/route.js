@@ -6,8 +6,12 @@ import {
   mirrorSillNameUpsert,
   mirrorSillNameRemove,
 } from "@/lib/orders/convexServer";
+import { requireAuth } from "@/lib/requireAuth";
 
 export async function PUT(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   const { id } = params;
   const { name } = await req.json();
 
@@ -38,6 +42,9 @@ export async function PUT(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   const { id } = params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {

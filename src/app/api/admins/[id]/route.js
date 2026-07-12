@@ -2,8 +2,12 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
 import { mirrorUserRemove } from "@/lib/orders/convexServer";
+import { requireAdmin } from "@/lib/requireAuth";
 
 export async function DELETE(request, { params }) {
+  const { error: __authError } = await requireAdmin();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const { id } = await params;

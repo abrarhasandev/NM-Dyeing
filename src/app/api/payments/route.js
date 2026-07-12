@@ -6,8 +6,12 @@ import {
   mirrorPaymentUpsert,
   mirrorPaymentRemove,
 } from "@/lib/orders/convexServer";
+import { requireAuth } from "@/lib/requireAuth";
 
 export async function GET(req) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const { searchParams } = new URL(req.url);
@@ -30,6 +34,9 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const body = await req.json();
@@ -60,6 +67,9 @@ export async function POST(req) {
 }
 
 export async function PUT(req) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const body = await req.json();
@@ -78,6 +88,9 @@ export async function PUT(req) {
 }
 
 export async function DELETE(req) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const { searchParams } = new URL(req.url);

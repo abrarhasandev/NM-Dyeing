@@ -1,8 +1,12 @@
 import connectDB from "@/lib/db";
 import Quality from "@/models/menu/Quality";
 import { mirrorQualityUpsert } from "@/lib/orders/convexServer";
+import { requireAuth } from "@/lib/requireAuth";
 
 export async function POST(req) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const { name } = await req.json();
@@ -26,6 +30,9 @@ export async function POST(req) {
 }
 
 export async function GET() {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const types = await Quality.find().sort({ createdAt: -1 });

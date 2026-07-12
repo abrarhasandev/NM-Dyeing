@@ -189,14 +189,23 @@ const CustomerPage = () => {
               </thead>
               <tbody className="divide-y divide-border">
                 {loading ? (
-                  <tr>
-                    <td colSpan={5} className="py-24 text-center">
-                      <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                        <p className="text-sm font-medium animate-pulse">Loading customers...</p>
-                      </div>
-                    </td>
-                  </tr>
+                  <>
+                    {[...Array(5)].map((_, i) => (
+                      <tr key={i} className="border-b border-border bg-card" style={{ opacity: 1 - i * 0.15 }}>
+                        <td className="px-6 py-4"><div className="mn-skeleton h-4 w-32 rounded-sm" /></td>
+                        <td className="px-6 py-4"><div className="mn-skeleton h-4 w-24 rounded-sm" /></td>
+                        <td className="px-6 py-4"><div className="mn-skeleton h-6 w-24 rounded-sm" /></td>
+                        <td className="px-6 py-4"><div className="mn-skeleton h-6 w-24 rounded-full" /></td>
+                        <td className="px-6 py-4">
+                          <div className="flex justify-end gap-1.5">
+                            <div className="mn-skeleton h-8 w-8 rounded-md" />
+                            <div className="mn-skeleton h-8 w-8 rounded-md" />
+                            <div className="mn-skeleton h-8 w-8 rounded-md" />
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </>
                 ) : filteredData.length > 0 ? (
                   <AnimatePresence>
                     {filteredData.map((c, idx) => (

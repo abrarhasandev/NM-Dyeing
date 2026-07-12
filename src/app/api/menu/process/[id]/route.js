@@ -4,8 +4,12 @@ import {
   mirrorProcessUpsert,
   mirrorProcessRemove,
 } from "@/lib/orders/convexServer";
+import { requireAuth } from "@/lib/requireAuth";
 
 export async function PUT(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const { id } = params;
@@ -42,6 +46,9 @@ export async function PUT(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const { id } = params;

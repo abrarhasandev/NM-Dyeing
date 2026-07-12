@@ -6,6 +6,7 @@ import {
   mirrorBatchUpsert,
   mirrorInvoiceUpsert,
 } from "@/lib/orders/convexServer";
+import { requireAuth } from "@/lib/requireAuth";
 
 function generateInvoiceNumber() {
   const timestamp = Date.now().toString().slice(-6);
@@ -14,6 +15,9 @@ function generateInvoiceNumber() {
 }
 
 export async function POST(req) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const { orderId, batchIds } = await req.json();

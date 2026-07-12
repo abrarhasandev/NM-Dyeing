@@ -2,9 +2,13 @@ import connectDB from "@/lib/db";
 import Calender from "@/models/Calender";
 import { NextResponse } from "next/server";
 import { mirrorCalenderUpsert } from "@/lib/orders/convexServer";
+import { requireAuth } from "@/lib/requireAuth";
 
 // ✅ GET all calenders
 export async function GET() {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const calenders = await Calender.find().sort({ createdAt: -1 });
@@ -16,6 +20,9 @@ export async function GET() {
 
 // ✅ CREATE calender
 export async function POST(req) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const body = await req.json();

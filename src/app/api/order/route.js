@@ -5,6 +5,7 @@ import Batch from "@/models/Batch";
 import BillingSummary from "@/models/BillingSummary";
 import { NextResponse } from "next/server";
 import { mirrorOrderUpsert } from "@/lib/orders/convexServer";
+import { requireAuth } from "@/lib/requireAuth";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  HELPERS
@@ -298,6 +299,9 @@ async function runPrevKpiAggregation(baseQuery, prevStart, prevEnd) {
 // ─────────────────────────────────────────────────────────────────────────────
 export async function POST(req) {
   try {
+    const { error } = await requireAuth();
+    if (error) return error;
+
     await connectDB();
     const body = await req.json();
 
@@ -348,6 +352,9 @@ export async function POST(req) {
 // ─────────────────────────────────────────────────────────────────────────────
 export async function GET(req) {
   try {
+    const { error } = await requireAuth();
+    if (error) return error;
+
     await connectDB();
 
     const { searchParams } = new URL(req.url);

@@ -1,8 +1,12 @@
 import connectDB from "@/lib/db";
 import BillingSummary from "@/models/BillingSummary";
 import mongoose from "mongoose";
+import { requireAuth } from "@/lib/requireAuth";
 
 export async function GET(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   await connectDB();
 
   const { orderId } = await params;

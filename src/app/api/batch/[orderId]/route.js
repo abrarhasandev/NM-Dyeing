@@ -3,37 +3,14 @@ import connectDB from "@/lib/db";
 import Batch from "@/models/Batch";
 import mongoose from "mongoose";
 import { mirrorBatchUpsert } from "@/lib/orders/convexServer";
-
-
-// export async function GET(req, { params }) {
-//   try {
-
-//     await connectDB();
-//     const { orderId } = params;
-
-//     // 3️⃣ Find batch document based on orderId
-//     const batchDoc = await Batch.findOne({ orderId });
-
-//     // 4️⃣ If no batch found, send 404
-//     if (!batchDoc) {
-//       return NextResponse.json([], { status: 200 });
-//     }
-
-//     return NextResponse.json(batchDoc, { status: 200 });
-
-//   } catch (err) {
-//     console.error("❌ Error fetching batches:", err);
-//     return NextResponse.json(
-//       { error: "Failed to fetch batches." },
-//       { status: 500 }
-//     );
-//   }
-// }
-
+import { requireAuth } from "@/lib/requireAuth";
 
 
 
 export async function GET(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const { orderId } = await params;
@@ -63,6 +40,9 @@ export async function GET(req, { params }) {
 
 // ✅ DELETE a specific batch by orderId + batchId (from query)
 export async function DELETE(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   await connectDB();
   try {
     const { orderId } = await params;

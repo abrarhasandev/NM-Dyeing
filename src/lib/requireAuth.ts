@@ -1,0 +1,49 @@
+import { NextResponse } from "next/server";
+import { auth } from "@/auth";
+
+export type SessionUser = {
+  id?: string;
+  email?: string | null;
+  name?: string | null;
+  role?: string;
+};
+
+/**
+ * Server-side session gate for Route Handlers.
+ * Defense-in-depth alongside proxy.js — never rely on proxy alone for APIs.
+ */
+export async function requireAuth(options?: {
+  roles?: string[];
+}): Promise<
+  | { session: { user: SessionUser }; error: null }
+  | { session: null; error: NextResponse }
+> {
+  const session = await auth();
+  const user = session?.user as SessionUser | undefined;
+
+  if (!user?.email) {
+    return {
+      session: null,
+      error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    };
+  }
+
+  if (options?.roles?.length) {
+    const role = user.role || "user";
+    if (!options.roles.includes(role)) {
+      return {
+        session: null,
+        error: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+      };
+    }
+  }
+
+  return {
+    session: { user },
+    error: null,
+  };
+}
+
+export async function requireAdmin() {
+  return requireAuth({ roles: ["admin"] });
+}

@@ -1,31 +1,38 @@
-import Image from "next/image";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import Link from "next/link";
 
-export default function Home() {
+export default async function Home({ searchParams }) {
+  const session = await auth();
+  const user = session?.user;
+  const params = await searchParams;
+  const forbidden = params?.error === "forbidden";
+
+  if (!user?.email) {
+    redirect("/login");
+  }
+
+  if (user.role === "admin") {
+    redirect("/dashboard/order");
+  }
+
+  // Authenticated but not admin
   return (
-    <div className="min-h-screen flex items-center justify-center  px-4">
-      <div className="text-center">
-
-        {/* Logo */}
-        <div className="flex justify-center mb-4">
-          <Image
-            src="/Image/logo.png"
-            alt="Dashboard Logo"
-            width={70}
-            height={70}
-            className="object-contain rounded-xl shadow-md"
-          />
-        </div>
-
-        {/* Title */}
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-          Welcome to the Dashboard
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="max-w-md text-center space-y-4">
+        <h1 className="text-2xl font-semibold text-foreground">
+          {forbidden ? "Access denied" : "No access"}
         </h1>
-
-        {/* Tagline */}
-        <p className="text-gray-600 mt-2 text-sm md:text-base">
-          Manage your tasks, insights, and activities — all in one place.
+        <p className="text-sm text-muted-foreground">
+          This application is limited to administrator accounts. Contact your
+          system owner if you need access.
         </p>
-
+        <Link
+          href="/login"
+          className="inline-block text-sm font-medium text-[#f54e00] hover:underline"
+        >
+          Back to login
+        </Link>
       </div>
     </div>
   );

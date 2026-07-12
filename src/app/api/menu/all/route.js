@@ -24,10 +24,14 @@ import Customer      from "@/models/customers";
 import Calender      from "@/models/Calender";
 import Dyeing        from "@/models/Dyeing";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/requireAuth";
 
 export const dynamic = "force-dynamic"; // Disable Next.js static cache; we manage our own
 
 export async function GET() {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
 

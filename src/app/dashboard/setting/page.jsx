@@ -8,8 +8,14 @@ const Page = () => {
 
   if (!session) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <p className="text-gray-500 text-lg">Loading profile...</p>
+      <div className="bg-gray-100 flex items-center justify-center py-4 mt-16 md:mt-4 min-h-[500px]">
+        <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md text-center flex flex-col items-center">
+          <div className="mn-skeleton w-24 h-24 rounded-full" />
+          <div className="mn-skeleton h-8 w-40 mt-4 rounded-md" />
+          <div className="mn-skeleton h-4 w-24 mt-2 rounded-md" />
+          <div className="my-4 w-full border-t border-gray-200" />
+          <div className="mn-skeleton h-5 w-48 rounded-md" />
+        </div>
       </div>
     );
   }

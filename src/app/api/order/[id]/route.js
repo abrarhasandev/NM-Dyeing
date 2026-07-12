@@ -7,8 +7,12 @@ import {
   mirrorOrderTrash,
   mirrorOrderRemove,
 } from "@/lib/orders/convexServer";
+import { requireAuth } from "@/lib/requireAuth";
 
 export async function GET(request, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
 
@@ -43,6 +47,9 @@ export async function GET(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
 
@@ -91,6 +98,9 @@ export async function DELETE(request, { params }) {
 }
 
 export async function PUT(request, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const { id } = await params;
@@ -150,6 +160,9 @@ export async function PUT(request, { params }) {
 
 // ⬇️ শুধু status update করার জন্য PATCH method
 export async function PATCH(request, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const { id } = await params;

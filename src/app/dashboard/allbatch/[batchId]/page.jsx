@@ -211,7 +211,24 @@ export default function BatchEditPage() {
   const getIndexValue = (row) => (row.idx && row.idx.length > 0 ? row.idx[0] : "");
 
   if (loading || !embeddedBatch) {
-    return <p className="p-6 text-gray-500 text-center">Loading...</p>;
+    return (
+      <div className="p-6 max-w-4xl mx-auto">
+        <div className="bg-white shadow-md rounded-lg border p-5">
+          <div className="flex items-center justify-between mb-6">
+            <div className="mn-skeleton h-6 w-48 rounded-md" />
+            <div className="mn-skeleton h-5 w-5 rounded-full" />
+          </div>
+          <div className="flex flex-wrap gap-4 mb-6 py-4 px-3 border rounded-lg bg-gray-50 shadow-sm">
+            <div className="mn-skeleton h-14 w-44 rounded-md" />
+            <div className="mn-skeleton h-14 w-44 rounded-md" />
+            <div className="mn-skeleton h-14 w-44 rounded-md" />
+            <div className="mn-skeleton h-14 w-44 rounded-md" />
+            <div className="mn-skeleton h-14 w-44 rounded-md" />
+          </div>
+          <div className="mn-skeleton h-64 w-full rounded-md" />
+        </div>
+      </div>
+    );
   }
 
   return (

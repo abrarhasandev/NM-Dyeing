@@ -2,8 +2,12 @@ import connectDB from "@/lib/db";
 import Batch from "@/models/Batch";
 import { NextResponse } from "next/server";
 import { mirrorBatchUpsert } from "@/lib/orders/convexServer";
+import { requireAuth } from "@/lib/requireAuth";
 
 export async function POST(req) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   await connectDB();
 
   try {
@@ -95,6 +99,9 @@ export async function POST(req) {
 
 // ✅ UPDATE (note, inputs, status change etc.)
 export async function PATCH(req) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   await connectDB();
   try {
     const { orderId, batchId, batchData } = await req.json();

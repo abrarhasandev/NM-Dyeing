@@ -2,8 +2,12 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import LedgerSnapshot from "@/models/LedgerSnapshot";
 import mongoose from "mongoose";
+import { requireAuth } from "@/lib/requireAuth";
 
 export async function GET(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
     try {
         await connectDB();
         const { dyeingId } = await params;

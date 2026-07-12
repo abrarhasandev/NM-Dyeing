@@ -118,11 +118,21 @@ export default function CalenderPage() {
               </thead>
               <tbody className="divide-y divide-[#26251e]/5">
                 {loading ? (
-                   <tr>
-                    <td colSpan={3} className="py-20">
-                      <div className="flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#26251e]"></div></div>
-                    </td>
-                  </tr>
+                  <>
+                    {[...Array(5)].map((_, i) => (
+                      <tr key={i} className="hover:bg-[#ebeae5] transition-colors group" style={{ opacity: 1 - i * 0.15 }}>
+                        <td className="px-6 py-4"><div className="mn-skeleton h-4 w-48 rounded-sm" /></td>
+                        <td className="px-6 py-4"><div className="mn-skeleton h-4 w-32 rounded-sm" /></td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <div className="mn-skeleton h-8 w-8 rounded-sm" />
+                            <div className="mn-skeleton h-8 w-8 rounded-sm" />
+                            <div className="mn-skeleton h-8 w-8 rounded-sm" />
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </>
                 ) : filteredData.length > 0 ? (
                   filteredData.map((c) => (
                     <tr key={c._id} className="hover:bg-[#ebeae5] transition-colors group">

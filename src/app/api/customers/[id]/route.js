@@ -4,9 +4,13 @@ import {
   mirrorCustomerUpsert,
   mirrorCustomerRemove,
 } from "@/lib/orders/convexServer";
+import { requireAuth } from "@/lib/requireAuth";
 
 // Get single customer
 export async function GET(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const customer = await Customer.findById(params.id);
@@ -26,6 +30,9 @@ export async function GET(req, { params }) {
 
 // Update customer
 export async function PUT(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const body = await req.json();
@@ -59,6 +66,9 @@ export async function PUT(req, { params }) {
 
 // Set ledger initial amount
 export async function PATCH(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const { initialCharge, initialPayment, initialDate } = await req.json();
@@ -85,6 +95,9 @@ export async function PATCH(req, { params }) {
 
 // Delete customer
 export async function DELETE(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
 

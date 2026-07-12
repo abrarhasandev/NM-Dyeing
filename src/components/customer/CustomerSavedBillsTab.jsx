@@ -117,8 +117,22 @@ function CustomerSavedBillsTab({ customerId, selectedView, availableRows, onInvo
 
     if (loading) {
         return (
-            <div className="p-10 text-center font-bold text-gray-500 animate-pulse uppercase">
-                Loading Saved Invoices...
+            <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                    <div key={i} className="border border-gray-200 rounded-xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white" style={{ opacity: 1 - i * 0.2 }}>
+                        <div>
+                            <div className="mn-skeleton h-5 w-48 rounded-md mb-2" />
+                            <div className="mn-skeleton h-3 w-64 rounded-md mb-2" />
+                            <div className="mn-skeleton h-3 w-32 rounded-md" />
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="mn-skeleton h-10 w-16 rounded-md" />
+                            <div className="mn-skeleton h-10 w-16 rounded-md" />
+                            <div className="mn-skeleton h-10 w-16 rounded-md" />
+                            <div className="mn-skeleton h-8 w-8 rounded-md" />
+                        </div>
+                    </div>
+                ))}
             </div>
         );
     }

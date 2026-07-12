@@ -1,17 +1,12 @@
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { requireAdmin } from "@/lib/requireAuth";
 
-export async function GET(req) {
+export async function GET() {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    if (session.user.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const { error } = await requireAdmin();
+    if (error) return error;
 
     await connectDB();
     const users = await User.find({}).select("-password");

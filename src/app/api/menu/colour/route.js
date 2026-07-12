@@ -3,8 +3,12 @@
 import connectDB from "@/lib/db";
 import Colour from "@/models/menu/Colour";
 import { mirrorColourUpsert } from "@/lib/orders/convexServer";
+import { requireAuth } from "@/lib/requireAuth";
 
 export async function GET() {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const colours = await Colour.find().sort({ createdAt: -1 });
@@ -16,6 +20,9 @@ export async function GET() {
 }
 
 export async function POST(req) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const { name } = await req.json();

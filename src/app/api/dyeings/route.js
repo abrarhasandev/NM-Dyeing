@@ -2,9 +2,13 @@ import connectDB from "@/lib/db";
 import Dyeing from "@/models/Dyeing";
 import { NextResponse } from "next/server";
 import { mirrorDyeingUpsert } from "@/lib/orders/convexServer";
+import { requireAuth } from "@/lib/requireAuth";
 
 // GET all dyeings
 export async function GET() {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const dyeings = await Dyeing.find();
@@ -16,6 +20,9 @@ export async function GET() {
 
 // CREATE dyeing
 export async function POST(req) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const body = await req.json();

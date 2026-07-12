@@ -319,3 +319,23 @@ input[type="number"] {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SYNCHRONIZED SKELETON LOADER
+   ─────────────────────────────────────────────────────────────────────────── */
+@keyframes mn-shimmer {
+  0%   { background-position: -800px 0; }
+  100% { background-position:  800px 0; }
+}
+
+.mn-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--border) 25%,
+    var(--muted) 37%,
+    var(--border) 63%
+  );
+  background-size: 800px 100%;
+  animation: mn-shimmer 1.5s infinite linear;
+  border-radius: 6px;
+}

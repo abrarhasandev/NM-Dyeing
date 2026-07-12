@@ -1,54 +1,73 @@
-import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
-
 /**
- * Edge-compatible auth configuration.
- * Does NOT include any Node.js-only imports (bcrypt, mongoose, etc.).
- * Used by proxy.js (middleware) and as the base for the full auth.js config.
+ * Edge / proxy-compatible auth configuration.
+ * No Node-only imports (bcrypt, mongoose, etc.).
+ * Used by proxy.js; full authorize logic lives in auth.js.
  */
 export const authConfig = {
-  providers: [
-    // Providers listed here without the `authorize` callback — that lives in auth.js
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "text", placeholder: "enter email" },
-        password: { label: "Password", type: "password" },
-      },
-      // authorize intentionally omitted here; defined in the full auth.js
-      authorize: () => null,
-    }),
+  trustHost: true,
 
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
-  ],
+  providers: [],
 
   pages: {
     signIn: "/login",
+    error: "/login",
   },
 
   callbacks: {
+    authorized({ auth, request }) {
+      const { pathname } = request.nextUrl;
+      const isAuthenticated = !!auth?.user;
+
+      if (pathname.startsWith("/api/auth")) return true;
+
+      if (pathname.startsWith("/api/")) {
+        return isAuthenticated;
+      }
+
+      if (pathname === "/login") {
+        if (isAuthenticated) {
+          return Response.redirect(new URL("/dashboard/order", request.nextUrl));
+        }
+        return true;
+      }
+
+      return isAuthenticated;
+    },
+
     async jwt({ token, user }) {
       if (user) {
+        token.id = user.id;
         token.role = user.role;
+        token.email = user.email;
+        token.name = user.name;
       }
       return token;
     },
+
     async session({ session, token }) {
-      if (token) {
+      if (session.user) {
+        session.user.id = token.id;
         session.user.role = token.role;
+        session.user.email = token.email ?? session.user.email;
+        session.user.name = token.name ?? session.user.name;
       }
       return session;
     },
-    async redirect({ baseUrl }) {
+
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      try {
+        if (new URL(url).origin === baseUrl) return url;
+      } catch {
+        /* ignore invalid url */
+      }
       return baseUrl;
     },
   },
 
   session: {
     strategy: "jwt",
+    maxAge: 8 * 60 * 60, // 8 hours
   },
 
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,

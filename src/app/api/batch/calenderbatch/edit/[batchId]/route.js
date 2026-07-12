@@ -3,8 +3,12 @@ import Batch from "@/models/Batch";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { mirrorBatchUpsert } from "@/lib/orders/convexServer";
+import { requireAuth } from "@/lib/requireAuth";
 
 export async function PUT(req, { params }) {
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
   try {
     await connectDB();
     const { batchId } = await params;
