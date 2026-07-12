@@ -38,10 +38,12 @@ function buildQuery(searchParams) {
     query.isTrash = { $ne: true };
   }
 
-  // ── Text search — use $text index if available, fall back to $regex ────────
+  // ── Text search — use regex for partial substring matching ────────
   if (searchRaw) {
-    // $text is fastest when the text index exists
-    query.$text = { $search: searchRaw };
+    query.$or = [
+      { orderId: { $regex: searchRaw, $options: "i" } },
+      { companyName: { $regex: searchRaw, $options: "i" } },
+    ];
   }
 
   // ── Date range — direct Date comparison on indexed field ───────────────────
