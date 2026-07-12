@@ -55,6 +55,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useQueryState, parseAsInteger, parseAsBoolean, parseAsString } from "nuqs";
 
 export const OrdersContent = ({
   isTrashMode = false,
@@ -75,121 +76,36 @@ export const OrdersContent = ({
   const orderIdFromUrl = searchParams.get("id");
   const tabFromUrl = searchParams.get("tab");
 
-  // States
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(12);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const [dateRange, setDateRange] = useState("3_months"); // Default to 3 months as per Figma
-  const [customStartDate, setCustomStartDate] = useState(null);
-  const [customEndDate, setCustomEndDate] = useState(null);
-  const [status, setStatus] = useState("");
-  const [clotheType, setClotheType] = useState("");
-  const [finishingType, setFinishingType] = useState("");
-  const [colour, setColour] = useState("");
-  const [sillName, setSillName] = useState("");
-  const [quality, setQuality] = useState("");
-  const [showMoreFilters, setShowMoreFilters] = useState(false);
-  const [showGraph, setShowGraph] = useState(true);
+  // States (URL Sync with nuqs)
+  const [currentPage, setCurrentPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [itemsPerPage, setItemsPerPage] = useQueryState("limit", parseAsInteger.withDefault(12));
+  const [searchTerm, setSearchTerm] = useQueryState("q", parseAsString.withDefault(""));
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm || "");
+  const [dateRange, setDateRange] = useQueryState("dateRange", parseAsString.withDefault("3_months"));
+  
+  const [customStartDateStr, setCustomStartDateStr] = useQueryState("startDate", parseAsString.withDefault(""));
+  const [customEndDateStr, setCustomEndDateStr] = useQueryState("endDate", parseAsString.withDefault(""));
+  
+  const customStartDate = customStartDateStr ? new Date(customStartDateStr) : null;
+  const customEndDate = customEndDateStr ? new Date(customEndDateStr) : null;
+  const setCustomStartDate = (date: Date | null) => setCustomStartDateStr(date ? date.toISOString() : "");
+  const setCustomEndDate = (date: Date | null) => setCustomEndDateStr(date ? date.toISOString() : "");
+
+  const [status, setStatus] = useQueryState("status", parseAsString.withDefault(""));
+  const [clotheType, setClotheType] = useQueryState("clotheType", parseAsString.withDefault(""));
+  const [finishingType, setFinishingType] = useQueryState("finishingType", parseAsString.withDefault(""));
+  const [colour, setColour] = useQueryState("colour", parseAsString.withDefault(""));
+  const [sillName, setSillName] = useQueryState("sillName", parseAsString.withDefault(""));
+  const [quality, setQuality] = useQueryState("quality", parseAsString.withDefault(""));
+  const [showMoreFilters, setShowMoreFilters] = useQueryState("showMoreFilters", parseAsBoolean.withDefault(false));
+  const [showGraph, setShowGraph] = useQueryState("showGraph", parseAsBoolean.withDefault(true));
 
   // Track whether the very first data fetch has resolved
   const [initialLoaded, setInitialLoaded] = useState(false);
 
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  const filterStorageKey = isTransportMode
-    ? (transportEmployeeId ? `orders_filters_transport_${transportEmployeeId}` : "orders_filters_transport")
-    : (isTrashMode ? "orders_filters_trash" : "orders_filters");
-
-  const graphStorageKey = isTransportMode
-    ? (transportEmployeeId ? `showGraph_transport_${transportEmployeeId}` : "showGraph_transport")
-    : (isTrashMode ? "showGraph_trash" : "showGraph");
-
-  // Load filters from localStorage on mount
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedFilters = localStorage.getItem(filterStorageKey);
-      if (savedFilters) {
-        try {
-          const parsed = JSON.parse(savedFilters);
-          if (parsed.searchTerm !== undefined) {
-            setSearchTerm(parsed.searchTerm);
-            setDebouncedSearchTerm(parsed.searchTerm);
-          }
-          if (parsed.dateRange !== undefined) setDateRange(parsed.dateRange);
-          if (parsed.customStartDate !== undefined) setCustomStartDate(parsed.customStartDate ? new Date(parsed.customStartDate) : null);
-          if (parsed.customEndDate !== undefined) setCustomEndDate(parsed.customEndDate ? new Date(parsed.customEndDate) : null);
-          if (parsed.status !== undefined) setStatus(parsed.status);
-          if (parsed.clotheType !== undefined) setClotheType(parsed.clotheType);
-          if (parsed.finishingType !== undefined) setFinishingType(parsed.finishingType);
-          if (parsed.colour !== undefined) setColour(parsed.colour);
-          if (parsed.sillName !== undefined) setSillName(parsed.sillName);
-          if (parsed.quality !== undefined) setQuality(parsed.quality);
-          if (parsed.showMoreFilters !== undefined) setShowMoreFilters(parsed.showMoreFilters);
-          if (parsed.currentPage !== undefined) setCurrentPage(parsed.currentPage);
-          if (parsed.itemsPerPage !== undefined) setItemsPerPage(parsed.itemsPerPage);
-        } catch (e) {
-          console.error(`Failed to parse ${filterStorageKey} from localStorage`, e);
-        }
-      }
-      setIsInitialized(true);
-    }
-  }, []);
-
-  // Save filters to localStorage on change
-  useEffect(() => {
-    if (!isInitialized) return;
-
-    const filtersToSave = {
-      searchTerm,
-      dateRange,
-      customStartDate: customStartDate ? customStartDate.toISOString() : null,
-      customEndDate: customEndDate ? customEndDate.toISOString() : null,
-      status,
-      clotheType,
-      finishingType,
-      colour,
-      sillName,
-      quality,
-      showMoreFilters,
-      currentPage,
-      itemsPerPage,
-    };
-    localStorage.setItem(filterStorageKey, JSON.stringify(filtersToSave));
-  }, [
-    isInitialized,
-    filterStorageKey,
-    searchTerm,
-    dateRange,
-    customStartDate,
-    customEndDate,
-    status,
-    clotheType,
-    finishingType,
-    colour,
-    sillName,
-    quality,
-    showMoreFilters,
-    currentPage,
-    itemsPerPage,
-  ]);
-
-  // Load showGraph preference on mount
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedShowGraph = localStorage.getItem(graphStorageKey);
-      if (savedShowGraph !== null) {
-        setShowGraph(savedShowGraph === "true");
-      }
-    }
-  }, []);
-
   // Persistent toggle wrapper
-  const handleToggleGraph = (value) => {
+  const handleToggleGraph = (value: boolean) => {
     setShowGraph(value);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(graphStorageKey, String(value));
-    }
   };
 
   // Search input reference for Ctrl+K shortcut focus
@@ -228,7 +144,7 @@ export const OrdersContent = ({
       if ((e.ctrlKey || e.metaKey) && e.key === "k") {
         e.preventDefault();
         const input = document.querySelector("input[placeholder*='Search order']");
-        if (input) input.focus();
+        if (input) (input as HTMLElement).focus();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -265,15 +181,15 @@ export const OrdersContent = ({
     quality,
     transporterName,
     isTrash: isTrashMode,
-    skip: !isInitialized,
+    skip: false,
   });
 
   // Mark initial load complete once loadingOrders transitions false for the first time
   React.useEffect(() => {
-    if (!loadingOrders && isInitialized && !initialLoaded) {
+    if (!loadingOrders && !initialLoaded) {
       setInitialLoaded(true);
     }
-  }, [loadingOrders, isInitialized, initialLoaded]);
+  }, [loadingOrders, initialLoaded]);
 
   // URL-e ID thakle seta auto load hobe (Refresh korle kaj korbe)
   useEffect(() => {
@@ -581,7 +497,7 @@ export const OrdersContent = ({
   };
 
   // Show skeleton on the very first load (before any data has arrived)
-  const isInitialLoading = !initialLoaded && (loadingOrders || !isInitialized);
+  const isInitialLoading = !initialLoaded && loadingOrders;
 
   if (isInitialLoading) {
     return (
@@ -752,6 +668,7 @@ export const OrdersContent = ({
             </CardHeader>
             <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
               {chartData.length >= 2 ? (
+                // @ts-expect-error
                 <ChartContainer
                   config={chartConfig}
                   className="aspect-auto h-[250px] w-full"

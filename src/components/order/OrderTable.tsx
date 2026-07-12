@@ -26,21 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 
-// ─── Dummy data pools ────────────────────────────────────────────────────────
-const DUMMY_CLOTH_TYPES = ["পলিষ্টার", "লোন", "কটন", "সিল্ক", "টিসি", "ভিসকস", "লিনেন", "জর্জেট"];
-const DUMMY_QUALITIES = ["ষ্টাইপ", "1200", "1800", "1400", "1600", "1000", "1500", "1100"];
-const DUMMY_STATUSES = ["pending", "inprocess", "done", "completed", "inprocess", "completed", "inprocess", "inprocess"];
-const DUMMY_GOJ_VALUES = [18625, 18625, 18625, 18625, 26525, 18625, 18625, 18625];
 
-// Simple hash-based selector for consistent dummy values per order
-const getDummyIndex = (id: string, poolLength: number) => {
-  if (!id) return 0;
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) {
-    hash = ((hash << 5) - hash + id.charCodeAt(i)) | 0;
-  }
-  return Math.abs(hash) % poolLength;
-};
 
 // ─── Status Badges — exact Figma match ───────────────────────────────────────
 const renderStatusBadges = (order: any, orderId: string, handleOrderClick: any) => {
@@ -209,22 +195,12 @@ const renderGojDetails = (order: any, orderId: string, totalGojVal: number, tota
   );
 };
 
-// ─── Billing Badges — exact Figma match ──────────────────────────────────────
+// ─── Billing Badges ─────────────────────────────────────────────────────────
 const renderBillingBadges = (order: any, orderId: string) => {
   const s = order?.status?.toLowerCase() || "pending";
+  const invoiceCount = order?.batchSummary?.invoiceCount || 0;
+  const dispatchCount = order?.batchSummary?.dispatchCount || 0;
   const isCompleted = ["completed", "delivered", "completedprocess", "complete"].includes(s);
-
-  if (isCompleted) {
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground select-none">
-        <FileText size={12} className="shrink-0 text-muted-foreground" />
-        Bill
-        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
-          7
-        </span>
-      </span>
-    );
-  }
 
   if (s === "pending") {
     return (
@@ -235,100 +211,56 @@ const renderBillingBadges = (order: any, orderId: string) => {
     );
   }
 
-  const index = getDummyIndex(orderId + "billing_v2", 4);
+  const ubCount = Math.max(0, dispatchCount - invoiceCount);
 
-  if (index === 0) {
+  if (isCompleted) {
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground select-none">
         <FileText size={12} className="shrink-0 text-muted-foreground" />
-        U/B
+        Bill
         <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
-          2
+          {invoiceCount}
         </span>
       </span>
-    );
-  }
-
-  if (index === 1) {
-    const ubN = getDummyIndex(orderId + "ub", 4) + 2;
-    const billN = getDummyIndex(orderId + "bl", 3);
-    return (
-      <div className="flex flex-col gap-0.5 select-none">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
-          <FileText size={12} className="shrink-0 text-muted-foreground" />
-          U/B
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
-            {ubN}
-          </span>
-        </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
-          <FileText size={12} className="shrink-0 text-muted-foreground" />
-          Bill
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
-            {billN}
-          </span>
-        </span>
-      </div>
-    );
-  }
-
-  if (index === 2) {
-    return (
-      <div className="flex flex-col gap-0.5 select-none">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
-          <FileText size={12} className="shrink-0 text-muted-foreground" />
-          U/B
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
-            5
-          </span>
-        </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
-          <FileText size={12} className="shrink-0 text-muted-foreground" />
-          Bill
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
-            2
-          </span>
-        </span>
-      </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-0.5 select-none">
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
-        <FileText size={12} className="shrink-0 text-muted-foreground" />
-        U/B
-        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
-          2
+      {ubCount > 0 && (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+          <FileText size={12} className="shrink-0 text-muted-foreground" />
+          U/B
+          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
+            {ubCount}
+          </span>
         </span>
-      </span>
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
-        <FileText size={12} className="shrink-0 text-muted-foreground" />
-        Bill
-        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
+      )}
+      {invoiceCount > 0 && (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+          <FileText size={12} className="shrink-0 text-muted-foreground" />
+          Bill
+          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
+            {invoiceCount}
+          </span>
+        </span>
+      )}
+      {ubCount === 0 && invoiceCount === 0 && (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-muted-foreground">
+          <FileText size={12} className="shrink-0 text-muted-foreground/70" />
           0
         </span>
-      </span>
+      )}
     </div>
   );
 };
 
-// ─── Inventory Badges — exact Figma match ────────────────────────────────────
+// ─── Inventory Badges ───────────────────────────────────────────────────────
 const renderInventoryBadges = (order: any, orderId: string) => {
   const s = order?.status?.toLowerCase() || "pending";
+  const batchCount = order?.batchSummary?.batchCount || 0;
+  const dispatchCount = order?.batchSummary?.dispatchCount || 0;
   const isCompleted = ["completed", "delivered", "completedprocess", "complete"].includes(s);
-
-  if (isCompleted) {
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground select-none">
-        <Truck size={12} className="shrink-0 text-muted-foreground" />
-        Trk
-        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
-          7
-        </span>
-      </span>
-    );
-  }
 
   if (s === "pending") {
     return (
@@ -339,78 +271,46 @@ const renderInventoryBadges = (order: any, orderId: string) => {
     );
   }
 
-  const index = getDummyIndex(orderId + "inv_v2", 4);
+  const uTrkCount = Math.max(0, batchCount - dispatchCount);
 
-  if (index === 0) {
+  if (isCompleted) {
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground select-none">
         <Truck size={12} className="shrink-0 text-muted-foreground" />
-        U/Trk
+        Trk
         <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
-          2
+          {dispatchCount}
         </span>
       </span>
-    );
-  }
-
-  if (index === 1) {
-    return (
-      <div className="flex flex-col gap-0.5 select-none">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
-          <Truck size={12} className="shrink-0 text-muted-foreground" />
-          U/Trk
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
-            3
-          </span>
-        </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
-          <Truck size={12} className="shrink-0 text-muted-foreground" />
-          Trk
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
-            1
-          </span>
-        </span>
-      </div>
-    );
-  }
-
-  if (index === 2) {
-    return (
-      <div className="flex flex-col gap-0.5 select-none">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
-          <Truck size={12} className="shrink-0 text-muted-foreground" />
-          U/Trk
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
-            4
-          </span>
-        </span>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
-          <Truck size={12} className="shrink-0 text-muted-foreground" />
-          Trk
-          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
-            3
-          </span>
-        </span>
-      </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-0.5 select-none">
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
-        <Truck size={12} className="shrink-0 text-muted-foreground" />
-        U/Trk
-        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
-          1
+      {uTrkCount > 0 && (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+          <Truck size={12} className="shrink-0 text-muted-foreground" />
+          U/Trk
+          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
+            {uTrkCount}
+          </span>
         </span>
-      </span>
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
-        <Truck size={12} className="shrink-0 text-muted-foreground" />
-        Trk
-        <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
-          1
+      )}
+      {dispatchCount > 0 && (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground">
+          <Truck size={12} className="shrink-0 text-muted-foreground" />
+          Trk
+          <span className="inline-flex items-center justify-center w-4 h-4 text-[11px] font-bold bg-background text-muted-foreground border border-border rounded-full ml-0.5">
+            {dispatchCount}
+          </span>
         </span>
-      </span>
+      )}
+      {uTrkCount === 0 && dispatchCount === 0 && (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-muted-foreground">
+          <Truck size={12} className="shrink-0 text-muted-foreground/70" />
+          0
+        </span>
+      )}
     </div>
   );
 };
@@ -534,23 +434,17 @@ const OrderTable: React.FC<OrderTableProps> = ({
             {sortedOrders?.map((order, rowIndex) => {
               const orderId = order?._id || `row-${rowIndex}`;
 
-              const productCloth = order?.clotheType || DUMMY_CLOTH_TYPES[getDummyIndex(orderId, DUMMY_CLOTH_TYPES.length)];
-              const productQuality = order?.quality || DUMMY_QUALITIES[getDummyIndex(orderId + "q", DUMMY_QUALITIES.length)];
-              const resolvedStatus = order?.status || DUMMY_STATUSES[getDummyIndex(orderId + "s", DUMMY_STATUSES.length)];
+              const productCloth = order?.clotheType || "N/A";
+              const productQuality = order?.quality || "N/A";
+              const resolvedStatus = order?.status || "pending";
 
-              const realGoj = order?.totalGoj !== null && order?.totalGoj !== undefined
+              const totalGojVal = order?.totalGoj !== null && order?.totalGoj !== undefined
                 ? order.totalGoj
-                : order?.tableData?.length > 0
-                  ? order.tableData.reduce((sum: number, item: any) => sum + (item.goj || 0), 0)
-                  : null;
-              const totalGojVal = realGoj !== null ? realGoj : DUMMY_GOJ_VALUES[getDummyIndex(orderId + "g", DUMMY_GOJ_VALUES.length)];
+                : (order?.tableData?.reduce((sum: number, item: any) => sum + (item.goj || 0), 0) || 0);
 
-              const realBundle = order?.totalBundle !== null && order?.totalBundle !== undefined && order?.totalBundle !== ""
+              const totalBundleVal = order?.totalBundle !== null && order?.totalBundle !== undefined && order?.totalBundle !== ""
                 ? Number(order.totalBundle)
-                : order?.tableData?.length > 0
-                  ? order.tableData.length
-                  : null;
-              const totalBundleVal = realBundle !== null ? realBundle : (totalGojVal >= 80000 ? 83 : 53);
+                : (order?.tableData?.length || 0);
 
               const rawId = order?.orderId || order?._id || "";
               const displayId = order?.isManualTransport

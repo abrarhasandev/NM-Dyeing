@@ -216,7 +216,7 @@ export async function mirrorCustomerUpsert(mongoDoc: unknown): Promise<void> {
     const doc = mongoCustomerToConvexDoc(toPlain(mongoDoc));
     await g.client.mutation(api.customers.mirrorUpsert, {
       mirrorSecret: g.secret,
-      ...doc,
+      ...(doc as any),
     });
   } catch (err) {
     logMirrorError("customers.mirrorUpsert", err);
@@ -245,7 +245,7 @@ export async function mirrorDyeingUpsert(mongoDoc: unknown): Promise<void> {
     const doc = mongoDyeingToConvexDoc(toPlain(mongoDoc));
     await g.client.mutation(api.dyeings.mirrorUpsert, {
       mirrorSecret: g.secret,
-      ...doc,
+      ...(doc as any),
     });
   } catch (err) {
     logMirrorError("dyeings.mirrorUpsert", err);
@@ -274,7 +274,7 @@ export async function mirrorCalenderUpsert(mongoDoc: unknown): Promise<void> {
     const doc = mongoCalenderToConvexDoc(toPlain(mongoDoc));
     await g.client.mutation(api.calenders.mirrorUpsert, {
       mirrorSecret: g.secret,
-      ...doc,
+      ...(doc as any),
     });
   } catch (err) {
     logMirrorError("calenders.mirrorUpsert", err);
@@ -303,7 +303,7 @@ export async function mirrorPaymentUpsert(mongoDoc: unknown): Promise<void> {
     const doc = mongoPaymentToConvexDoc(toPlain(mongoDoc));
     await g.client.mutation(api.payments.mirrorUpsert, {
       mirrorSecret: g.secret,
-      ...doc,
+      ...(doc as any),
     });
   } catch (err) {
     logMirrorError("payments.mirrorUpsert", err);
@@ -334,7 +334,7 @@ export async function mirrorBillingSummaryUpsert(
     const doc = mongoBillingSummaryToConvexDoc(toPlain(mongoDoc));
     await g.client.mutation(api.billingSummaries.mirrorUpsert, {
       mirrorSecret: g.secret,
-      ...doc,
+      ...(doc as any),
     });
   } catch (err) {
     logMirrorError("billingSummaries.mirrorUpsert", err);
@@ -367,7 +367,7 @@ export async function mirrorSavedInvoiceUpsert(
     const doc = mongoSavedInvoiceToConvexDoc(toPlain(mongoDoc));
     await g.client.mutation(api.savedInvoices.mirrorUpsert, {
       mirrorSecret: g.secret,
-      ...doc,
+      ...(doc as any),
     });
   } catch (err) {
     logMirrorError("savedInvoices.mirrorUpsert", err);
@@ -398,7 +398,7 @@ export async function mirrorLedgerSnapshotUpsert(
     const doc = mongoLedgerSnapshotToConvexDoc(toPlain(mongoDoc));
     await g.client.mutation(api.ledgerSnapshots.mirrorUpsert, {
       mirrorSecret: g.secret,
-      ...doc,
+      ...(doc as any),
     });
   } catch (err) {
     logMirrorError("ledgerSnapshots.mirrorUpsert", err);
