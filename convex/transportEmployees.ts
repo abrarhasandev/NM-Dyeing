@@ -61,6 +61,7 @@ export const create = mutation({
     vehicleType: v.string(),
     vehicleWheels: v.number(),
     clothCapacityYards: v.number(),
+    avatar: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const id = await ctx.db.insert("transportEmployees", {
@@ -112,6 +113,7 @@ export const update = mutation({
     vehicleType: v.string(),
     vehicleWheels: v.number(),
     clothCapacityYards: v.number(),
+    avatar: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { id, ...fields } = args;

@@ -52,7 +52,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export const OrdersContent = ({ isTrashMode = false }: { isTrashMode?: boolean }) => {
+export const OrdersContent = ({ isTrashMode = false, transporterName = "" }: { isTrashMode?: boolean, transporterName?: string }) => {
   const { data } = useAppData();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -225,6 +225,7 @@ export const OrdersContent = ({ isTrashMode = false }: { isTrashMode?: boolean }
     colour,
     sillName,
     quality,
+    transporterName,
     isTrash: isTrashMode,
     skip: !isInitialized,
   });

@@ -41,6 +41,7 @@ export default defineSchema({
     vehicleType: v.string(),
     vehicleWheels: v.number(),
     clothCapacityYards: v.number(),
+    avatar: v.optional(v.string()),
     createdAt: v.number(),
   }),
 });

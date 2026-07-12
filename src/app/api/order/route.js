@@ -25,6 +25,7 @@ function buildQuery(searchParams) {
   const colour = searchParams.get("colour") || "";
   const sillName = searchParams.get("sillName") || "";
   const quality = searchParams.get("quality") || "";
+  const transporterName = searchParams.get("transporterName") || "";
   const isTrash = searchParams.get("isTrash") === "true";
 
   const query = {};
@@ -61,6 +62,7 @@ function buildQuery(searchParams) {
 
   // ── Status ─────────────────────────────────────────────────────────────────
   if (status) query.status = status;
+  if (transporterName) query.transporterName = transporterName;
 
   // ── Multi-select filters ───────────────────────────────────────────────────
   const addMultiFilter = (key, raw) => {

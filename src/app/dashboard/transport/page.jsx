@@ -5,8 +5,15 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDocumentTitle } from "@/hook/useDocumentTitle";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Plus,
   Search,
@@ -19,6 +26,7 @@ import {
   Phone,
   MapPin,
   ChevronRight,
+  MoreVertical,
 } from "lucide-react";
 
 // Animation Variants
@@ -44,6 +52,7 @@ const TransportPage = () => {
   const removeEmployee = useMutation(api.transportEmployees.remove);
   const [searchQuery, setSearchQuery] = useState("");
   const [deletingId, setDeletingId] = useState(null);
+  const router = useRouter();
 
   useDocumentTitle("Transport Management");
 
@@ -257,6 +266,7 @@ const TransportPage = () => {
                     {filteredData.map((emp, idx) => (
                       <motion.tr
                         key={emp._id}
+                        onClick={() => router.push(`/dashboard/transport/${emp._id}/orders`)}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
@@ -270,16 +280,24 @@ const TransportPage = () => {
                         {/* Name + Age */}
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                              <span className="text-sm font-semibold text-primary">
-                                {emp.name?.charAt(0)?.toUpperCase()}
-                              </span>
+                            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden border border-border">
+                              {emp.avatar ? (
+                                <img src={emp.avatar} alt={emp.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="text-sm font-semibold text-primary">
+                                  {emp.name?.charAt(0)?.toUpperCase()}
+                                </span>
+                              )}
                             </div>
                             <div>
-                              <p className="text-sm font-semibold text-foreground">
+                              <Link 
+                                href={`/dashboard/transport/profile/${emp._id}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="text-sm font-semibold text-foreground hover:text-primary hover:underline transition-colors"
+                              >
                                 {emp.name}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
+                              </Link>
+                              <p className="text-xs text-muted-foreground mt-0.5">
                                 Age: {emp.age}
                               </p>
                             </div>
@@ -344,29 +362,34 @@ const TransportPage = () => {
 
                         {/* Actions */}
                         <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Link
-                              href={`/dashboard/transport/profile/${emp._id}`}
-                              className="p-2 text-muted-foreground hover:text-foreground hover:bg-background rounded-md transition-all border border-transparent hover:border-border shadow-sm hover:shadow"
-                              title="View Profile"
-                            >
-                              <Eye size={16} />
-                            </Link>
-                            <Link
-                              href={`/dashboard/transport/edit/${emp._id}`}
-                              className="p-2 text-muted-foreground hover:text-foreground hover:bg-background rounded-md transition-all border border-transparent hover:border-border shadow-sm hover:shadow"
-                              title="Edit Employee"
-                            >
-                              <Pencil size={16} />
-                            </Link>
-                            <button
-                              onClick={() => handleDelete(emp._id)}
-                              disabled={deletingId === emp._id}
-                              className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-all border border-transparent hover:border-destructive/20 shadow-sm hover:shadow cursor-pointer disabled:opacity-50"
-                              title="Delete Employee"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                          <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-all outline-none">
+                                <MoreVertical size={16} />
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-40 border-border bg-card">
+                                <DropdownMenuItem asChild>
+                                  <Link href={`/dashboard/transport/profile/${emp._id}`} className="cursor-pointer flex items-center gap-2">
+                                    <Eye size={14} />
+                                    <span>View Profile</span>
+                                  </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                  <Link href={`/dashboard/transport/edit/${emp._id}`} className="cursor-pointer flex items-center gap-2">
+                                    <Pencil size={14} />
+                                    <span>Edit</span>
+                                  </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => handleDelete(emp._id)}
+                                  disabled={deletingId === emp._id}
+                                  className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10 flex items-center gap-2"
+                                >
+                                  <Trash2 size={14} />
+                                  <span>Delete</span>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </td>
                       </motion.tr>

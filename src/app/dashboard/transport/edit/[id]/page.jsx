@@ -28,6 +28,15 @@ const ACCOUNT_TYPES = [
   { id: "nagad", label: "Nagad" },
 ];
 
+const AVATARS = [
+  "https://api.dicebear.com/9.x/notionists/svg?seed=Felix",
+  "https://api.dicebear.com/9.x/notionists/svg?seed=Aneka",
+  "https://api.dicebear.com/9.x/notionists/svg?seed=Mimi",
+  "https://api.dicebear.com/9.x/notionists/svg?seed=Jack",
+  "https://api.dicebear.com/9.x/notionists/svg?seed=Sophia",
+  "https://api.dicebear.com/9.x/notionists/svg?seed=George"
+];
+
 function AddressSelector({ title, addressData, onChange, isSameAsNid, onToggleSameAsNid, showSameAsNidCheckbox }) {
   const [divisions, setDivisions] = useState([]);
   const [districts, setDistricts] = useState([]);
@@ -219,6 +228,7 @@ export default function EditTransportEmployee() {
     vehicleType: "",
     vehicleWheels: "",
     clothCapacityYards: "",
+    avatar: AVATARS[0],
   });
 
   useEffect(() => {
@@ -238,6 +248,7 @@ export default function EditTransportEmployee() {
         vehicleType: employee.vehicleType || "",
         vehicleWheels: employee.vehicleWheels ? String(employee.vehicleWheels) : "",
         clothCapacityYards: employee.clothCapacityYards ? String(employee.clothCapacityYards) : "",
+        avatar: employee.avatar || AVATARS[0],
       });
       setFormReady(true);
     }
@@ -393,6 +404,7 @@ export default function EditTransportEmployee() {
         vehicleType: form.vehicleType.trim(),
         vehicleWheels: Number(form.vehicleWheels),
         clothCapacityYards: Number(form.clothCapacityYards),
+        avatar: form.avatar,
       });
       toast.success("Transport employee updated successfully!");
       router.push("/dashboard/transport");
@@ -493,6 +505,34 @@ export default function EditTransportEmployee() {
                   value={form.age}
                   className="w-full px-4 py-2.5 bg-background/50 text-foreground border border-border rounded-md focus:outline-none cursor-not-allowed text-sm placeholder:text-muted-foreground/60"
                 />
+              </div>
+            </div>
+
+            {/* Avatar Selection */}
+            <div className="pt-2 border-t border-border mt-4">
+              <label className="block text-sm font-medium text-muted-foreground mb-3">
+                Profile Avatar
+              </label>
+              <div className="flex flex-wrap gap-4">
+                {AVATARS.map((avatar, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setForm({ ...form, avatar })}
+                    className={`relative w-16 h-16 rounded-full overflow-hidden border-2 transition-all cursor-pointer ${
+                      form.avatar === avatar
+                        ? "border-primary shadow-md scale-110"
+                        : "border-transparent hover:scale-105 hover:border-primary/50"
+                    }`}
+                  >
+                    <img src={avatar} alt={`Avatar ${idx + 1}`} className="w-full h-full object-cover bg-primary/5" />
+                    {form.avatar === avatar && (
+                      <div className="absolute inset-0 bg-primary/10 flex items-center justify-center">
+                        <div className="w-4 h-4 bg-primary rounded-full" />
+                      </div>
+                    )}
+                  </button>
+                ))}
               </div>
             </div>
           </div>

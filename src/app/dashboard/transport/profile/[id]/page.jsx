@@ -89,10 +89,14 @@ export default function TransportEmployeeProfile() {
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                <span className="text-2xl font-bold text-primary">
-                  {employee.name?.charAt(0)?.toUpperCase()}
-                </span>
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden border border-border shadow-sm">
+                {employee.avatar ? (
+                  <img src={employee.avatar} alt={employee.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-2xl font-bold text-primary">
+                    {employee.name?.charAt(0)?.toUpperCase()}
+                  </span>
+                )}
               </div>
               <div>
                 <h1 className="text-2xl font-bold tracking-tight text-foreground">

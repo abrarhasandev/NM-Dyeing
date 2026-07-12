@@ -33,6 +33,7 @@ const useOrders = (filters) => {
     colour,
     sillName,
     quality,
+    transporterName,
     isTrash,
     skip,
   } = filters;
@@ -116,6 +117,7 @@ const useOrders = (filters) => {
       if (colour)        params.append("colour",        colour);
       if (sillName)      params.append("sillName",      sillName);
       if (quality)       params.append("quality",       quality);
+      if (transporterName) params.append("transporterName", transporterName);
       if (isTrash)       params.append("isTrash",       "true");
 
       const res = await fetch(`/api/order?${params.toString()}`, { cache: "no-store" });
@@ -210,6 +212,7 @@ const useOrders = (filters) => {
     colour,
     sillName,
     quality,
+    transporterName,
     isTrash,
   ]);
 

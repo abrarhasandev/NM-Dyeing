@@ -6,10 +6,13 @@ import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useDocumentTitle } from "@/hook/useDocumentTitle";
 import { toast } from "sonner";
+import { useQuery } from "convex/react";
+import { api } from "../../../../../../convex/_generated/api";
 
 const Page = () => {
   const { id } = useParams();
   const { data } = useAppData();
+  const transportEmployees = useQuery(api.transportEmployees.list) || [];
   const router = useRouter();
 
   useDocumentTitle("Update Order");
@@ -364,17 +367,19 @@ const Page = () => {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="transporterName" className="text-[13px] font-semibold text-[#26251e]/80 dark:text-[#f7f7f4]/80">
-                Transporter Name
-              </label>
-              <input
+              <label className="text-[13px] font-semibold text-[#26251e]/80 dark:text-[#f7f7f4]/80">Transporter Name</label>
+              <SearchableSelect
                 id="transporterName"
-                type="text"
-                required
-                placeholder="Enter transporter"
                 value={formData.transporterName}
                 onChange={handleChange}
-                className="bg-[#ebeae5] dark:bg-[#1f1f1f] border border-transparent focus:border-[#26251e]/20 dark:focus:border-[#f7f7f4]/20 focus:bg-[#f7f7f4] dark:focus:bg-[#262626] text-[#26251e] dark:text-[#f7f7f4] placeholder-[#26251e]/30 dark:placeholder-[#f7f7f4]/30 rounded-lg px-4 py-2.5 text-sm outline-none transition-all"
+                placeholder="Select Transporter"
+                options={[
+                  { value: "No specific transporter", label: "No specific transporter" },
+                  ...transportEmployees.map((emp) => ({
+                    value: emp.name,
+                    label: emp.name,
+                  }))
+                ]}
               />
             </div>
           </div>
