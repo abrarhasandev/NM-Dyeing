@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+import { cache } from "react";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import connectDB from "@/lib/db";
@@ -18,7 +19,7 @@ function normalizeEmail(email) {
     .toLowerCase();
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth: uncachedAuth, signIn, signOut } = NextAuth({
   ...authConfig,
 
   providers: [
@@ -33,7 +34,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const ip = getClientIp(request);
 
         // ── Dual rate limiting: IP + email ───────────────────────────────────
-        const { success: ipOk } = ipLimiter.check(`login:ip:${ip}`);
+        const { success: ipOk } = await ipLimiter.check(`login:ip:${ip}`);
         if (!ipOk) {
           throw new Error("Too many attempts. Please try again later.");
         }
@@ -52,7 +53,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         // Per-email rate limit (checked after validation to avoid
         // wasting bucket entries on malformed input)
-        const { success: emailOk } = emailLimiter.check(`login:email:${email}`);
+        const { success: emailOk } = await emailLimiter.check(`login:email:${email}`);
         if (!emailOk) {
           throw new Error("Too many attempts. Please try again later.");
         }
@@ -124,3 +125,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
+
+export const auth = cache(uncachedAuth);

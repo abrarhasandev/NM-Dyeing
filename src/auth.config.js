@@ -70,6 +70,22 @@ export const authConfig = {
         token.iat = Math.floor(Date.now() / 1000);
       }
 
+      // Phase 4: JWT Staleness - Optional lightweight redis check for revocation
+      try {
+        if (process.env.UPSTASH_REDIS_REST_URL && token?.id) {
+           const res = await fetch(`${process.env.UPSTASH_REDIS_REST_URL}/get/revoked:${token.id}`, {
+             headers: { Authorization: `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}` },
+             cache: "no-store"
+           });
+           const data = await res.json();
+           if (data.result === "true") {
+             return null; // Revoke token instantly
+           }
+        }
+      } catch (e) {
+        console.warn("[Auth] Redis revocation check failed:", e);
+      }
+
       return token;
     },
 

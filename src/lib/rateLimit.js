@@ -1,3 +1,5 @@
+import { Redis } from "@upstash/redis";
+
 const buckets = new Map();
 const MAX_BUCKETS = 5000;
 let pruneTimer = null;
@@ -22,19 +24,54 @@ function startPruning(intervalMs) {
   pruneTimer.unref?.();
 }
 
+let redis = null;
+try {
+  // Use Upstash Redis or Vercel KV if available
+  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+    redis = new Redis({
+      url: process.env.KV_REST_API_URL,
+      token: process.env.KV_REST_API_TOKEN,
+    });
+  } else if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+    redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+  }
+} catch (error) {
+  console.warn("[RateLimit] Failed to initialize Redis:", error);
+}
+
 /**
- * In-memory sliding-window rate limiter with progressive backoff.
- *
- * After the initial `limit` is exhausted within `intervalMs`, subsequent
- * violations double the lockout window (capped at 4× the original interval).
- * This makes credential-stuffing increasingly expensive.
+ * Distributed rate limiter with progressive backoff.
+ * Uses Redis if available, otherwise falls back to in-memory.
  *
  * @param {{ intervalMs: number; limit: number }} options
  */
 export function rateLimit({ intervalMs, limit }) {
-  startPruning(intervalMs);
+  if (!redis) startPruning(intervalMs);
   return {
-    check(key) {
+    async check(key) {
+      if (redis) {
+        try {
+          const currentCount = await redis.incr(key);
+          if (currentCount === 1) {
+            await redis.pexpire(key, intervalMs);
+          }
+          if (currentCount > limit) {
+             const violations = Math.min(currentCount - limit, 3);
+             const backoff = Math.min(intervalMs * (1 << violations), intervalMs * 4);
+             await redis.pexpire(key, backoff);
+             return { success: false, remaining: 0 };
+          }
+          return { success: true, remaining: Math.max(0, limit - currentCount) };
+        } catch (error) {
+           console.error("[RateLimit] Redis error:", error);
+           // Fall through to memory fallback on error
+        }
+      }
+
+      // Memory fallback
       const now = Date.now();
       let bucket = buckets.get(key);
 

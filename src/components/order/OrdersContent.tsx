@@ -958,7 +958,7 @@ export const OrdersContent = ({
 
       {/* Side Details Drawer */}
       <OrderSideModal
-        isModalOpen={!!selectedOrder}
+        isModalOpen={!!orderIdFromUrl || !!selectedOrder}
         loadingOrder={loadingOrder}
         selectedOrder={selectedOrder}
         closeModal={closeModal}

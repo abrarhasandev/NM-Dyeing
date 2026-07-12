@@ -76,16 +76,10 @@ export default function OrderTableData({
     }
   }, [currentStep, orderId, setUsedRowIndexes, setCreatedBatches]);
 
-  if (tableData.length === 0)
-    return (
-      <p className="text-sm text-gray-500 italic">
-        No table data available for this order.
-      </p>
-    );
 
-  const keys = Object.keys(tableData[0]).filter(
+  const keys = tableData.length > 0 ? Object.keys(tableData[0]).filter(
     (k) => k !== "id" && k !== "_id"
-  );
+  ) : [];
 
   // ✅ single row select – যদি already used থাকে, কিছুই করতে দিবো না
   const handleSelectRow = (idx) => {
@@ -144,6 +138,19 @@ export default function OrderTableData({
         currentStep === 2
     );
   }, [batchData, usedRowIndexes, tableData, currentStep]);
+
+  if (tableData.length === 0) {
+    return (
+      <div className="mt-6">
+        <h3 className="font-semibold text-gray-700 mb-3">
+          Processing Details
+        </h3>
+        <p className="text-sm text-gray-500 italic">
+          No table data available for this order.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-6">

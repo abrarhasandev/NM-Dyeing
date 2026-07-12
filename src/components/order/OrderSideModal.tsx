@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import OrderStatus from "../OrderStatus/OrderStatus";
 import OrderInvoicePrint from "../Print/OrderInvoicePrint/OrderInvoicePrint";
 import { useDocumentTitle } from "@/hook/useDocumentTitle";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface OrderSideModalProps {
   isModalOpen: boolean;
@@ -138,11 +139,70 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
               />
             </div>
 
-            {/* Content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {loadingOrder ? (
-                <div className="flex justify-center items-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-foreground"></div>
+                <div className="space-y-6" style={{ animation: "mn-content-fade-in 0.3s ease" }}>
+                  <style>{`@keyframes mn-content-fade-in { from { opacity: 0; } to { opacity: 1; } }`}</style>
+                  {/* Header Info Skeleton */}
+                  <div className="p-4 bg-card border border-border rounded-[8px] shadow-sm flex flex-col gap-3">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="w-10 h-10 rounded-[6px]" />
+                        <div className="flex flex-col gap-1.5">
+                          <Skeleton className="w-24 h-3" />
+                          <Skeleton className="w-32 h-4" />
+                          <Skeleton className="w-16 h-3 mt-0.5" />
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5">
+                        <Skeleton className="w-12 h-4" />
+                        <Skeleton className="w-20 h-3" />
+                      </div>
+                    </div>
+                    
+                    <div className="h-[1px] w-full bg-border"></div>
+                    
+                    <div className="flex justify-between items-end">
+                      <div className="flex items-center gap-6">
+                        <div className="flex flex-col gap-1.5">
+                          <Skeleton className="w-12 h-2.5" />
+                          <Skeleton className="w-24 h-3" />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <Skeleton className="w-16 h-2.5" />
+                          <Skeleton className="w-28 h-3" />
+                        </div>
+                      </div>
+                      <Skeleton className="w-6 h-6 rounded-full" />
+                    </div>
+                  </div>
+                  
+                  {/* Status Skeleton */}
+                  <div className="space-y-4 pt-2">
+                    <Skeleton className="w-24 h-5" />
+                    <div className="flex justify-between items-center px-2">
+                       {[...Array(7)].map((_, i) => (
+                         <div key={i} className="flex flex-col items-center gap-2">
+                            <Skeleton className="w-8 h-8 rounded-full" />
+                            <Skeleton className="w-12 h-2.5" />
+                         </div>
+                       ))}
+                    </div>
+                  </div>
+
+                  {/* Table Skeleton */}
+                  <div className="space-y-4 pt-6">
+                    <Skeleton className="w-32 h-5" />
+                    <div className="rounded-md border border-border overflow-hidden">
+                      <div className="h-10 bg-muted border-b border-border"></div>
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className="h-12 border-b border-border flex items-center px-4 gap-4 bg-card">
+                           <Skeleton className="w-4 h-4 rounded shrink-0" />
+                           <Skeleton className="w-full h-4" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <>
