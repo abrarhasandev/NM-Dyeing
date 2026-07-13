@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+import React, { useState, useEffect } from "react";
+import { useQuery, useMutation, usePaginatedQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useDocumentTitle } from "@/hook/useDocumentTitle";
 import {
   DropdownMenu,
@@ -28,9 +28,11 @@ import {
   ChevronRight,
   MoreVertical,
 } from "lucide-react";
+import { ITransportEmployee } from "@/types/transport";
+import { Id } from "../../../../convex/_generated/dataModel";
 
 // Animation Variants
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -38,7 +40,7 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 15 },
   show: {
     opacity: 1,
@@ -47,42 +49,42 @@ const itemVariants = {
   },
 };
 
-const TransportPage = () => {
-  const employees = useQuery(api.transportEmployees.list);
-  const removeEmployee = useMutation(api.transportEmployees.remove);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [deletingId, setDeletingId] = useState(null);
-  const router = useRouter();
-
+export default function TransportPage() {
   useDocumentTitle("Transport Management");
+  
+  const router = useRouter();
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const loading = employees === undefined;
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchInput), 400);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
-  const filteredData = (employees || []).filter(
-    (e) => {
-      const addressString = typeof e.address === 'string'
-        ? e.address
-        : `${e.address?.nid?.division || ''} ${e.address?.nid?.district || ''} ${e.address?.nid?.upazila || ''} ${e.address?.nid?.union || ''} ${e.address?.nid?.street || ''}`;
-
-      return (
-        e.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        e.vehicleType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        addressString?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
+  const stats = useQuery(api.transportEmployees.getStats);
+  const {
+    results,
+    status,
+    loadMore,
+  } = usePaginatedQuery(
+    api.transportEmployees.getEmployees,
+    { searchTerm: debouncedSearch || undefined },
+    { initialNumItems: 10 }
   );
+  
+  const employees = results as ITransportEmployee[];
+  const deleteEmployee = useMutation(api.transportEmployees.deleteEmployee);
 
-  const totalCapacity = (employees || []).reduce(
-    (sum, e) => sum + (e.clothCapacityYards || 0),
-    0
-  );
+  const statsLoading = stats === undefined;
+  const listLoading = status === "LoadingFirstPage";
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this transport employee?"))
       return;
     try {
       setDeletingId(id);
-      await removeEmployee({ id });
+      await deleteEmployee({ id: id as Id<"transportEmployees"> });
       toast.success("Transport employee deleted successfully!");
     } catch (err) {
       console.error(err);
@@ -90,6 +92,14 @@ const TransportPage = () => {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const getAddressString = (address: any) => {
+    if (typeof address === 'string') return address;
+    if (address?.nid?.district) {
+      return `${address.nid.district}, ${address.nid.division}`;
+    }
+    return 'View for details';
   };
 
   return (
@@ -145,7 +155,11 @@ const TransportPage = () => {
             </div>
             <div className="flex flex-col mt-2">
               <p className="text-3xl font-bold text-foreground">
-                {loading ? "—" : employees.length}
+                {statsLoading ? (
+                   <span className="inline-block w-16 h-8 bg-muted rounded-md animate-pulse"></span>
+                ) : (
+                   stats.totalEmployees
+                )}
               </p>
             </div>
           </motion.div>
@@ -165,7 +179,11 @@ const TransportPage = () => {
             </div>
             <div className="flex flex-col mt-2">
               <p className="text-3xl font-bold text-foreground">
-                {loading ? "—" : employees.length}
+                {statsLoading ? (
+                   <span className="inline-block w-16 h-8 bg-muted rounded-md animate-pulse"></span>
+                ) : (
+                   stats.totalVehicles
+                )}
               </p>
             </div>
           </motion.div>
@@ -185,13 +203,17 @@ const TransportPage = () => {
             </div>
             <div className="flex flex-col mt-2">
               <div className="flex items-baseline gap-1">
-                <p className="text-3xl font-bold text-foreground">
-                  {loading ? "—" : totalCapacity.toLocaleString()}
-                </p>
-                {!loading && (
-                  <span className="text-sm text-muted-foreground font-medium">
-                    yards
-                  </span>
+                {statsLoading ? (
+                  <span className="inline-block w-24 h-8 bg-muted rounded-md animate-pulse"></span>
+                ) : (
+                  <>
+                    <p className="text-3xl font-bold text-foreground">
+                      {stats.totalCapacity.toLocaleString()}
+                    </p>
+                    <span className="text-sm text-muted-foreground font-medium">
+                      yards
+                    </span>
+                  </>
                 )}
               </div>
             </div>
@@ -211,9 +233,9 @@ const TransportPage = () => {
           />
           <input
             type="text"
-            placeholder="Search by name, vehicle type, or address..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search employees by name..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             className="w-full pl-11 pr-4 py-2.5 bg-card text-foreground placeholder:text-muted-foreground border border-border rounded-md focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition-all shadow-sm text-sm"
           />
         </motion.div>
@@ -226,7 +248,7 @@ const TransportPage = () => {
           className="bg-card rounded-lg border border-border shadow-sm overflow-hidden"
         >
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
                 <tr className="border-b border-border bg-muted/50">
                   <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -250,20 +272,20 @@ const TransportPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {loading ? (
-                  <tr>
-                    <td colSpan={6} className="py-24 text-center">
-                      <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                        <p className="text-sm font-medium animate-pulse">
-                          Loading transport employees...
-                        </p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : filteredData.length > 0 ? (
+                {listLoading ? (
+                  Array.from({ length: 5 }).map((_, idx) => (
+                    <tr key={`skeleton-${idx}`} className="animate-pulse">
+                      <td className="px-6 py-4"><div className="h-10 w-32 bg-muted rounded-md"></div></td>
+                      <td className="px-6 py-4"><div className="h-6 w-24 bg-muted rounded-md"></div></td>
+                      <td className="px-6 py-4"><div className="h-6 w-48 bg-muted rounded-md"></div></td>
+                      <td className="px-6 py-4"><div className="h-6 w-20 bg-muted rounded-md"></div></td>
+                      <td className="px-6 py-4"><div className="h-6 w-16 bg-muted rounded-md"></div></td>
+                      <td className="px-6 py-4 text-right"><div className="h-8 w-8 bg-muted rounded-md ml-auto"></div></td>
+                    </tr>
+                  ))
+                ) : employees.length > 0 ? (
                   <AnimatePresence>
-                    {filteredData.map((emp, idx) => (
+                    {employees.map((emp, idx) => (
                       <motion.tr
                         key={emp._id}
                         onClick={() => router.push(`/dashboard/transport/${emp._id}/orders`)}
@@ -274,8 +296,9 @@ const TransportPage = () => {
                           duration: 0.2,
                           delay: Math.min(idx * 0.04, 0.5),
                         }}
-                        className={`hover:bg-accent/50 transition-colors group cursor-pointer ${deletingId === emp._id ? "opacity-50" : ""
-                          }`}
+                        className={`hover:bg-accent/50 transition-colors group cursor-pointer ${
+                          deletingId === emp._id ? "opacity-50 pointer-events-none" : ""
+                        }`}
                       >
                         {/* Name + Age */}
                         <td className="px-6 py-4">
@@ -331,11 +354,7 @@ const TransportPage = () => {
                           <div className="flex items-center gap-1.5 text-sm text-muted-foreground max-w-[180px]">
                             <MapPin size={13} className="shrink-0" />
                             <span className="truncate">
-                              {typeof emp.address === 'string'
-                                ? emp.address
-                                : emp.address?.nid?.district
-                                  ? `${emp.address.nid.district}, ${emp.address.nid.division}`
-                                  : 'View for details'}
+                              {getAddressString(emp.address)}
                             </span>
                           </div>
                         </td>
@@ -401,11 +420,11 @@ const TransportPage = () => {
                       <div className="flex flex-col items-center justify-center text-muted-foreground">
                         <Truck size={48} className="mb-4 opacity-20" />
                         <p className="text-sm font-medium">
-                          {searchQuery
+                          {debouncedSearch
                             ? "No employees found matching your search."
                             : "No transport employees yet. Add your first employee!"}
                         </p>
-                        {!searchQuery && (
+                        {!debouncedSearch && (
                           <Link
                             href="/dashboard/transport/createEmployee"
                             className="mt-4 inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 font-medium transition-colors"
@@ -422,10 +441,28 @@ const TransportPage = () => {
               </tbody>
             </table>
           </div>
+          
+          {/* Pagination Controls */}
+          {status === "CanLoadMore" && (
+             <div className="p-4 border-t border-border flex justify-center bg-muted/20">
+               <button
+                 onClick={() => loadMore(10)}
+                 className="px-6 py-2 bg-secondary text-secondary-foreground text-sm font-medium rounded-md hover:bg-secondary/80 transition-colors inline-flex items-center gap-2"
+               >
+                 Load More
+               </button>
+             </div>
+          )}
+          {status === "LoadingMore" && (
+             <div className="p-4 border-t border-border flex justify-center bg-muted/20">
+               <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-muted-foreground"></div>
+                 Loading more...
+               </div>
+             </div>
+          )}
         </motion.div>
       </div>
     </div>
   );
-};
-
-export default TransportPage;
+}

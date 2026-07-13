@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as addresses from "../addresses.js";
 import type * as batches from "../batches.js";
 import type * as billingSummaries from "../billingSummaries.js";
 import type * as calenders from "../calenders.js";
@@ -31,6 +32,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  addresses: typeof addresses;
   batches: typeof batches;
   billingSummaries: typeof billingSummaries;
   calenders: typeof calenders;

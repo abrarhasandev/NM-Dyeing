@@ -13,7 +13,7 @@ import { Id } from "../../../../../../convex/_generated/dataModel";
 export default function TransportOrdersPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params);
   const employeeId = unwrappedParams.id as Id<"transportEmployees">;
-  const employee = useQuery(api.transportEmployees.getById, { id: employeeId });
+  const employee = useQuery(api.transportEmployees.getEmployeeById, { id: employeeId });
 
   useDocumentTitle(employee ? `Orders - ${employee.name}` : "Transport Orders");
 

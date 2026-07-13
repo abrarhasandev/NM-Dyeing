@@ -116,22 +116,22 @@ export default defineSchema({
           division: v.string(),
           district: v.string(),
           upazila: v.string(),
-          union: v.string(),
-          street: v.string(),
+          union: v.optional(v.string()),
+          street: v.optional(v.string()),
         }),
         permanent: v.object({
           division: v.string(),
           district: v.string(),
           upazila: v.string(),
-          union: v.string(),
-          street: v.string(),
+          union: v.optional(v.string()),
+          street: v.optional(v.string()),
         }),
         current: v.object({
           division: v.string(),
           district: v.string(),
           upazila: v.string(),
-          union: v.string(),
-          street: v.string(),
+          union: v.optional(v.string()),
+          street: v.optional(v.string()),
         }),
       })
     ),
@@ -142,7 +142,10 @@ export default defineSchema({
     clothCapacityYards: v.number(),
     avatar: v.optional(v.string()),
     createdAt: v.number(),
-  }),
+  })
+    .index("by_name", ["name"])
+    .index("by_vehicleType", ["vehicleType"])
+    .searchIndex("search_name", { searchField: "name" }),
 
   /**
    * Manual transport order history (Transport Management only).
@@ -419,5 +422,34 @@ export default defineSchema({
 
   sillNames: defineTable(menuNameTable)
     .index("by_mongoId", ["mongoId"])
+    .index("by_name", ["name"]),
+
+  bdDivisions: defineTable({
+    name: v.string(),
+    bn_name: v.string(),
+  }).index("by_name", ["name"]),
+
+  bdDistricts: defineTable({
+    divisionName: v.string(),
+    name: v.string(),
+    bn_name: v.string(),
+  })
+    .index("by_division", ["divisionName"])
+    .index("by_name", ["name"]),
+
+  bdUpazilas: defineTable({
+    districtName: v.string(),
+    name: v.string(),
+    bn_name: v.string(),
+  })
+    .index("by_district", ["districtName"])
+    .index("by_name", ["name"]),
+
+  bdUnions: defineTable({
+    upazilaName: v.string(),
+    name: v.string(),
+    bn_name: v.string(),
+  })
+    .index("by_upazila", ["upazilaName"])
     .index("by_name", ["name"]),
 });

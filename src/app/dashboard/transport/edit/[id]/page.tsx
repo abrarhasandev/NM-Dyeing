@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { useQuery, useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../../../convex/_generated/api";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -18,8 +18,10 @@ import {
   Save,
   Calendar,
 } from "lucide-react";
-
-const API_BASE = "https://bdapis.pro.bd/geo/v2.0";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { TransportEmployeeSchema, IAddressNid } from "@/types/transport";
+import { Id } from "../../../../../../convex/_generated/dataModel";
 
 const ACCOUNT_TYPES = [
   { id: "whatsapp", label: "WhatsApp" },
@@ -37,66 +39,25 @@ const AVATARS = [
   "https://api.dicebear.com/9.x/notionists/svg?seed=George"
 ];
 
-function AddressSelector({ title, addressData, onChange, isSameAsNid, onToggleSameAsNid, showSameAsNidCheckbox }) {
-  const [divisions, setDivisions] = useState([]);
-  const [districts, setDistricts] = useState([]);
-  const [upazilas, setUpazilas] = useState([]);
-  const [unions, setUnions] = useState([]);
-
-  useEffect(() => {
-    fetch(`${API_BASE}/divisions`)
-      .then((res) => res.json())
-      .then((data) => setDivisions(data.data || []))
-      .catch((err) => console.error(err));
-  }, []);
-
-  useEffect(() => {
-    if (addressData.division) {
-      const divisionId = divisions.find((d) => d.name === addressData.division)?.id;
-      if (divisionId) {
-        fetch(`${API_BASE}/districts/${divisionId}`)
-          .then((res) => res.json())
-          .then((data) => setDistricts(data.data || []))
-          .catch((err) => console.error(err));
-      } else {
-        setDistricts([]);
-      }
-    } else {
-      setDistricts([]);
-    }
-  }, [addressData.division, divisions]);
-
-  useEffect(() => {
-    if (addressData.district) {
-      const districtId = districts.find((d) => d.name === addressData.district)?.id;
-      if (districtId) {
-        fetch(`${API_BASE}/upazilas/${districtId}`)
-          .then((res) => res.json())
-          .then((data) => setUpazilas(data.data || []))
-          .catch((err) => console.error(err));
-      } else {
-        setUpazilas([]);
-      }
-    } else {
-      setUpazilas([]);
-    }
-  }, [addressData.district, districts]);
-
-  useEffect(() => {
-    if (addressData.upazila) {
-      const upazilaId = upazilas.find((d) => d.name === addressData.upazila)?.id;
-      if (upazilaId) {
-        fetch(`${API_BASE}/unions/${upazilaId}`)
-          .then((res) => res.json())
-          .then((data) => setUnions(data.data || []))
-          .catch((err) => console.error(err));
-      } else {
-        setUnions([]);
-      }
-    } else {
-      setUnions([]);
-    }
-  }, [addressData.upazila, upazilas]);
+function AddressSelector({ 
+  title, 
+  addressData, 
+  onChange, 
+  isSameAsNid, 
+  onToggleSameAsNid, 
+  showSameAsNidCheckbox 
+}: { 
+  title: string, 
+  addressData: IAddressNid, 
+  onChange: (field: keyof IAddressNid, val: string) => void, 
+  isSameAsNid?: boolean, 
+  onToggleSameAsNid?: () => void, 
+  showSameAsNidCheckbox?: boolean 
+}) {
+  const divisions = useQuery(api.addresses.getDivisions) || [];
+  const districts = useQuery(api.addresses.getDistricts, addressData.division ? { divisionName: addressData.division } : "skip") || [];
+  const upazilas = useQuery(api.addresses.getUpazilas, addressData.district ? { districtName: addressData.district } : "skip") || [];
+  const unions = useQuery(api.addresses.getUnions, addressData.upazila ? { upazilaName: addressData.upazila } : "skip") || [];
 
   return (
     <div className="space-y-3 pt-4 border-t border-border mt-4">
@@ -119,13 +80,13 @@ function AddressSelector({ title, addressData, onChange, isSameAsNid, onToggleSa
         <div>
           <select
             disabled={isSameAsNid}
-            value={addressData.division}
+            value={addressData.division || ""}
             onChange={(e) => onChange("division", e.target.value)}
             className="w-full px-3 py-2 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring text-sm disabled:opacity-50"
           >
             <option value="">Select Division</option>
-            {divisions.map((d) => (
-              <option key={d.id} value={d.name}>
+            {divisions.map((d: any) => (
+              <option key={d._id} value={d.name}>
                 {d.name} ({d.bn_name})
               </option>
             ))}
@@ -135,13 +96,13 @@ function AddressSelector({ title, addressData, onChange, isSameAsNid, onToggleSa
         <div>
           <select
             disabled={!addressData.division || isSameAsNid}
-            value={addressData.district}
+            value={addressData.district || ""}
             onChange={(e) => onChange("district", e.target.value)}
             className="w-full px-3 py-2 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring text-sm disabled:opacity-50"
           >
             <option value="">Select District</option>
-            {districts.map((d) => (
-              <option key={d.id} value={d.name}>
+            {districts.map((d: any) => (
+              <option key={d._id} value={d.name}>
                 {d.name} ({d.bn_name})
               </option>
             ))}
@@ -151,13 +112,13 @@ function AddressSelector({ title, addressData, onChange, isSameAsNid, onToggleSa
         <div>
           <select
             disabled={!addressData.district || isSameAsNid}
-            value={addressData.upazila}
+            value={addressData.upazila || ""}
             onChange={(e) => onChange("upazila", e.target.value)}
             className="w-full px-3 py-2 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring text-sm disabled:opacity-50"
           >
             <option value="">Select Upazila</option>
-            {upazilas.map((d) => (
-              <option key={d.id} value={d.name}>
+            {upazilas.map((d: any) => (
+              <option key={d._id} value={d.name}>
                 {d.name} ({d.bn_name})
               </option>
             ))}
@@ -167,13 +128,13 @@ function AddressSelector({ title, addressData, onChange, isSameAsNid, onToggleSa
         <div>
           <select
             disabled={!addressData.upazila || isSameAsNid}
-            value={addressData.union}
+            value={addressData.union || ""}
             onChange={(e) => onChange("union", e.target.value)}
             className="w-full px-3 py-2 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring text-sm disabled:opacity-50"
           >
             <option value="">Select Union (Optional)</option>
-            {unions.map((d) => (
-              <option key={d.id} value={d.name}>
+            {unions.map((d: any) => (
+              <option key={d._id} value={d.name}>
                 {d.name} ({d.bn_name})
               </option>
             ))}
@@ -185,7 +146,7 @@ function AddressSelector({ title, addressData, onChange, isSameAsNid, onToggleSa
             type="text"
             disabled={isSameAsNid}
             placeholder="House/Road/Village"
-            value={addressData.street}
+            value={addressData.street || ""}
             onChange={(e) => onChange("street", e.target.value)}
             className="w-full px-3 py-2 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring text-sm disabled:opacity-50"
           />
@@ -198,9 +159,9 @@ function AddressSelector({ title, addressData, onChange, isSameAsNid, onToggleSa
 export default function EditTransportEmployee() {
   const router = useRouter();
   const params = useParams();
-  const employeeId = params.id;
+  const employeeId = params.id as string;
   
-  const employee = useQuery(api.transportEmployees.getById, employeeId ? { id: employeeId } : "skip");
+  const employee = useQuery(api.transportEmployees.getEmployeeById, employeeId ? { id: employeeId as Id<"transportEmployees"> } : "skip");
   const updateEmployee = useMutation(api.transportEmployees.update);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formReady, setFormReady] = useState(false);
@@ -215,206 +176,147 @@ export default function EditTransportEmployee() {
     street: "",
   };
 
-  const [form, setForm] = useState({
-    name: "",
-    dob: "",
-    age: "",
-    address: {
-      nid: { ...initialAddress },
-      permanent: { ...initialAddress },
-      current: { ...initialAddress },
-    },
-    phoneNumbers: [{ number: "+880", accounts: [] }],
-    vehicleType: "",
-    vehicleWheels: "",
-    clothCapacityYards: "",
-    avatar: AVATARS[0],
+  const { register, control, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({
+    resolver: zodResolver(TransportEmployeeSchema),
+    defaultValues: {
+      name: "",
+      dob: "",
+      age: 0,
+      address: {
+        nid: { ...initialAddress },
+        permanent: { ...initialAddress },
+        current: { ...initialAddress },
+      },
+      phoneNumbers: [{ number: "+880", accounts: [] }],
+      vehicleType: "",
+      vehicleWheels: 4,
+      clothCapacityYards: 500,
+      avatar: AVATARS[0],
+    }
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "phoneNumbers"
   });
 
   useEffect(() => {
     if (employee && !formReady) {
-      setForm({
+      reset({
         name: employee.name || "",
         dob: employee.dob || "",
-        age: employee.age ? String(employee.age) : "",
+        age: employee.age || 0,
         address: typeof employee.address === "object" ? employee.address : {
           nid: { ...initialAddress },
           permanent: { ...initialAddress },
           current: { ...initialAddress },
         },
         phoneNumbers: employee.phoneNumbers?.length > 0 
-           ? employee.phoneNumbers.map(p => typeof p === 'string' ? { number: p, accounts: [] } : p) 
+           ? employee.phoneNumbers.map((p: any) => typeof p === 'string' ? { number: p, accounts: [] } : p) 
            : [{ number: "+880", accounts: [] }],
         vehicleType: employee.vehicleType || "",
-        vehicleWheels: employee.vehicleWheels ? String(employee.vehicleWheels) : "",
-        clothCapacityYards: employee.clothCapacityYards ? String(employee.clothCapacityYards) : "",
+        vehicleWheels: employee.vehicleWheels || 4,
+        clothCapacityYards: employee.clothCapacityYards || 500,
         avatar: employee.avatar || AVATARS[0],
       });
       setFormReady(true);
     }
-  }, [employee, formReady]);
+  }, [employee, formReady, reset]);
 
   const [sameAsNid, setSameAsNid] = useState({
     permanent: false,
     current: false,
   });
 
-  const calculateAge = (dobString) => {
-    if (!dobString) return "";
-    const dob = new Date(dobString);
+  const watchDob = watch("dob");
+  const watchAddress = watch("address");
+  const watchAvatar = watch("avatar");
+  const watchPhoneNumbers = watch("phoneNumbers");
+
+  useEffect(() => {
+    if (!watchDob || !formReady) return;
+    const dob = new Date(watchDob);
     const today = new Date();
     let age = today.getFullYear() - dob.getFullYear();
     const m = today.getMonth() - dob.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
       age--;
     }
-    return age > 0 ? age : "";
-  };
+    setValue("age", age > 0 ? age : 0, { shouldValidate: true });
+  }, [watchDob, setValue, formReady]);
 
-  const handleDobChange = (e) => {
-    const newDob = e.target.value;
-    setForm({
-      ...form,
-      dob: newDob,
-      age: calculateAge(newDob),
-    });
-  };
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handlePhoneChange = (index, value) => {
-    if (!value.startsWith("+880")) {
-      if (value.startsWith("880")) value = "+" + value;
-      else if (value.startsWith("0")) value = "+880" + value.substring(1);
-      else if (value === "+" || value === "") value = "+880";
-      else value = "+880" + value;
-    }
-
-    const updated = [...form.phoneNumbers];
-    updated[index].number = value;
-    setForm({ ...form, phoneNumbers: updated });
-  };
-
-  const toggleAccount = (phoneIndex, accountId) => {
-    const updated = [...form.phoneNumbers];
-    const accs = updated[phoneIndex].accounts;
+  const toggleAccount = (phoneIndex: number, accountId: string) => {
+    const phone = watchPhoneNumbers[phoneIndex];
+    const accs = (typeof phone === "object" && phone?.accounts) ? phone.accounts : [];
+    let newAccs = [];
     if (accs.includes(accountId)) {
-      updated[phoneIndex].accounts = accs.filter((a) => a !== accountId);
+      newAccs = accs.filter((a: string) => a !== accountId);
     } else {
-      updated[phoneIndex].accounts = [...accs, accountId];
+      newAccs = [...accs, accountId];
     }
-    setForm({ ...form, phoneNumbers: updated });
+    setValue(`phoneNumbers.${phoneIndex}.accounts`, newAccs);
   };
 
-  const addPhone = () => {
-    setForm({
-      ...form,
-      phoneNumbers: [...form.phoneNumbers, { number: "+880", accounts: [] }],
-    });
-  };
-
-  const removePhone = (index) => {
-    const updated = form.phoneNumbers.filter((_, i) => i !== index);
-    setForm({ ...form, phoneNumbers: updated });
-  };
-
-  const handleAddressChange = (type, field, value) => {
-    const newAddress = {
-      ...form.address,
-      [type]: {
-        ...form.address[type],
-        [field]: value,
-      },
-    };
-
+  const handleAddressChange = (type: "nid" | "permanent" | "current", field: keyof IAddressNid, value: string) => {
+    if (typeof watchAddress === "string") return;
+    const currentAddr = watchAddress[type];
+    const updated = { ...currentAddr, [field]: value };
+    
     if (field === "division") {
-      newAddress[type].district = "";
-      newAddress[type].upazila = "";
-      newAddress[type].union = "";
+      updated.district = "";
+      updated.upazila = "";
+      updated.union = "";
     } else if (field === "district") {
-      newAddress[type].upazila = "";
-      newAddress[type].union = "";
+      updated.upazila = "";
+      updated.union = "";
     } else if (field === "upazila") {
-      newAddress[type].union = "";
+      updated.union = "";
     }
+
+    setValue(`address.${type}`, updated);
 
     if (type === "nid") {
-      if (sameAsNid.permanent) newAddress.permanent = { ...newAddress.nid };
-      if (sameAsNid.current) newAddress.current = { ...newAddress.nid };
+      if (sameAsNid.permanent) setValue("address.permanent", updated);
+      if (sameAsNid.current) setValue("address.current", updated);
     }
-
-    setForm({ ...form, address: newAddress });
   };
 
-  const handleSameAsNidToggle = (type) => {
+  const handleSameAsNidToggle = (type: "permanent" | "current") => {
     const newValue = !sameAsNid[type];
     setSameAsNid({ ...sameAsNid, [type]: newValue });
 
+    if (typeof watchAddress === "string") return;
+
     if (newValue) {
-      setForm({
-        ...form,
-        address: {
-          ...form.address,
-          [type]: { ...form.address.nid },
-        },
-      });
+      setValue(`address.${type}`, watchAddress.nid);
     } else {
-      setForm({
-        ...form,
-        address: {
-          ...form.address,
-          [type]: { ...initialAddress },
-        },
-      });
+      setValue(`address.${type}`, initialAddress);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const validPhones = form.phoneNumbers.filter(
-      (p) => p.number.trim() !== "" && p.number.trim() !== "+880"
-    );
-    if (validPhones.length === 0) {
-      toast.error("Please add at least one valid phone number");
-      return;
-    }
-
-    if (!form.age || isNaN(Number(form.age)) || Number(form.age) <= 0) {
-      toast.error("Please enter a valid Date of Birth to calculate Age");
-      return;
-    }
-
-    if (!form.address.nid.division || !form.address.nid.district || !form.address.nid.upazila) {
-      toast.error("Please complete the NID address fields (Division, District, Upazila)");
-      return;
-    }
-
+  const onSubmit = async (data: any) => {
     try {
       setIsSubmitting(true);
-      await updateEmployee({
-        id: employeeId,
-        name: form.name.trim(),
-        dob: form.dob,
-        phoneNumbers: validPhones,
-        address: form.address,
-        age: Number(form.age),
-        vehicleType: form.vehicleType.trim(),
-        vehicleWheels: Number(form.vehicleWheels),
-        clothCapacityYards: Number(form.clothCapacityYards),
-        avatar: form.avatar,
-      });
+      await updateEmployee({ id: employeeId as Id<"transportEmployees">, ...data });
       toast.success("Transport employee updated successfully!");
       router.push("/dashboard/transport");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to create employee. Please try again.");
+      toast.error("Failed to update employee. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (!employee && employeeId) {
+     return (
+        <div className="flex justify-center items-center h-96">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+     );
+  }
+
+  const hasAddressError = errors.address;
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 md:p-8 font-sans">
@@ -446,11 +348,12 @@ export default function EditTransportEmployee() {
           </div>
         </motion.div>
 
+        {formReady && (
         <motion.form
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           className="space-y-8"
         >
           {/* Personal Information */}
@@ -468,13 +371,11 @@ export default function EditTransportEmployee() {
               </label>
               <input
                 type="text"
-                name="name"
+                {...register("name")}
                 placeholder="Enter employee name"
-                value={form.name}
-                onChange={handleChange}
-                required
                 className="w-full px-4 py-2.5 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition-all text-sm placeholder:text-muted-foreground/60"
               />
+              {errors.name && <p className="text-xs text-destructive mt-1">{errors.name.message?.toString()}</p>}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -486,10 +387,7 @@ export default function EditTransportEmployee() {
                   <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/50" />
                   <input
                     type="date"
-                    name="dob"
-                    value={form.dob}
-                    onChange={handleDobChange}
-                    required
+                    {...register("dob")}
                     className="w-full pl-10 pr-4 py-2.5 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition-all text-sm"
                   />
                 </div>
@@ -501,10 +399,11 @@ export default function EditTransportEmployee() {
                 <input
                   type="text"
                   readOnly
+                  {...register("age")}
                   placeholder="Auto-calculated"
-                  value={form.age}
                   className="w-full px-4 py-2.5 bg-background/50 text-foreground border border-border rounded-md focus:outline-none cursor-not-allowed text-sm placeholder:text-muted-foreground/60"
                 />
+                {errors.age && <p className="text-xs text-destructive mt-1">{errors.age.message?.toString()}</p>}
               </div>
             </div>
 
@@ -518,15 +417,15 @@ export default function EditTransportEmployee() {
                   <button
                     key={idx}
                     type="button"
-                    onClick={() => setForm({ ...form, avatar })}
+                    onClick={() => setValue("avatar", avatar)}
                     className={`relative w-16 h-16 rounded-full overflow-hidden border-2 transition-all cursor-pointer ${
-                      form.avatar === avatar
+                      watchAvatar === avatar
                         ? "border-primary shadow-md scale-110"
                         : "border-transparent hover:scale-105 hover:border-primary/50"
                     }`}
                   >
                     <img src={avatar} alt={`Avatar ${idx + 1}`} className="w-full h-full object-cover bg-primary/5" />
-                    {form.avatar === avatar && (
+                    {watchAvatar === avatar && (
                       <div className="absolute inset-0 bg-primary/10 flex items-center justify-center">
                         <div className="w-4 h-4 bg-primary rounded-full" />
                       </div>
@@ -548,7 +447,7 @@ export default function EditTransportEmployee() {
               </div>
               <button
                 type="button"
-                onClick={addPhone}
+                onClick={() => append({ number: "+880", accounts: [] })}
                 className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
               >
                 <Plus size={14} />
@@ -557,9 +456,9 @@ export default function EditTransportEmployee() {
             </div>
 
             <div className="space-y-4">
-              {form.phoneNumbers.map((phone, index) => (
+              {fields.map((field, index) => (
                 <motion.div
-                  key={index}
+                  key={field.id}
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
@@ -573,16 +472,15 @@ export default function EditTransportEmployee() {
                       />
                       <input
                         type="text"
+                        {...register(`phoneNumbers.${index}.number` as const)}
                         placeholder={`Phone number ${index + 1}`}
-                        value={phone.number}
-                        onChange={(e) => handlePhoneChange(index, e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition-all text-sm font-mono placeholder:text-muted-foreground/60"
                       />
                     </div>
-                    {form.phoneNumbers.length > 1 && (
+                    {fields.length > 1 && (
                       <button
                         type="button"
-                        onClick={() => removePhone(index)}
+                        onClick={() => remove(index)}
                         className="p-2.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-all cursor-pointer border border-transparent hover:border-destructive/20"
                         title="Remove this number"
                       >
@@ -601,7 +499,7 @@ export default function EditTransportEmployee() {
                       >
                         <input
                           type="checkbox"
-                          checked={phone.accounts.includes(acc.id)}
+                          checked={((typeof watchPhoneNumbers[index] === "object" ? (watchPhoneNumbers[index] as any).accounts : []) || []).includes(acc.id)}
                           onChange={() => toggleAccount(index, acc.id)}
                           className="rounded border-border text-primary focus:ring-primary h-3.5 w-3.5"
                         />
@@ -609,6 +507,9 @@ export default function EditTransportEmployee() {
                       </label>
                     ))}
                   </div>
+                  {errors.phoneNumbers?.[index] && (errors.phoneNumbers[index] as any)?.number && (
+                    <p className="text-xs text-destructive mt-1">{(errors.phoneNumbers[index] as any)?.number?.message}</p>
+                  )}
                 </motion.div>
               ))}
             </div>
@@ -623,30 +524,38 @@ export default function EditTransportEmployee() {
               </h2>
             </div>
             
-            <AddressSelector
-              title="NID Address"
-              addressData={form.address.nid}
-              onChange={(field, val) => handleAddressChange("nid", field, val)}
-              showSameAsNidCheckbox={false}
-            />
-            
-            <AddressSelector
-              title="Permanent Address"
-              addressData={form.address.permanent}
-              onChange={(field, val) => handleAddressChange("permanent", field, val)}
-              isSameAsNid={sameAsNid.permanent}
-              onToggleSameAsNid={() => handleSameAsNidToggle("permanent")}
-              showSameAsNidCheckbox={true}
-            />
-            
-            <AddressSelector
-              title="Current Address"
-              addressData={form.address.current}
-              onChange={(field, val) => handleAddressChange("current", field, val)}
-              isSameAsNid={sameAsNid.current}
-              onToggleSameAsNid={() => handleSameAsNidToggle("current")}
-              showSameAsNidCheckbox={true}
-            />
+            {hasAddressError && (
+              <p className="text-xs text-destructive">Please fill all required address fields (Division, District, Upazila).</p>
+            )}
+
+            {typeof watchAddress === "object" && (
+              <>
+                <AddressSelector
+                  title="NID Address"
+                  addressData={watchAddress.nid}
+                  onChange={(field, val) => handleAddressChange("nid", field, val)}
+                  showSameAsNidCheckbox={false}
+                />
+                
+                <AddressSelector
+                  title="Permanent Address"
+                  addressData={watchAddress.permanent}
+                  onChange={(field, val) => handleAddressChange("permanent", field, val)}
+                  isSameAsNid={sameAsNid.permanent}
+                  onToggleSameAsNid={() => handleSameAsNidToggle("permanent")}
+                  showSameAsNidCheckbox={true}
+                />
+                
+                <AddressSelector
+                  title="Current Address"
+                  addressData={watchAddress.current}
+                  onChange={(field, val) => handleAddressChange("current", field, val)}
+                  isSameAsNid={sameAsNid.current}
+                  onToggleSameAsNid={() => handleSameAsNidToggle("current")}
+                  showSameAsNidCheckbox={true}
+                />
+              </>
+            )}
           </div>
 
           {/* Vehicle Information */}
@@ -664,13 +573,11 @@ export default function EditTransportEmployee() {
               </label>
               <input
                 type="text"
-                name="vehicleType"
+                {...register("vehicleType")}
                 placeholder="e.g. Truck, Van, Pickup, CNG"
-                value={form.vehicleType}
-                onChange={handleChange}
-                required
                 className="w-full px-4 py-2.5 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition-all text-sm placeholder:text-muted-foreground/60"
               />
+              {errors.vehicleType && <p className="text-xs text-destructive mt-1">{errors.vehicleType.message?.toString()}</p>}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -680,11 +587,8 @@ export default function EditTransportEmployee() {
                 </label>
                 <input
                   type="number"
-                  name="vehicleWheels"
+                  {...register("vehicleWheels")}
                   placeholder="e.g. 4, 6, 8"
-                  value={form.vehicleWheels}
-                  onChange={handleChange}
-                  required
                   min="1"
                   className="w-full px-4 py-2.5 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition-all text-sm placeholder:text-muted-foreground/60"
                 />
@@ -696,11 +600,8 @@ export default function EditTransportEmployee() {
                 <div className="relative">
                   <input
                     type="number"
-                    name="clothCapacityYards"
+                    {...register("clothCapacityYards")}
                     placeholder="e.g. 500"
-                    value={form.clothCapacityYards}
-                    onChange={handleChange}
-                    required
                     min="1"
                     className="w-full px-4 py-2.5 pr-16 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition-all text-sm placeholder:text-muted-foreground/60"
                   />
@@ -740,6 +641,7 @@ export default function EditTransportEmployee() {
             </button>
           </div>
         </motion.form>
+        )}
       </div>
     </div>
   );

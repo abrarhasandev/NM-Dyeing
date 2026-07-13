@@ -17,13 +17,14 @@ import {
   Gauge,
   CircleDot,
 } from "lucide-react";
+import { Id } from "../../../../../../convex/_generated/dataModel";
 
 export default function TransportEmployeeProfile() {
   const router = useRouter();
   const params = useParams();
-  const employeeId = params.id;
+  const employeeId = params.id as string;
 
-  const employee = useQuery(api.transportEmployees.getById, employeeId ? { id: employeeId } : "skip");
+  const employee = useQuery(api.transportEmployees.getEmployeeById, employeeId ? { id: employeeId as Id<"transportEmployees"> } : "skip");
 
   useDocumentTitle(employee?.name ? `${employee.name} — Transport` : "Employee Profile");
 
@@ -57,8 +58,8 @@ export default function TransportEmployeeProfile() {
     );
   }
 
-  const createdDate = employee.createdAt
-    ? new Date(employee.createdAt).toLocaleDateString("en-US", {
+  const createdDate = employee._creationTime
+    ? new Date(employee._creationTime).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -165,13 +166,13 @@ export default function TransportEmployeeProfile() {
                     ) : (
                       <div className="space-y-2">
                         {employee.address?.nid?.district && (
-                          <p><span className="font-medium text-muted-foreground">NID:</span> {employee.address.nid.street}, {employee.address.nid.union}, {employee.address.nid.upazila}, {employee.address.nid.district}, {employee.address.nid.division}</p>
+                          <p><span className="font-medium text-muted-foreground">NID:</span> {employee.address.nid.street ? employee.address.nid.street + ", " : ""}{employee.address.nid.union ? employee.address.nid.union + ", " : ""}{employee.address.nid.upazila}, {employee.address.nid.district}, {employee.address.nid.division}</p>
                         )}
                         {employee.address?.permanent?.district && (
-                          <p><span className="font-medium text-muted-foreground">Permanent:</span> {employee.address.permanent.street}, {employee.address.permanent.union}, {employee.address.permanent.upazila}, {employee.address.permanent.district}, {employee.address.permanent.division}</p>
+                          <p><span className="font-medium text-muted-foreground">Permanent:</span> {employee.address.permanent.street ? employee.address.permanent.street + ", " : ""}{employee.address.permanent.union ? employee.address.permanent.union + ", " : ""}{employee.address.permanent.upazila}, {employee.address.permanent.district}, {employee.address.permanent.division}</p>
                         )}
                         {employee.address?.current?.district && (
-                          <p><span className="font-medium text-muted-foreground">Current:</span> {employee.address.current.street}, {employee.address.current.union}, {employee.address.current.upazila}, {employee.address.current.district}, {employee.address.current.division}</p>
+                          <p><span className="font-medium text-muted-foreground">Current:</span> {employee.address.current.street ? employee.address.current.street + ", " : ""}{employee.address.current.union ? employee.address.current.union + ", " : ""}{employee.address.current.upazila}, {employee.address.current.district}, {employee.address.current.division}</p>
                         )}
                       </div>
                     )}
@@ -196,7 +197,7 @@ export default function TransportEmployeeProfile() {
             </div>
 
             <div className="space-y-3">
-              {employee.phoneNumbers?.map((phone, index) => (
+              {employee.phoneNumbers?.map((phone: any, index: number) => (
                 <div
                   key={index}
                   className="flex items-center gap-3 bg-background rounded-md border border-border px-4 py-3"
@@ -213,7 +214,7 @@ export default function TransportEmployeeProfile() {
                     </p>
                     {typeof phone === 'object' && phone?.accounts?.length > 0 && (
                       <div className="flex gap-1 mt-1">
-                        {phone.accounts.map((acc, i) => (
+                        {phone.accounts.map((acc: string, i: number) => (
                           <span key={i} className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded capitalize">
                             {acc}
                           </span>

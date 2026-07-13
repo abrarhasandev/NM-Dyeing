@@ -1,21 +1,66 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
+import { paginationOptsValidator } from "convex/server";
+
 // ─── Queries ────────────────────────────────────────────────
+
+export const getEmployees = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+    searchTerm: v.optional(v.string()),
+    vehicleType: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    let q;
+
+    if (args.searchTerm) {
+      q = ctx.db
+        .query("transportEmployees")
+        .withSearchIndex("search_name", (q) =>
+          q.search("name", args.searchTerm!)
+        );
+    } else {
+      q = ctx.db.query("transportEmployees").order("desc");
+    }
+
+    if (args.vehicleType) {
+      q = q.filter((q) => q.eq(q.field("vehicleType"), args.vehicleType));
+    }
+
+    return await q.paginate(args.paginationOpts);
+  },
+});
+
+export const getEmployeeById = query({
+  args: { id: v.id("transportEmployees") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
+export const getStats = query({
+  args: {},
+  handler: async (ctx) => {
+    const employees = await ctx.db.query("transportEmployees").collect();
+    const totalEmployees = employees.length;
+    const totalVehicles = employees.length; // 1 vehicle per employee usually
+    const totalCapacity = employees.reduce((sum, e) => sum + (e.clothCapacityYards || 0), 0);
+    return { totalEmployees, totalVehicles, totalCapacity };
+  },
+});
 
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    const employees = await ctx.db.query("transportEmployees").order("desc").collect();
-    return employees;
+    return await ctx.db.query("transportEmployees").order("desc").collect();
   },
 });
 
 export const getById = query({
   args: { id: v.id("transportEmployees") },
   handler: async (ctx, args) => {
-    const employee = await ctx.db.get(args.id);
-    return employee;
+    return await ctx.db.get(args.id);
   },
 });
 
@@ -121,7 +166,7 @@ export const update = mutation({
   },
 });
 
-export const remove = mutation({
+export const deleteEmployee = mutation({
   args: { id: v.id("transportEmployees") },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.id);
