@@ -28,13 +28,15 @@ export default function TransportEmployeeProfile() {
 
   useDocumentTitle(employee?.name ? `${employee.name} — Transport` : "Employee Profile");
 
-  // Loading state
+  // Loading state (undefined = still fetching; null = not found)
   if (employee === undefined) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <p className="text-sm text-muted-foreground animate-pulse">Loading profile...</p>
+          <p className="text-sm text-muted-foreground animate-pulse">
+            Loading transport employee...
+          </p>
         </div>
       </div>
     );

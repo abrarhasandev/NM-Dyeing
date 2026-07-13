@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -18,9 +18,15 @@ import {
   Save,
   Calendar,
 } from "lucide-react";
-import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TransportEmployeeSchema, ITransportEmployee, IAddressNid } from "@/types/transport";
+import {
+  TransportEmployeeSchema,
+  emptyStructuredAddress,
+  type IAddressNid,
+  type TransportEmployeeFormValues,
+} from "@/types/transport";
+import { AddressSelector } from "@/components/transport/AddressSelector";
 
 const ACCOUNT_TYPES = [
   { id: "whatsapp", label: "WhatsApp" },
@@ -38,123 +44,6 @@ const AVATARS = [
   "https://api.dicebear.com/9.x/notionists/svg?seed=George"
 ];
 
-function AddressSelector({ 
-  title, 
-  addressData, 
-  onChange, 
-  isSameAsNid, 
-  onToggleSameAsNid, 
-  showSameAsNidCheckbox 
-}: { 
-  title: string, 
-  addressData: IAddressNid, 
-  onChange: (field: keyof IAddressNid, val: string) => void, 
-  isSameAsNid?: boolean, 
-  onToggleSameAsNid?: () => void, 
-  showSameAsNidCheckbox?: boolean 
-}) {
-  const divisions = useQuery(api.addresses.getDivisions) || [];
-  const districts = useQuery(api.addresses.getDistricts, addressData.division ? { divisionName: addressData.division } : "skip") || [];
-  const upazilas = useQuery(api.addresses.getUpazilas, addressData.district ? { districtName: addressData.district } : "skip") || [];
-  const unions = useQuery(api.addresses.getUnions, addressData.upazila ? { upazilaName: addressData.upazila } : "skip") || [];
-
-  return (
-    <div className="space-y-3 pt-4 border-t border-border mt-4">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold text-foreground/80">{title}</h3>
-        {showSameAsNidCheckbox && (
-          <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer hover:text-foreground">
-            <input
-              type="checkbox"
-              checked={isSameAsNid}
-              onChange={onToggleSameAsNid}
-              className="rounded border-border bg-background text-primary focus:ring-primary h-3.5 w-3.5"
-            />
-            Same as NID Address
-          </label>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <select
-            disabled={isSameAsNid}
-            value={addressData.division || ""}
-            onChange={(e) => onChange("division", e.target.value)}
-            className="w-full px-3 py-2 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring text-sm disabled:opacity-50"
-          >
-            <option value="">Select Division</option>
-            {divisions.map((d: any) => (
-              <option key={d._id} value={d.name}>
-                {d.name} ({d.bn_name})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <select
-            disabled={!addressData.division || isSameAsNid}
-            value={addressData.district || ""}
-            onChange={(e) => onChange("district", e.target.value)}
-            className="w-full px-3 py-2 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring text-sm disabled:opacity-50"
-          >
-            <option value="">Select District</option>
-            {districts.map((d: any) => (
-              <option key={d._id} value={d.name}>
-                {d.name} ({d.bn_name})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <select
-            disabled={!addressData.district || isSameAsNid}
-            value={addressData.upazila || ""}
-            onChange={(e) => onChange("upazila", e.target.value)}
-            className="w-full px-3 py-2 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring text-sm disabled:opacity-50"
-          >
-            <option value="">Select Upazila</option>
-            {upazilas.map((d: any) => (
-              <option key={d._id} value={d.name}>
-                {d.name} ({d.bn_name})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <select
-            disabled={!addressData.upazila || isSameAsNid}
-            value={addressData.union || ""}
-            onChange={(e) => onChange("union", e.target.value)}
-            className="w-full px-3 py-2 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring text-sm disabled:opacity-50"
-          >
-            <option value="">Select Union (Optional)</option>
-            {unions.map((d: any) => (
-              <option key={d._id} value={d.name}>
-                {d.name} ({d.bn_name})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="sm:col-span-2">
-          <input
-            type="text"
-            disabled={isSameAsNid}
-            placeholder="House/Road/Village"
-            value={addressData.street || ""}
-            onChange={(e) => onChange("street", e.target.value)}
-            className="w-full px-3 py-2 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring text-sm disabled:opacity-50"
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function CreateTransportEmployee() {
   const router = useRouter();
   const createEmployee = useMutation(api.transportEmployees.create);
@@ -162,13 +51,7 @@ export default function CreateTransportEmployee() {
 
   useDocumentTitle("Add Transport Employee");
 
-  const initialAddress = {
-    division: "",
-    district: "",
-    upazila: "",
-    union: "",
-    street: "",
-  };
+  const initialAddress = emptyStructuredAddress().nid;
 
   const { register, control, handleSubmit, watch, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(TransportEmployeeSchema),
@@ -176,17 +59,13 @@ export default function CreateTransportEmployee() {
       name: "",
       dob: "",
       age: 0,
-      address: {
-        nid: { ...initialAddress },
-        permanent: { ...initialAddress },
-        current: { ...initialAddress },
-      },
-      phoneNumbers: [{ number: "+880", accounts: [] }],
+      address: emptyStructuredAddress(),
+      phoneNumbers: [{ number: "+880", accounts: [] as string[] }],
       vehicleType: "",
       vehicleWheels: 4,
       clothCapacityYards: 500,
       avatar: AVATARS[0],
-    }
+    },
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -266,10 +145,20 @@ export default function CreateTransportEmployee() {
     }
   };
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: TransportEmployeeFormValues) => {
     try {
       setIsSubmitting(true);
-      await createEmployee(data);
+      await createEmployee({
+        name: data.name,
+        phoneNumbers: data.phoneNumbers,
+        address: data.address,
+        dob: data.dob,
+        age: data.age,
+        vehicleType: data.vehicleType,
+        vehicleWheels: data.vehicleWheels,
+        clothCapacityYards: data.clothCapacityYards,
+        avatar: data.avatar,
+      });
       toast.success("Transport employee created successfully!");
       router.push("/dashboard/transport");
     } catch (err) {
@@ -316,7 +205,9 @@ export default function CreateTransportEmployee() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit((values) =>
+            onSubmit(values as TransportEmployeeFormValues)
+          )}
           className="space-y-8"
         >
           {/* Personal Information */}

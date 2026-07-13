@@ -1,10 +1,59 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
-
 import { paginationOptsValidator } from "convex/server";
+
+/**
+ * Transport employees — live Convex domain (Transport Management).
+ *
+ * Deployed surface must stay in sync with the dashboard UI:
+ * - getEmployees (paginated list + search)
+ * - getStats
+ * - getEmployeeById / getById
+ * - list (simple full list for order forms)
+ * - create / update / deleteEmployee / remove
+ */
+
+const phoneNumberValidator = v.union(
+  v.string(),
+  v.object({
+    number: v.string(),
+    accounts: v.array(v.string()),
+  })
+);
+
+/** Nested address line — union/street optional (matches schema + form UX). */
+const addressLineValidator = v.object({
+  division: v.string(),
+  district: v.string(),
+  upazila: v.string(),
+  union: v.optional(v.string()),
+  street: v.optional(v.string()),
+});
+
+const addressValidator = v.union(
+  v.string(),
+  v.object({
+    nid: addressLineValidator,
+    permanent: addressLineValidator,
+    current: addressLineValidator,
+  })
+);
+
+const employeeWriteFields = {
+  name: v.string(),
+  phoneNumbers: v.array(phoneNumberValidator),
+  address: addressValidator,
+  dob: v.optional(v.string()),
+  age: v.number(),
+  vehicleType: v.string(),
+  vehicleWheels: v.number(),
+  clothCapacityYards: v.number(),
+  avatar: v.optional(v.string()),
+};
 
 // ─── Queries ────────────────────────────────────────────────
 
+/** Paginated list for Transport Management table (search + optional vehicle filter). */
 export const getEmployees = query({
   args: {
     paginationOpts: paginationOptsValidator,
@@ -12,44 +61,43 @@ export const getEmployees = query({
     vehicleType: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const term = args.searchTerm?.trim();
     let q;
 
-    if (args.searchTerm) {
+    if (term) {
       q = ctx.db
         .query("transportEmployees")
-        .withSearchIndex("search_name", (q) =>
-          q.search("name", args.searchTerm!)
-        );
+        .withSearchIndex("search_name", (search) => search.search("name", term));
     } else {
       q = ctx.db.query("transportEmployees").order("desc");
     }
 
     if (args.vehicleType) {
-      q = q.filter((q) => q.eq(q.field("vehicleType"), args.vehicleType));
+      const vehicleType = args.vehicleType;
+      q = q.filter((f) => f.eq(f.field("vehicleType"), vehicleType));
     }
 
     return await q.paginate(args.paginationOpts);
   },
 });
 
-export const getEmployeeById = query({
-  args: { id: v.id("transportEmployees") },
-  handler: async (ctx, args) => {
-    return await ctx.db.get(args.id);
-  },
-});
-
+/** Dashboard stats cards. */
 export const getStats = query({
   args: {},
   handler: async (ctx) => {
     const employees = await ctx.db.query("transportEmployees").collect();
     const totalEmployees = employees.length;
-    const totalVehicles = employees.length; // 1 vehicle per employee usually
-    const totalCapacity = employees.reduce((sum, e) => sum + (e.clothCapacityYards || 0), 0);
+    // One vehicle per employee in current domain model
+    const totalVehicles = employees.length;
+    const totalCapacity = employees.reduce(
+      (sum, e) => sum + (e.clothCapacityYards || 0),
+      0
+    );
     return { totalEmployees, totalVehicles, totalCapacity };
   },
 });
 
+/** Full list (order create/edit selects). Newest first. */
 export const list = query({
   args: {},
   handler: async (ctx) => {
@@ -57,6 +105,15 @@ export const list = query({
   },
 });
 
+/** Primary by-id lookup used by profile / edit / transport orders pages. */
+export const getEmployeeById = query({
+  args: { id: v.id("transportEmployees") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
+/** Alias kept for older clients / scripts that still call getById. */
 export const getById = query({
   args: { id: v.id("transportEmployees") },
   handler: async (ctx, args) => {
@@ -67,108 +124,69 @@ export const getById = query({
 // ─── Mutations ──────────────────────────────────────────────
 
 export const create = mutation({
-  args: {
-    name: v.string(),
-    phoneNumbers: v.array(
-      v.union(
-        v.string(),
-        v.object({ number: v.string(), accounts: v.array(v.string()) })
-      )
-    ),
-    address: v.union(
-      v.string(),
-      v.object({
-        nid: v.object({
-          division: v.string(),
-          district: v.string(),
-          upazila: v.string(),
-          union: v.string(),
-          street: v.string(),
-        }),
-        permanent: v.object({
-          division: v.string(),
-          district: v.string(),
-          upazila: v.string(),
-          union: v.string(),
-          street: v.string(),
-        }),
-        current: v.object({
-          division: v.string(),
-          district: v.string(),
-          upazila: v.string(),
-          union: v.string(),
-          street: v.string(),
-        }),
-      })
-    ),
-    dob: v.optional(v.string()),
-    age: v.number(),
-    vehicleType: v.string(),
-    vehicleWheels: v.number(),
-    clothCapacityYards: v.number(),
-    avatar: v.optional(v.string()),
-  },
+  args: employeeWriteFields,
   handler: async (ctx, args) => {
-    const id = await ctx.db.insert("transportEmployees", {
+    const name = args.name.trim();
+    if (!name) throw new Error("Name is required");
+    if (!Number.isFinite(args.age) || args.age < 1) {
+      throw new Error("Age must be greater than 0");
+    }
+    if (!Number.isFinite(args.vehicleWheels) || args.vehicleWheels < 1) {
+      throw new Error("Vehicle wheels must be at least 1");
+    }
+    if (!Number.isFinite(args.clothCapacityYards) || args.clothCapacityYards < 1) {
+      throw new Error("Capacity must be greater than 0");
+    }
+
+    return await ctx.db.insert("transportEmployees", {
       ...args,
+      name,
+      vehicleType: args.vehicleType.trim(),
       createdAt: Date.now(),
     });
-    return id;
   },
 });
 
 export const update = mutation({
   args: {
     id: v.id("transportEmployees"),
-    name: v.string(),
-    phoneNumbers: v.array(
-      v.union(
-        v.string(),
-        v.object({ number: v.string(), accounts: v.array(v.string()) })
-      )
-    ),
-    address: v.union(
-      v.string(),
-      v.object({
-        nid: v.object({
-          division: v.string(),
-          district: v.string(),
-          upazila: v.string(),
-          union: v.string(),
-          street: v.string(),
-        }),
-        permanent: v.object({
-          division: v.string(),
-          district: v.string(),
-          upazila: v.string(),
-          union: v.string(),
-          street: v.string(),
-        }),
-        current: v.object({
-          division: v.string(),
-          district: v.string(),
-          upazila: v.string(),
-          union: v.string(),
-          street: v.string(),
-        }),
-      })
-    ),
-    dob: v.optional(v.string()),
-    age: v.number(),
-    vehicleType: v.string(),
-    vehicleWheels: v.number(),
-    clothCapacityYards: v.number(),
-    avatar: v.optional(v.string()),
+    ...employeeWriteFields,
   },
   handler: async (ctx, args) => {
+    const existing = await ctx.db.get(args.id);
+    if (!existing) throw new Error("Transport employee not found");
+
     const { id, ...fields } = args;
-    await ctx.db.patch(id, fields);
+    const name = fields.name.trim();
+    if (!name) throw new Error("Name is required");
+
+    await ctx.db.patch(id, {
+      ...fields,
+      name,
+      vehicleType: fields.vehicleType.trim(),
+    });
+    return id;
   },
 });
 
+/** Primary delete used by the dashboard UI. */
 export const deleteEmployee = mutation({
   args: { id: v.id("transportEmployees") },
   handler: async (ctx, args) => {
+    const existing = await ctx.db.get(args.id);
+    if (!existing) return null;
     await ctx.db.delete(args.id);
+    return args.id;
+  },
+});
+
+/** Alias kept for older clients that still call remove. */
+export const remove = mutation({
+  args: { id: v.id("transportEmployees") },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db.get(args.id);
+    if (!existing) return null;
+    await ctx.db.delete(args.id);
+    return args.id;
   },
 });
