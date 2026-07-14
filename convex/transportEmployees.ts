@@ -74,7 +74,9 @@ export const getEmployees = query({
 
     if (args.vehicleType) {
       const vehicleType = args.vehicleType;
-      q = q.filter((f) => f.eq(f.field("vehicleType"), vehicleType));
+      if (!term) {
+        q = q.filter((f) => f.eq(f.field("vehicleType"), vehicleType));
+      }
     }
 
     return await q.paginate(args.paginationOpts);
