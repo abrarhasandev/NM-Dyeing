@@ -254,6 +254,56 @@ export const OrdersContent = ({
     }
   };
 
+  // ── 1. Calculate active date range boundaries for client-side filtering ──
+  const { currStart, currEnd, prevStart, prevEnd } = useMemo(() => {
+    let currStart: number | null = null;
+    let currEnd: number | null = null;
+    
+    const today = dayjs();
+    
+    switch (dateRange) {
+      case "current_year":
+        currStart = today.startOf("year").valueOf();
+        currEnd = today.endOf("day").valueOf();
+        break;
+      case "3_months":
+        currStart = today.subtract(3, "month").startOf("day").valueOf();
+        currEnd = today.endOf("day").valueOf();
+        break;
+      case "30_days":
+        currStart = today.subtract(30, "day").startOf("day").valueOf();
+        currEnd = today.endOf("day").valueOf();
+        break;
+      case "7_days":
+        currStart = today.subtract(7, "day").startOf("day").valueOf();
+        currEnd = today.endOf("day").valueOf();
+        break;
+      case "3_days":
+        currStart = today.subtract(3, "day").startOf("day").valueOf();
+        currEnd = today.endOf("day").valueOf();
+        break;
+      case "custom":
+        if (customStartDate && customEndDate) {
+          currStart = dayjs(customStartDate).startOf("day").valueOf();
+          currEnd = dayjs(customEndDate).endOf("day").valueOf();
+        }
+        break;
+      default:
+        break;
+    }
+
+    let prevStart: number | null = null;
+    let prevEnd: number | null = null;
+
+    if (currStart !== null && currEnd !== null) {
+      const duration = currEnd - currStart;
+      prevStart = currStart - duration;
+      prevEnd = currStart - 1;
+    }
+
+    return { currStart, currEnd, prevStart, prevEnd };
+  }, [dateRange, customStartDate, customEndDate]);
+
   /** Map Convex transport history rows into OrderTable shape (+ light client filters). */
   const mappedManualOrders = useMemo(() => {
     if (!isTransportMode || !manualTransportOrders) return [];
@@ -262,6 +312,12 @@ export const OrdersContent = ({
 
     return manualTransportOrders
       .filter((row) => {
+        // Date range filter
+        if (currStart !== null && currEnd !== null) {
+          const rowDate = row.date ?? row._creationTime ?? 0;
+          if (rowDate < currStart || rowDate > currEnd) return false;
+        }
+
         if (status && (row.status || "").toLowerCase() !== status.toLowerCase()) {
           return false;
         }
@@ -312,6 +368,20 @@ export const OrdersContent = ({
     const system = orders || [];
     return [...mappedManualOrders, ...system];
   }, [isTransportMode, orders, mappedManualOrders]);
+
+  // Console log system for debugging transporter employee section
+  useEffect(() => {
+    if (isTransportMode) {
+      console.log("=== TRANSPORT EMPLOYEE DEBUG SYSTEM ===");
+      console.log("Transporter Name:", transporterName);
+      console.log("MongoDB Orders (length):", orders?.length, orders);
+      console.log("Convex Manual Orders (length):", mappedManualOrders?.length, mappedManualOrders);
+      console.log("Combined Display Orders (length):", displayOrders?.length);
+      console.log("MongoDB Server KPI Data:", kpiData);
+      console.log("MongoDB Chart Buckets:", rawChartBuckets);
+      console.log("=======================================");
+    }
+  }, [isTransportMode, transporterName, orders, mappedManualOrders, displayOrders, kpiData, rawChartBuckets]);
 
   const handleCustomApply = (startDate, endDate) => {
     if (!startDate || !endDate) {
@@ -378,11 +448,101 @@ export const OrdersContent = ({
     }
   };
 
+  // ── Hybrid KPI & Chart Merging (Convex + MongoDB) ──
+  const { hybridKpiData, hybridPrevKpiData, hybridChartBuckets } = useMemo(() => {
+    // 1. Start with the MongoDB data
+    const mergedKpi = {
+      totalOrders: kpiData?.totalOrders || 0,
+      totalGoj: kpiData?.totalGoj || 0,
+      uniqueCustomers: kpiData?.uniqueCustomers || 0,
+      activeCount: kpiData?.activeCount || 0,
+      activeGoj: kpiData?.activeGoj || 0,
+    };
+    
+    const mergedPrevKpi = {
+      totalOrders: prevKpiData?.totalOrders || 0,
+      totalGoj: prevKpiData?.totalGoj || 0,
+    };
+    
+    // Copy the MongoDB buckets so we can safely push items to it
+    const mergedBuckets = [...(rawChartBuckets || [])].map(b => ({ ...b, _id: { ...b._id } }));
+
+    if (!isTransportMode || !manualTransportOrders) {
+      return { hybridKpiData: mergedKpi, hybridPrevKpiData: mergedPrevKpi, hybridChartBuckets: mergedBuckets };
+    }
+
+    // 2. Iterate over ALL manual Convex orders for this employee
+    const uniqueCustSet = new Set<string>();
+
+    for (const row of manualTransportOrders) {
+      // Apply non-date filters to match the MongoDB KPI logic
+      if (status && (row.status || "").toLowerCase() !== status.toLowerCase()) continue;
+      if (clotheType && row.clotheType !== clotheType) continue;
+      if (quality && row.quality !== quality) continue;
+      if (colour && row.colour !== colour) continue;
+      if (finishingType && row.finishingType !== finishingType) continue;
+
+      const rowDate = row.date ?? row._creationTime ?? 0;
+      const rowGoj = row.totalGoj || 0;
+      const rowStatus = (row.status || "").toLowerCase();
+      const isActive = !["completed", "delivered", "completedprocess"].includes(rowStatus);
+
+      // Current Period
+      if (currStart === null || currEnd === null || (rowDate >= currStart && rowDate <= currEnd)) {
+        mergedKpi.totalOrders += 1;
+        mergedKpi.totalGoj += rowGoj;
+        if (row.companyName) uniqueCustSet.add(row.companyName);
+        
+        if (isActive) {
+          mergedKpi.activeCount += 1;
+          mergedKpi.activeGoj += rowGoj;
+        }
+
+        // Chart Bucket logic (only if within current period)
+        if (currStart !== null) {
+          const d = new Date(rowDate);
+          const year = d.getUTCFullYear();
+          const month = d.getUTCMonth() + 1;
+          const day = d.getUTCDate();
+          
+          let clothCat = "other";
+          const cType = (row.clotheType || "").toLowerCase();
+          if (cType.includes("cotton")) clothCat = "cotton";
+          else if (cType.includes("silk") || cType.includes("sill")) clothCat = "silk";
+
+          const existingBucket = mergedBuckets.find(b => 
+            b._id.year === year && b._id.month === month && b._id.day === day && b._id.clothCat === clothCat
+          );
+          if (existingBucket) {
+            existingBucket.count += 1;
+            existingBucket.totalGoj = (existingBucket.totalGoj || 0) + rowGoj;
+          } else {
+            mergedBuckets.push({
+              _id: { year, month, day, clothCat },
+              count: 1,
+              totalGoj: rowGoj,
+            });
+          }
+        }
+      }
+
+      // Previous Period
+      if (prevStart !== null && prevEnd !== null && rowDate >= prevStart && rowDate <= prevEnd) {
+        mergedPrevKpi.totalOrders += 1;
+        mergedPrevKpi.totalGoj += rowGoj;
+      }
+    }
+
+    mergedKpi.uniqueCustomers += uniqueCustSet.size;
+
+    return { hybridKpiData: mergedKpi, hybridPrevKpiData: mergedPrevKpi, hybridChartBuckets: mergedBuckets };
+  }, [kpiData, prevKpiData, rawChartBuckets, isTransportMode, manualTransportOrders, currStart, currEnd, prevStart, prevEnd, status, clotheType, quality, colour, finishingType]);
+
   // ── KPI stats — now derived from server-computed kpiData / prevKpiData ──────
   // No client-side iteration over raw documents.
   const stats = useMemo(() => {
-    const cur  = kpiData     ?? { totalOrders: 0, totalGoj: 0, uniqueCustomers: 0, activeCount: 0, activeGoj: 0 };
-    const prev = prevKpiData ?? { totalOrders: 0, totalGoj: 0 };
+    const cur  = hybridKpiData;
+    const prev = hybridPrevKpiData;
 
     let orderCountGrowth = 0;
     if (prev.totalOrders > 0) {
@@ -407,13 +567,20 @@ export const OrdersContent = ({
       orderCountGrowth,
       gojGrowth,
     };
-  }, [kpiData, prevKpiData]);
+  }, [hybridKpiData, hybridPrevKpiData]);
 
   // ── Chart data — reshape server-computed buckets into Recharts format ───────
   // rawChartBuckets: { _id: { year, month, day, clothCat }, count }[]
   // We need to produce: { month: "Jan", cotton: N, silk: N, other: N }[]
   const chartData = useMemo(() => {
-    if (!rawChartBuckets || rawChartBuckets.length === 0) return [];
+    if (!hybridChartBuckets || hybridChartBuckets.length === 0) return [];
+
+    // Sort buckets by date just in case Convex pushed new buckets out of order
+    const sortedBuckets = [...hybridChartBuckets].sort((a, b) => {
+      if (a._id.year !== b._id.year) return a._id.year - b._id.year;
+      if (a._id.month !== b._id.month) return a._id.month - b._id.month;
+      return a._id.day - b._id.day;
+    });
 
     // Determine grouping based on date range
     const today = dayjs();
@@ -452,7 +619,7 @@ export const OrdersContent = ({
     }
 
     // Map server buckets into the period slots
-    for (const bucket of rawChartBuckets) {
+    for (const bucket of sortedBuckets) {
       const { year, month, day, clothCat } = bucket._id;
       const key = grouping === "day"
         ? dayjs(new Date(year, month - 1, day)).format("YYYY-MM-DD")
@@ -478,7 +645,7 @@ export const OrdersContent = ({
     }
 
     return periods;
-  }, [rawChartBuckets, dateRange, customStartDate, customEndDate]);
+  }, [hybridChartBuckets, dateRange, customStartDate, customEndDate]);
 
   // Recharts color and label configuration
   const chartConfig = {

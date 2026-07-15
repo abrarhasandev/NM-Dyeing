@@ -47,6 +47,14 @@ export default function TransportPage() {
   const statsLoading = stats === undefined;
   const listLoading = status === "LoadingFirstPage";
 
+  // Debugging logs added here:
+  useEffect(() => {
+    console.log("🛠️ [TransportPage] Query Status:", status);
+    console.log("🛠️ [TransportPage] Employees List Loading:", listLoading);
+    console.log("🛠️ [TransportPage] Employees Data:", results);
+    console.log("🛠️ [TransportPage] Stats Data:", stats);
+  }, [status, listLoading, results, stats]);
+
   /**
    * If Convex never resolves past the first page (missing function / network),
    * surface a recovery UI instead of infinite skeletons.

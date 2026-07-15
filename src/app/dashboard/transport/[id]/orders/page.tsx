@@ -7,6 +7,7 @@ import { OrdersContent } from "@/components/order/OrdersContent";
 import { Truck, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useDocumentTitle } from "@/hook/useDocumentTitle";
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 import { Id } from "../../../../../../convex/_generated/dataModel";
 
@@ -52,11 +53,13 @@ export default function TransportOrdersPage({ params }: { params: Promise<{ id: 
         </div>
       </div>
       <div className="flex-1 mt-4">
-        <OrdersContent
-          transporterName={employee.name}
-          isTransportMode
-          transportEmployeeId={employee._id}
-        />
+        <NuqsAdapter>
+          <OrdersContent
+            transporterName={employee.name}
+            isTransportMode
+            transportEmployeeId={employee._id}
+          />
+        </NuqsAdapter>
       </div>
     </div>
   );
