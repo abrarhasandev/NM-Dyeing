@@ -22,7 +22,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https://images.unsplash.com https://merakiui.com https://api.dicebear.com",
               "font-src 'self' data:",
-              "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://*.convex.site",
+              "connect-src 'self' https://*.convex.cloud https://*.convex.site wss://*.convex.cloud",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
