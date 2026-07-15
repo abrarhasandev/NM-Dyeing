@@ -262,6 +262,7 @@ export default function CreateTransportEmployee() {
             </div>
 
             {/* Avatar Selection */}
+            <input type="hidden" {...register("avatar")} />
             <div className="pt-2 border-t border-border mt-4">
               <label className="block text-sm font-medium text-muted-foreground mb-3">
                 Profile Avatar
