@@ -34,6 +34,9 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   const { error: __authError } = await requireAuth();
   if (__authError) return __authError;
 
@@ -67,6 +70,9 @@ export async function POST(req) {
 }
 
 export async function PUT(req) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   const { error: __authError } = await requireAuth();
   if (__authError) return __authError;
 
@@ -88,6 +94,9 @@ export async function PUT(req) {
 }
 
 export async function DELETE(req) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   const { error: __authError } = await requireAdmin();
   if (__authError) return __authError;
 

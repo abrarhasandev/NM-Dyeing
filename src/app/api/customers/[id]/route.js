@@ -30,6 +30,9 @@ export async function GET(req, { params }) {
 
 // Update customer
 export async function PUT(req, { params }) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   const { error: __authError } = await requireAuth();
   if (__authError) return __authError;
 
@@ -66,6 +69,9 @@ export async function PUT(req, { params }) {
 
 // Set ledger initial amount
 export async function PATCH(req, { params }) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   const { error: __authError } = await requireAuth();
   if (__authError) return __authError;
 
@@ -95,6 +101,9 @@ export async function PATCH(req, { params }) {
 
 // Delete customer
 export async function DELETE(req, { params }) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   const { error: __authError } = await requireAdmin();
   if (__authError) return __authError;
 

@@ -2,6 +2,7 @@ import { OrdersContent } from "@/components/order/OrdersContent";
 import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 export default function TrashOrders() {
   return (
@@ -16,7 +17,9 @@ export default function TrashOrders() {
         <h1 className="text-[18px] font-bold text-foreground">Trash Orders</h1>
       </div>
       <Suspense fallback={<div>Loading...</div>}>
-        <OrdersContent isTrashMode={true} />
+        <NuqsAdapter>
+          <OrdersContent isTrashMode={true} />
+        </NuqsAdapter>
       </Suspense>
     </div>
   );

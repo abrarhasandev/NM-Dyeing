@@ -26,6 +26,9 @@ export async function GET(req, { params }) {
 
 // UPDATE dyeing
 export async function PUT(req, { params }) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   const { error: __authError } = await requireAuth();
   if (__authError) return __authError;
 
@@ -47,6 +50,9 @@ export async function PUT(req, { params }) {
 
 // PATCH — set ledger initial amount
 export async function PATCH(req, { params }) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   const { error: __authError } = await requireAuth();
   if (__authError) return __authError;
 
@@ -76,6 +82,9 @@ export async function PATCH(req, { params }) {
 
 // DELETE dyeing
 export async function DELETE(req, { params }) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   const { error: __authError } = await requireAdmin();
   if (__authError) return __authError;
 

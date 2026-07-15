@@ -20,6 +20,9 @@ export async function GET() {
 
 // ✅ CREATE calender
 export async function POST(req) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   const { error: __authError } = await requireAuth();
   if (__authError) return __authError;
 

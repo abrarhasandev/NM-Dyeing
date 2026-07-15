@@ -47,6 +47,9 @@ export async function GET(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   const { error: __authError } = await requireAdmin();
   if (__authError) return __authError;
 
@@ -98,6 +101,9 @@ export async function DELETE(request, { params }) {
 }
 
 export async function PUT(request, { params }) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   const { error: __authError } = await requireAuth();
   if (__authError) return __authError;
 
@@ -172,6 +178,9 @@ export async function PUT(request, { params }) {
 
 // ⬇️ শুধু status update করার জন্য PATCH method
 export async function PATCH(request, { params }) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   const { error: __authError } = await requireAuth();
   if (__authError) return __authError;
 

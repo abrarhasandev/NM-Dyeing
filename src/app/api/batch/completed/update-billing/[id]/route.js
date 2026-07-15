@@ -6,6 +6,9 @@ import { requireAuth } from "@/lib/requireAuth";
 
 
 export async function PUT(req, { params }) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   const { error: __authError } = await requireAuth();
   if (__authError) return __authError;
 

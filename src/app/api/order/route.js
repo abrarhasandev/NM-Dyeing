@@ -300,6 +300,9 @@ async function runPrevKpiAggregation(baseQuery, prevStart, prevEnd) {
 //  POST — create a new order
 // ─────────────────────────────────────────────────────────────────────────────
 export async function POST(req) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   try {
     const { error } = await requireAuth();
     if (error) return error;

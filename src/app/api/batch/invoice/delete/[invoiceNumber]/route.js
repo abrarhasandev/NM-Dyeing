@@ -9,6 +9,9 @@ import {
 import { requireAdmin } from "@/lib/requireAuth";
 
 export async function DELETE(req, { params }) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
   const { error: __authError } = await requireAdmin();
   if (__authError) return __authError;
 
