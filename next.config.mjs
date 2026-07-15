@@ -3,7 +3,7 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: "/(.*)",
+        source: "/:path*",
         headers: [
           { key: "X-DNS-Prefetch-Control", value: "on" },
           { key: "X-XSS-Protection", value: "1; mode=block" },
