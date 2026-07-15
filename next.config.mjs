@@ -1,36 +1,44 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async headers() {
-    return [
+    // Convex realtime uses WebSockets (wss://). https:// alone is not enough —
+    // without wss:// in connect-src, browsers block sync and data never loads.
+    const contentSecurityPolicy = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https://images.unsplash.com https://merakiui.com https://api.dicebear.com",
+      "font-src 'self' data:",
+      // Both HTTPS (HTTP API) and WSS (sync) are required for Convex clients.
+      "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://*.convex.site wss://*.convex.site",
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "object-src 'none'",
+    ].join("; ");
+
+    const securityHeaders = [
+      { key: "X-DNS-Prefetch-Control", value: "on" },
+      { key: "X-XSS-Protection", value: "1; mode=block" },
+      { key: "X-Frame-Options", value: "SAMEORIGIN" },
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
       {
-        source: "/:path*",
-        headers: [
-          { key: "X-DNS-Prefetch-Control", value: "on" },
-          { key: "X-XSS-Protection", value: "1; mode=block" },
-          { key: "X-Frame-Options", value: "SAMEORIGIN" },
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), interest-cohort=()" },
-          // HSTS — enforce HTTPS for 2 years (only effective over HTTPS in production)
-          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
-          // CSP — restrictive baseline, allows Next.js + Tailwind + Convex
-          {
-            key: "Content-Security-Policy",
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-              "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob: https://images.unsplash.com https://merakiui.com https://api.dicebear.com",
-              "font-src 'self' data:",
-              "connect-src 'self' https://*.convex.cloud https://*.convex.site wss://*.convex.cloud",
-              "frame-ancestors 'none'",
-              "base-uri 'self'",
-              "form-action 'self'",
-              "object-src 'none'",
-            ].join("; "),
-          },
-        ],
+        key: "Permissions-Policy",
+        value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
       },
+      // HSTS — enforce HTTPS for 2 years (only effective over HTTPS in production)
+      {
+        key: "Strict-Transport-Security",
+        value: "max-age=63072000; includeSubDomains; preload",
+      },
+      { key: "Content-Security-Policy", value: contentSecurityPolicy },
+    ];
+
+    return [
+      // Cover all routes (including root). Keep both matchers for Next/Vercel.
+      { source: "/:path*", headers: securityHeaders },
+      { source: "/", headers: securityHeaders },
     ];
   },
   typescript: {
