@@ -106,7 +106,43 @@ const renderStatusBadges = (order: any, orderId: string, handleOrderClick: any) 
 };
 
 // ─── Total Goj — exact Figma match ───────────────────────────────────────────
-const renderGojDetails = (order: any, orderId: string, totalGojVal: number, totalBundleVal: number) => {
+const renderGojDetails = (order: any, orderId: string, totalGojVal: number, totalBundleVal: number, isTransportMode?: boolean) => {
+  if (isTransportMode) {
+    const rows = [];
+
+    if (order.isManualTransport) {
+      // Standalone manual order (usually Finishing / Delivery)
+      rows.push({
+        text: `Finishing ${totalBundleVal}~${totalGojVal}`,
+        cls: "font-semibold text-foreground text-[13px] leading-tight",
+      });
+    } else {
+      // System order (Gray)
+      rows.push({
+        text: `Gry ${totalBundleVal}~${totalGojVal}`,
+        cls: "font-semibold text-foreground text-[13px] leading-tight",
+      });
+
+      // Linked delivery manual order
+      if (order.deliveryTransportOrder) {
+        rows.push({
+          text: `Finishing ${order.deliveryTransportOrder.totalBundle || 0}~${order.deliveryTransportOrder.totalGoj || 0}`,
+          cls: "font-semibold text-[#1f8a65] text-[13px] leading-tight mt-1",
+        });
+      }
+    }
+
+    return (
+      <div className="flex flex-col gap-1 py-0.5 select-none min-w-[120px]">
+        {rows.map((r, idx) => (
+          <span key={idx} className={r.cls}>
+            {r.text}
+          </span>
+        ))}
+      </div>
+    );
+  }
+
   const status = order?.status?.toLowerCase() || "pending";
   const batchCount = order?.batchSummary?.batchCount || 0;
   const batchBundle = order?.batchSummary?.totalBatchBundle || 0;
@@ -196,7 +232,37 @@ const renderGojDetails = (order: any, orderId: string, totalGojVal: number, tota
 };
 
 // ─── Billing Badges ─────────────────────────────────────────────────────────
-const renderBillingBadges = (order: any, orderId: string) => {
+const renderBillingBadges = (order: any, orderId: string, isTransportMode?: boolean, billedSystemOrderIds?: Set<string>) => {
+  // Transport Mode System Orders Billing Override
+  if (isTransportMode && !order.isManualTransport) {
+    const isPaid = billedSystemOrderIds?.has(order._id || order.id);
+    
+    const systemBadge = (
+      <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border ${isPaid ? "border-[#1f8a65]/20 bg-[#1f8a65]/10 text-[#1f8a65]" : "border-red-500/20 bg-red-500/10 text-red-600"} select-none`}>
+        {isPaid ? <CheckCircle2 size={12} className="shrink-0 text-[#1f8a65]" /> : <Clock size={12} className="shrink-0 text-red-600" />}
+        {isPaid ? "Paid" : "Unpaid"}
+      </span>
+    );
+
+    if (order.deliveryTransportOrder) {
+      const isDeliveryPaid = order.deliveryTransportOrder.billingStatus === "paid";
+      const deliveryBadge = (
+        <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border ${isDeliveryPaid ? "border-[#1f8a65]/20 bg-[#1f8a65]/10 text-[#1f8a65]" : "border-red-500/20 bg-red-500/10 text-red-600"} select-none mt-1`}>
+          {isDeliveryPaid ? <CheckCircle2 size={12} className="shrink-0 text-[#1f8a65]" /> : <Clock size={12} className="shrink-0 text-red-600" />}
+          {isDeliveryPaid ? "Paid" : "Unpaid"}
+        </span>
+      );
+      return (
+        <div className="flex flex-col gap-1 items-start">
+          {systemBadge}
+          {deliveryBadge}
+        </div>
+      );
+    }
+    
+    return systemBadge;
+  }
+
   const s = order?.status?.toLowerCase() || "pending";
   const invoiceCount = order?.batchSummary?.invoiceCount || 0;
   const dispatchCount = order?.batchSummary?.dispatchCount || 0;
@@ -350,6 +416,8 @@ interface OrderTableProps {
   onRestoreTransportOrder?: (id: string) => void;
   /** Permanently delete manual Convex transport history row. */
   onPermDeleteTransportOrder?: (id: string) => void;
+  /** Tracking billed state for system transport orders. */
+  billedSystemOrderIds?: Set<string>;
 }
 
 // ─── Main Table Component ─────────────────────────────────────────────────────
@@ -365,6 +433,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
   onTrashTransportOrder,
   onRestoreTransportOrder,
   onPermDeleteTransportOrder,
+  billedSystemOrderIds,
 }) => {
   const router = useRouter();
   const [sortConfig, setSortConfig] = useState<{ key: string | null; dir: "asc" | "desc" }>({ key: null, dir: "asc" });
@@ -502,17 +571,24 @@ const OrderTable: React.FC<OrderTableProps> = ({
                   </td>
 
                   <td className="px-5 py-3.5 whitespace-nowrap">
-                    {renderGojDetails(order, orderId, totalGojVal, totalBundleVal)}
+                    {renderGojDetails(order, orderId, totalGojVal, totalBundleVal, isTransportMode)}
                   </td>
 
                   <td className="px-5 py-3.5 whitespace-nowrap">
                     {order?.isManualTransport ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-muted-foreground select-none">
-                        <FileText size={12} className="shrink-0 text-muted-foreground/70" />
-                        history
-                      </span>
+                      order?.billingStatus === "paid" ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[#1f8a65]/20 bg-[#1f8a65]/10 text-[#1f8a65] select-none">
+                          <CheckCircle2 size={12} className="shrink-0 text-[#1f8a65]" />
+                          Paid
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-red-500/20 bg-red-500/10 text-red-600 select-none">
+                          <Clock size={12} className="shrink-0 text-red-600" />
+                          Unpaid
+                        </span>
+                      )
                     ) : (
-                      renderBillingBadges(order, orderId)
+                      renderBillingBadges(order, orderId, isTransportMode, billedSystemOrderIds)
                     )}
                   </td>
 

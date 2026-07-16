@@ -168,6 +168,8 @@ export default defineSchema({
     note: v.optional(v.string()),
     /** Optional reference to a system dyeing order (display only / audit). */
     linkedOrderId: v.optional(v.string()),
+    billingStatus: v.optional(v.string()),
+    billId: v.optional(v.id("transportEmployeeBills")),
     isTrash: v.optional(v.boolean()),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -175,7 +177,26 @@ export default defineSchema({
     .index("by_transportEmployeeId", ["transportEmployeeId"])
     .index("by_transporterName", ["transporterName"])
     .index("by_transportEmployeeId_date", ["transportEmployeeId", "date"])
-    .index("by_displayOrderId", ["displayOrderId"]),
+    .index("by_displayOrderId", ["displayOrderId"])
+    .index("by_billingStatus", ["billingStatus"])
+    .index("by_transportEmployeeId_billingStatus", ["transportEmployeeId", "billingStatus"]),
+
+  /**
+   * Billing history for transport employees.
+   */
+  transportEmployeeBills: defineTable({
+    transportEmployeeId: v.id("transportEmployees"),
+    billNumber: v.string(),
+    totalAmount: v.number(),
+    status: v.string(),
+    orderIds: v.array(v.string()),
+    date: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_employee", ["transportEmployeeId"])
+    .index("by_status", ["status"])
+    .index("by_employee_date", ["transportEmployeeId", "date"]),
 
   /**
    * Orders mirror.

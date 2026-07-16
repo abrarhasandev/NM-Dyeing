@@ -4,7 +4,7 @@ import React, { use } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../../../convex/_generated/api";
 import { OrdersContent } from "@/components/order/OrdersContent";
-import { Truck, ArrowLeft } from "lucide-react";
+import { Truck, ArrowLeft, FileText } from "lucide-react";
 import Link from "next/link";
 import { useDocumentTitle } from "@/hook/useDocumentTitle";
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
@@ -31,26 +31,35 @@ export default function TransportOrdersPage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="flex flex-col h-full space-y-4 pt-4 px-4 md:px-8">
-      <div className="flex items-center gap-4">
-        <Link href="/dashboard/transport" className="p-2 hover:bg-accent rounded-full transition-colors border border-transparent hover:border-border">
-          <ArrowLeft size={20} />
-        </Link>
-        <div className="flex items-center gap-3">
-          <Link href={`/dashboard/transport/profile/${employee._id}`}>
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden border border-border shadow-sm hover:opacity-80 transition-opacity cursor-pointer">
-              {employee.avatar ? (
-                <img src={employee.avatar} alt={employee.name} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-lg font-bold text-primary">
-                  {employee.name?.charAt(0)?.toUpperCase()}
-                </span>
-              )}
-            </div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard/transport" className="p-2 hover:bg-accent rounded-full transition-colors border border-transparent hover:border-border">
+            <ArrowLeft size={20} />
           </Link>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">{employee.name}'s Orders</h1>
+          <div className="flex items-center gap-3">
+            <Link href={`/dashboard/transport/profile/${employee._id}`}>
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden border border-border shadow-sm hover:opacity-80 transition-opacity cursor-pointer">
+                {employee.avatar ? (
+                  <img src={employee.avatar} alt={employee.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-lg font-bold text-primary">
+                    {employee.name?.charAt(0)?.toUpperCase()}
+                  </span>
+                )}
+              </div>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">{employee.name}'s Orders</h1>
+            </div>
           </div>
         </div>
+        <Link 
+          href={`/dashboard/transport/${employee._id}/billing`}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[#f54e00] hover:bg-[#d44300] text-white rounded-md transition-colors text-sm font-semibold shadow-sm"
+        >
+          <FileText size={16} />
+          Billing & History
+        </Link>
       </div>
       <div className="flex-1 mt-4">
         <NuqsAdapter>

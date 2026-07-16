@@ -134,6 +134,17 @@ export const OrdersContent = ({
   const trashTransportOrder = useMutation(api.transportOrders.trash);
   const restoreTransportOrder = useMutation(api.transportOrders.restore);
 
+  const bills = useQuery(
+    api.transportBills.listByEmployee,
+    isTransportMode && transportEmployeeConvexId
+      ? { transportEmployeeId: transportEmployeeConvexId }
+      : "skip"
+  );
+  
+  const billedSystemOrderIds = useMemo(() => {
+    return new Set(bills?.flatMap((b: any) => b.orderIds) || []);
+  }, [bills]);
+
   const [showEditTransportOrder, setShowEditTransportOrder] = useState(false);
   const [transportOrderToEdit, setTransportOrderToEdit] = useState(null);
 
@@ -394,8 +405,29 @@ export const OrdersContent = ({
   /** System orders (Mongo) + manual transport history (Convex). Manual first. */
   const displayOrders = useMemo(() => {
     if (!isTransportMode) return orders;
-    const system = orders || [];
-    return [...mappedManualOrders, ...system];
+    const system = orders ? [...orders] : [];
+    const manual = mappedManualOrders ? [...mappedManualOrders] : [];
+    
+    const unmergedManual = [];
+    
+    manual.forEach((m) => {
+      if (m.linkedOrderId) {
+        const matchingSystemIndex = system.findIndex((s) => (s.orderId || s._id) === m.linkedOrderId);
+        if (matchingSystemIndex !== -1) {
+          // Merge it! Attach the delivery manual order to the system order
+          system[matchingSystemIndex] = {
+            ...system[matchingSystemIndex],
+            deliveryTransportOrder: m,
+          };
+        } else {
+          unmergedManual.push(m);
+        }
+      } else {
+        unmergedManual.push(m);
+      }
+    });
+
+    return [...unmergedManual, ...system];
   }, [isTransportMode, orders, mappedManualOrders]);
 
   // Console log system for debugging transporter employee section
@@ -1055,6 +1087,7 @@ export const OrdersContent = ({
         isTrashMode={activeTrashMode}
         restoreOrder={restoreOrder}
         isTransportMode={isTransportMode}
+        billedSystemOrderIds={billedSystemOrderIds}
         onEditTransportOrder={(order) => {
           setTransportOrderToEdit(order);
           setShowEditTransportOrder(true);

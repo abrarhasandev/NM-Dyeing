@@ -21,6 +21,7 @@ import type * as menu from "../menu.js";
 import type * as orders from "../orders.js";
 import type * as payments from "../payments.js";
 import type * as savedInvoices from "../savedInvoices.js";
+import type * as transportBills from "../transportBills.js";
 import type * as transportEmployees from "../transportEmployees.js";
 import type * as transportOrders from "../transportOrders.js";
 import type * as users from "../users.js";
@@ -45,6 +46,7 @@ declare const fullApi: ApiFromModules<{
   orders: typeof orders;
   payments: typeof payments;
   savedInvoices: typeof savedInvoices;
+  transportBills: typeof transportBills;
   transportEmployees: typeof transportEmployees;
   transportOrders: typeof transportOrders;
   users: typeof users;

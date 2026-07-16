@@ -19,14 +19,25 @@ export const listByEmployee = query({
   args: {
     transportEmployeeId: v.id("transportEmployees"),
     isTrash: v.optional(v.boolean()),
+    billingStatus: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const rows = await ctx.db
-      .query("transportOrders")
-      .withIndex("by_transportEmployeeId", (q) =>
-        q.eq("transportEmployeeId", args.transportEmployeeId)
-      )
-      .collect();
+    let q;
+    if (args.billingStatus) {
+      q = ctx.db
+        .query("transportOrders")
+        .withIndex("by_transportEmployeeId_billingStatus", (q) =>
+          q.eq("transportEmployeeId", args.transportEmployeeId)
+           .eq("billingStatus", args.billingStatus)
+        );
+    } else {
+      q = ctx.db
+        .query("transportOrders")
+        .withIndex("by_transportEmployeeId", (q) =>
+          q.eq("transportEmployeeId", args.transportEmployeeId)
+        );
+    }
+    const rows = await q.collect();
 
     const isTrashMode = args.isTrash === true;
     const filtered = rows.filter((r) => (r.isTrash === true) === isTrashMode);
@@ -81,6 +92,7 @@ export const create = mutation({
       date: dateMs,
       note: args.note?.trim() || undefined,
       linkedOrderId: args.linkedOrderId?.trim() || undefined,
+      billingStatus: "unpaid",
       createdAt: now,
       updatedAt: now,
     });
