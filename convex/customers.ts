@@ -27,6 +27,13 @@ export const getByMongoId = query({
   },
 });
 
+export const getById = query({
+  args: { id: v.id("customers") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
 export const getAll = query({
   args: {},
   handler: async (ctx) => {

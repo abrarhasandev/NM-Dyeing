@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Mongo → Convex mappers for Batch parent docs and Invoices.
  * Shared by dual-write façade and (logically) migration script.

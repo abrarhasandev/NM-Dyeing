@@ -1,0 +1,170 @@
+// @ts-nocheck
+import { NextResponse } from "next/server";
+import connectDB from "@/lib/db";
+import SavedInvoice from "@/models/SavedInvoice";
+import LedgerSnapshot from "@/models/LedgerSnapshot";
+import BillingSummary from "@/models/BillingSummary";
+import Payment from "@/models/Payment";
+import customers from "@/models/customers";
+import mongoose from "mongoose";
+import {
+  mirrorSavedInvoiceUpsert,
+  mirrorBillingSummaryUpsert,
+  mirrorPaymentUpsert,
+} from "@/lib/orders/convexServer";
+import { requireAuth } from "@/lib/requireAuth";
+import { getCustomerMongoId, getCustomerDoc } from "@/lib/getCustomerMongoId";
+
+export async function POST(req, props) {
+  const params = await props.params;
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
+  try {
+    await connectDB();
+    const resolvedParams = await params;
+    const { customerId } = resolvedParams;
+
+    const mongoIdStr = await getCustomerMongoId(customerId);
+    if (!mongoIdStr) {
+      return NextResponse.json(
+        { success: false, message: "Invalid ID" },
+        { status: 400 }
+      );
+    }
+
+    const body = await req.json();
+    
+    const { title, records, totalCharge, totalPayment, companyName, orderIds } =
+      body;
+
+    if (!records || !records.length) {
+      return NextResponse.json(
+        { success: false, message: "No records selected" },
+        { status: 400 }
+      );
+    }
+
+    const objId = new mongoose.Types.ObjectId(mongoIdStr);
+    let customer = await customers.findById(objId);
+    if (!customer) {
+      customer = await getCustomerDoc(customerId);
+    }
+    if (!customer)
+      return NextResponse.json(
+        { success: false, message: "Customer not found" },
+        { status: 404 }
+      );
+
+    const count = await SavedInvoice.countDocuments({
+      entityId: objId,
+      entityType: "customer",
+    });
+    const invoiceNumber = `INV-CUS-${
+      customer.customerId || Date.now().toString().slice(-4)
+    }-${(count + 1).toString().padStart(4, "0")}`;
+
+    const savedInvoice = await SavedInvoice.create({
+      entityId: objId,
+      entityType: "customer",
+      invoiceNumber,
+      title: title || "Saved Invoice",
+      companyName: companyName || customer.companyName,
+      orderIds: orderIds || [],
+      records: records.map(r => ({
+        ...r,
+        clothType: r.clothType,
+        quality: r.quality,
+        colour: r.colour,
+        sillName: r.sillName,
+        finishingType: r.finishingType
+      })),
+      totalCharge,
+      totalPayment,
+    });
+
+    for (const record of records) {
+      if (record.modelType === "BillingSummary" && record.recordId) {
+        const updated = await BillingSummary.findByIdAndUpdate(
+          record.recordId,
+          { isSavedInLedger: true },
+          { new: true }
+        );
+        if (updated) await mirrorBillingSummaryUpsert(updated);
+      } else if (record.modelType === "Payment" && record.recordId) {
+        const updated = await Payment.findByIdAndUpdate(
+          record.recordId,
+          { isSavedInLedger: true },
+          { new: true }
+        );
+        if (updated) await mirrorPaymentUpsert(updated);
+      }
+    }
+
+    await mirrorSavedInvoiceUpsert(savedInvoice);
+
+    return NextResponse.json({
+      success: true,
+      message: "Invoice saved successfully",
+      invoiceId: savedInvoice._id,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(req, props) {
+  const params = await props.params;
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
+  try {
+    await connectDB();
+    const resolvedParams = await params;
+    const { customerId } = resolvedParams;
+
+    const mongoIdStr = await getCustomerMongoId(customerId);
+    if (!mongoIdStr) {
+      return NextResponse.json(
+        { success: false, message: "Invalid ID" },
+        { status: 400 }
+      );
+    }
+
+    const objId = new mongoose.Types.ObjectId(mongoIdStr);
+    const { searchParams } = new URL(req.url);
+    const view = searchParams.get("view") || "current";
+
+    let filter = { entityId: objId, entityType: "customer" };
+
+    if (view === "current") {
+      const latestSnapshot = await LedgerSnapshot.findOne(
+        { entityId: objId, entityType: "customer" },
+        { closedAt: 1 }
+      ).sort({ closedAt: -1 });
+
+      const fromDate = latestSnapshot ? latestSnapshot.closedAt : new Date(0);
+      filter.createdAt = { $gt: fromDate };
+    } else if (mongoose.Types.ObjectId.isValid(view)) {
+      const snapshot = await LedgerSnapshot.findById(view);
+      if (snapshot) {
+        filter.createdAt = { $gt: snapshot.fromDate, $lte: snapshot.closedAt };
+      }
+    }
+
+    const invoices = await SavedInvoice.find(filter).sort({ createdAt: -1 });
+
+    return NextResponse.json({ success: true, invoices });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+}

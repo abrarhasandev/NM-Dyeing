@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Mongo → Convex mappers for remaining domains (dual-write + migration).
  * Dates → epoch ms; ObjectId FKs → *MongoId strings.

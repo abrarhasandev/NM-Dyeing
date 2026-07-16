@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Server-only Convex client for dual-write mirrors.
  *

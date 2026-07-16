@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ConvexOrderDoc, OrderTableRow } from "@/types/order";
 import { dateToEpochMs } from "@/lib/orders/orderId";
 

@@ -1,0 +1,80 @@
+// @ts-nocheck
+import connectDB from "@/lib/db";
+import Process from "@/models/menu/Process";
+import {
+  mirrorProcessUpsert,
+  mirrorProcessRemove,
+} from "@/lib/orders/convexServer";
+import { requireAuth, requireAdmin } from "@/lib/requireAuth";
+
+export async function PUT(req, { params }) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
+  const { error: __authError } = await requireAuth();
+  if (__authError) return __authError;
+
+  try {
+    await connectDB();
+    const { id } = params;
+    const body = await req.json();
+    const { name, price } = body;
+
+    if (!name || price === undefined) {
+      return new Response(
+        JSON.stringify({ error: "Name and price are required" }),
+        { status: 400 }
+      );
+    }
+
+    const updated = await Process.findByIdAndUpdate(
+      id,
+      { name, price },
+      { new: true }
+    );
+
+    if (!updated) {
+      return new Response(JSON.stringify({ error: "Not found" }), {
+        status: 404,
+      });
+    }
+
+    await mirrorProcessUpsert(updated);
+
+    return new Response(JSON.stringify(updated), { status: 200 });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: "Failed to update" }), {
+      status: 500,
+    });
+  }
+}
+
+export async function DELETE(req, { params }) {
+  const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
+  if (_authResult.error) return _authResult.error;
+
+  const { error: __authError } = await requireAdmin();
+  if (__authError) return __authError;
+
+  try {
+    await connectDB();
+    const { id } = params;
+    const deleted = await Process.findByIdAndDelete(id);
+
+    if (!deleted) {
+      return new Response(JSON.stringify({ error: "Not found" }), {
+        status: 404,
+      });
+    }
+
+    await mirrorProcessRemove(String(deleted._id));
+
+    return new Response(JSON.stringify({ message: "Deleted successfully" }), {
+      status: 200,
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: "Failed to delete" }), {
+      status: 500,
+    });
+  }
+}

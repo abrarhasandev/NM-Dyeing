@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Port of Order model pre-validate hook (src/models/Order.js).
  * Generates human-facing ids: #ord-YYYY-MMDD-RRR

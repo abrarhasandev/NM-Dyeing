@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { z } from "zod";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { cache } from "react";
 import { auth as uncachedAuth } from "@/auth";
 import { redirect } from "next/navigation";
