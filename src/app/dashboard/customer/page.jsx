@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,6 +16,7 @@ import {
   Building2,
   Briefcase
 } from "lucide-react";
+import { useCustomers } from "@/hooks/useCustomers";
 
 // Animation Variants
 const containerVariants = {
@@ -32,30 +33,10 @@ const itemVariants = {
 };
 
 const CustomerPage = () => {
-  const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { customers, isLoading: loading } = useCustomers();
   const [searchQuery, setSearchQuery] = useState("");
 
   useDocumentTitle("Customer Management");
-
-  const fetchCustomers = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("/api/customers");
-      if (!res.ok) throw new Error("Failed to fetch customers");
-      const data = await res.json();
-      setCustomers(data);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load customers");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
 
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this customer?")) return;
@@ -63,7 +44,6 @@ const CustomerPage = () => {
       const res = await fetch(`/api/customers/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete customer");
       toast.success("Customer deleted!");
-      fetchCustomers();
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete customer");
@@ -210,7 +190,7 @@ const CustomerPage = () => {
                   <AnimatePresence>
                     {filteredData.map((c, idx) => (
                       <motion.tr
-                        key={c._id}
+                        key={c.mongoId || c._id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
@@ -241,14 +221,14 @@ const CustomerPage = () => {
                               <Eye size={16} />
                             </Link>
                             <Link
-                              href={`/dashboard/customer/edit/${c._id}`}
+                              href={`/dashboard/customer/edit/${c.mongoId || c._id}`}
                               className="p-2 text-muted-foreground hover:text-foreground hover:bg-background rounded-md transition-all border border-transparent hover:border-border shadow-sm hover:shadow"
                               title="Edit Customer"
                             >
                               <Pencil size={16} />
                             </Link>
                             <button
-                              onClick={() => handleDelete(c._id)}
+                              onClick={() => handleDelete(c.mongoId || c._id)}
                               className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-all border border-transparent hover:border-destructive/20 shadow-sm hover:shadow cursor-pointer"
                               title="Delete Customer"
                             >

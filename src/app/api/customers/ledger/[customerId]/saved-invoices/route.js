@@ -13,7 +13,8 @@ import {
 } from "@/lib/orders/convexServer";
 import { requireAuth } from "@/lib/requireAuth";
 
-export async function POST(req, { params }) {
+export async function POST(req, props) {
+  const params = await props.params;
   const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
   if (_authResult.error) return _authResult.error;
 
@@ -112,7 +113,8 @@ export async function POST(req, { params }) {
   }
 }
 
-export async function GET(req, { params }) {
+export async function GET(req, props) {
+  const params = await props.params;
   const { error: __authError } = await requireAuth();
   if (__authError) return __authError;
 

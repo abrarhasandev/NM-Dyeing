@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
+import { useCustomer } from "@/hooks/useCustomers";
 
 const EditCustomerPage = () => {
   const router = useRouter();
@@ -18,30 +19,21 @@ const EditCustomerPage = () => {
     searchText: "",
   });
 
+  const { customer, isLoading } = useCustomer(id);
+
   // fetch existing customer
   useEffect(() => {
-    const fetchCustomer = async () => {
-      try {
-        const res = await fetch(`/api/customers/${id}`);
-        if (!res.ok) throw new Error("Failed to fetch customer");
-
-        const data = await res.json();
-        setFormData({
-          companyName: data.companyName,
-          ownerName: data.ownerName,
-          address: data.address,
-          phoneNumber: data.phoneNumber,
-          employeeList: data.employeeList?.join(", "),
-          searchText: data.searchText || "",
-        });
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to load customer data");
-      }
-    };
-
-    if (id) fetchCustomer();
-  }, [id]);
+    if (customer) {
+      setFormData({
+        companyName: customer.companyName,
+        ownerName: customer.ownerName,
+        address: customer.address,
+        phoneNumber: customer.phoneNumber,
+        employeeList: customer.employeeList?.join(", "),
+        searchText: customer.searchText || "",
+      });
+    }
+  }, [customer]);
 
   const handleChange = (e) => {
     const { id, value } = e.target;

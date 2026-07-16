@@ -82,6 +82,7 @@ export type OrderListItem = {
   createdAt?: string | Date;
   updatedAt?: string | Date;
   batchSummary?: OrderBatchSummary;
+  deliveryTransportOrder?: any;
 };
 
 export type OrderKpiData = {

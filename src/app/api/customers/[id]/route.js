@@ -7,7 +7,8 @@ import {
 import { requireAuth, requireAdmin } from "@/lib/requireAuth";
 
 // Get single customer
-export async function GET(req, { params }) {
+export async function GET(req, props) {
+  const params = await props.params;
   const { error: __authError } = await requireAuth();
   if (__authError) return __authError;
 
@@ -29,7 +30,8 @@ export async function GET(req, { params }) {
 }
 
 // Update customer
-export async function PUT(req, { params }) {
+export async function PUT(req, props) {
+  const params = await props.params;
   const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
   if (_authResult.error) return _authResult.error;
 
@@ -68,7 +70,8 @@ export async function PUT(req, { params }) {
 }
 
 // Set ledger initial amount
-export async function PATCH(req, { params }) {
+export async function PATCH(req, props) {
+  const params = await props.params;
   const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
   if (_authResult.error) return _authResult.error;
 
@@ -100,7 +103,8 @@ export async function PATCH(req, { params }) {
 }
 
 // Delete customer
-export async function DELETE(req, { params }) {
+export async function DELETE(req, props) {
+  const params = await props.params;
   const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
   if (_authResult.error) return _authResult.error;
 

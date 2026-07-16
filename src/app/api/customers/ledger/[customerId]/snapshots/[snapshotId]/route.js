@@ -4,7 +4,8 @@ import LedgerSnapshot from "@/models/LedgerSnapshot";
 import mongoose from "mongoose";
 import { requireAuth } from "@/lib/requireAuth";
  
-export async function GET(req, { params }) {
+export async function GET(req, props) {
+  const params = await props.params;
   const { error: __authError } = await requireAuth();
   if (__authError) return __authError;
 
