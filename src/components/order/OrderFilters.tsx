@@ -40,6 +40,8 @@ interface OrderFiltersProps {
   isTransportMode?: boolean;
   /** Opens transport-only manual history modal (not Create Order). */
   onAddOrder?: () => void;
+  /** Toggles activeTrashMode (via nuqs) for transport mode */
+  onToggleTrashMode?: () => void;
 }
 
 const OrderFilters: React.FC<OrderFiltersProps> = ({
@@ -72,6 +74,7 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
   isTrashMode = false,
   isTransportMode = false,
   onAddOrder,
+  onToggleTrashMode,
 }) => {
   const [localStartDate, setLocalStartDate] = React.useState<Date | null>(customStartDate);
   const [localEndDate, setLocalEndDate] = React.useState<Date | null>(customEndDate);
@@ -174,7 +177,7 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
             {showMoreFilters ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
           </button>
 
-          {/* Trash — main Orders only (hidden in Transport Management) */}
+          {/* Trash — main Orders only (hidden in Transport Management unless toggled) */}
           {!isTrashMode && !isTransportMode && (
             <Link
               href="/dashboard/order/trash"
@@ -182,6 +185,21 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
             >
               <Trash2 size={13} /> Trash
             </Link>
+          )}
+
+          {/* Transport Management: Trash toggle button */}
+          {isTransportMode && (
+            <button
+              type="button"
+              onClick={() => onToggleTrashMode?.()}
+              className={`inline-flex items-center justify-center gap-1.5 border border-border text-[11px] font-medium px-3 py-2 rounded-[4px] transition-colors shadow-sm cursor-pointer ${
+                isTrashMode
+                  ? "bg-foreground text-background hover:bg-foreground/90"
+                  : "bg-background text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Trash2 size={13} /> {isTrashMode ? "Back to Orders" : "Trash"}
+            </button>
           )}
 
           {/* Transport Management: Add Order (manual history, not Create Order) */}

@@ -30,6 +30,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import AddTransportOrderModal from "@/components/transport/AddTransportOrderModal";
+import EditTransportOrderModal from "@/components/transport/EditTransportOrderModal";
 
 // Import Recharts & Shadcn Chart UI
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
@@ -99,6 +100,9 @@ export const OrdersContent = ({
   const [quality, setQuality] = useQueryState("quality", parseAsString.withDefault(""));
   const [showMoreFilters, setShowMoreFilters] = useQueryState("showMoreFilters", parseAsBoolean.withDefault(false));
   const [showGraph, setShowGraph] = useQueryState("showGraph", parseAsBoolean.withDefault(true));
+  const [trashFromUrl, setTrashFromUrl] = useQueryState("trash", parseAsBoolean.withDefault(false));
+
+  const activeTrashMode = isTrashMode || trashFromUrl;
 
   // Track whether the very first data fetch has resolved
   const [initialLoaded, setInitialLoaded] = useState(false);
@@ -123,10 +127,15 @@ export const OrdersContent = ({
   const manualTransportOrders = useQuery(
     api.transportOrders.listByEmployee,
     isTransportMode && transportEmployeeConvexId
-      ? { transportEmployeeId: transportEmployeeConvexId }
+      ? { transportEmployeeId: transportEmployeeConvexId, isTrash: activeTrashMode }
       : "skip"
   );
   const removeTransportOrder = useMutation(api.transportOrders.remove);
+  const trashTransportOrder = useMutation(api.transportOrders.trash);
+  const restoreTransportOrder = useMutation(api.transportOrders.restore);
+
+  const [showEditTransportOrder, setShowEditTransportOrder] = useState(false);
+  const [transportOrderToEdit, setTransportOrderToEdit] = useState(null);
 
   // Debounce search input
   useEffect(() => {
@@ -180,7 +189,7 @@ export const OrdersContent = ({
     sillName,
     quality,
     transporterName,
-    isTrash: isTrashMode,
+    isTrash: activeTrashMode,
     skip: false,
   });
 
@@ -219,14 +228,14 @@ export const OrdersContent = ({
 
   // Handlers
   const handleOrderClick = (id, tab) => {
-    const basePath = isTrashMode ? "/dashboard/order/trash" : "/dashboard/order";
+    const basePath = activeTrashMode ? "/dashboard/order/trash" : "/dashboard/order";
     const url = tab ? `${basePath}?id=${id}&tab=${tab}` : `${basePath}?id=${id}`;
     router.push(url, { scroll: false });
   };
 
   const closeModal = () => {
     setSelectedOrder(null);
-    const basePath = isTrashMode ? "/dashboard/order/trash" : "/dashboard/order";
+    const basePath = activeTrashMode ? "/dashboard/order/trash" : "/dashboard/order";
     router.push(basePath, { scroll: false });
   };
 
@@ -236,7 +245,7 @@ export const OrdersContent = ({
   };
 
   const handleDelete = async () => {
-    await deleteOrder(orderToDelete, isTrashMode);
+    await deleteOrder(orderToDelete, activeTrashMode);
     setShowConfirmModal(false);
     setOrderToDelete(null);
     if (selectedOrder && selectedOrder._id === orderToDelete) {
@@ -247,10 +256,30 @@ export const OrdersContent = ({
   const handleDeleteTransportOrder = async (id: string) => {
     try {
       await removeTransportOrder({ id: id as Id<"transportOrders"> });
-      toast.success("Transport order history removed");
+      toast.success("Transport order history removed completely");
     } catch (err) {
       console.error(err);
       toast.error("Failed to remove transport order history");
+    }
+  };
+
+  const handleTrashTransportOrder = async (id: string) => {
+    try {
+      await trashTransportOrder({ id: id as Id<"transportOrders"> });
+      toast.success("Transport order moved to trash");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to move to trash");
+    }
+  };
+
+  const handleRestoreTransportOrder = async (id: string) => {
+    try {
+      await restoreTransportOrder({ id: id as Id<"transportOrders"> });
+      toast.success("Transport order restored");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to restore transport order");
     }
   };
 
@@ -1011,9 +1040,10 @@ export const OrdersContent = ({
         data={data}
         showGraph={showGraph}
         setShowGraph={handleToggleGraph}
-        isTrashMode={isTrashMode}
+        isTrashMode={activeTrashMode}
         isTransportMode={isTransportMode}
         onAddOrder={() => setShowAddTransportOrder(true)}
+        onToggleTrashMode={() => setTrashFromUrl(prev => !prev)}
       />
 
       {/* Order Table list */}
@@ -1022,10 +1052,16 @@ export const OrdersContent = ({
         loadingOrders={loadingOrders}
         handleOrderClick={handleOrderClick}
         confirmDelete={confirmDelete}
-        isTrashMode={isTrashMode}
+        isTrashMode={activeTrashMode}
         restoreOrder={restoreOrder}
         isTransportMode={isTransportMode}
-        onDeleteTransportOrder={handleDeleteTransportOrder}
+        onEditTransportOrder={(order) => {
+          setTransportOrderToEdit(order);
+          setShowEditTransportOrder(true);
+        }}
+        onTrashTransportOrder={handleTrashTransportOrder}
+        onRestoreTransportOrder={handleRestoreTransportOrder}
+        onPermDeleteTransportOrder={handleDeleteTransportOrder}
       />
 
       {/* Pagination */}
@@ -1062,12 +1098,22 @@ export const OrdersContent = ({
 
       {/* Transport Management only: manual history Add Order */}
       {isTransportMode && transportEmployeeConvexId && (
-        <AddTransportOrderModal
-          open={showAddTransportOrder}
-          onClose={() => setShowAddTransportOrder(false)}
-          transportEmployeeId={transportEmployeeConvexId}
-          transporterName={transporterName}
-        />
+        <>
+          <AddTransportOrderModal
+            open={showAddTransportOrder}
+            onClose={() => setShowAddTransportOrder(false)}
+            transportEmployeeId={transportEmployeeConvexId}
+            transporterName={transporterName}
+          />
+          <EditTransportOrderModal
+            open={showEditTransportOrder}
+            onClose={() => {
+              setShowEditTransportOrder(false);
+              setTransportOrderToEdit(null);
+            }}
+            order={transportOrderToEdit}
+          />
+        </>
       )}
     </div>
   );

@@ -342,8 +342,14 @@ interface OrderTableProps {
   restoreOrder?: (id: string) => void;
   /** Transport Management only — hide Inventory column. */
   isTransportMode?: boolean;
-  /** Delete manual Convex transport history row. */
-  onDeleteTransportOrder?: (id: string) => void;
+  /** Edit manual Convex transport history row. */
+  onEditTransportOrder?: (order: any) => void;
+  /** Trash manual Convex transport history row. */
+  onTrashTransportOrder?: (id: string) => void;
+  /** Restore manual Convex transport history row. */
+  onRestoreTransportOrder?: (id: string) => void;
+  /** Permanently delete manual Convex transport history row. */
+  onPermDeleteTransportOrder?: (id: string) => void;
 }
 
 // ─── Main Table Component ─────────────────────────────────────────────────────
@@ -355,7 +361,10 @@ const OrderTable: React.FC<OrderTableProps> = ({
   isTrashMode,
   restoreOrder,
   isTransportMode = false,
-  onDeleteTransportOrder,
+  onEditTransportOrder,
+  onTrashTransportOrder,
+  onRestoreTransportOrder,
+  onPermDeleteTransportOrder,
 }) => {
   const router = useRouter();
   const [sortConfig, setSortConfig] = useState<{ key: string | null; dir: "asc" | "desc" }>({ key: null, dir: "asc" });
@@ -531,7 +540,11 @@ const OrderTable: React.FC<OrderTableProps> = ({
                               <DropdownMenuItem
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  if (restoreOrder) restoreOrder(order?._id);
+                                  if (order?.isManualTransport && onRestoreTransportOrder) {
+                                    onRestoreTransportOrder(order._id);
+                                  } else if (restoreOrder && !order?.isManualTransport) {
+                                    restoreOrder(order?._id);
+                                  }
                                 }}
                                 className="cursor-pointer flex items-center gap-2 text-[#1f8a65] focus:text-[#1f8a65] focus:bg-[#1f8a65]/10"
                               >
@@ -542,7 +555,11 @@ const OrderTable: React.FC<OrderTableProps> = ({
                               <DropdownMenuItem
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  confirmDelete(order?._id);
+                                  if (order?.isManualTransport && onPermDeleteTransportOrder) {
+                                    onPermDeleteTransportOrder(order._id);
+                                  } else if (!order?.isManualTransport) {
+                                    confirmDelete(order?._id);
+                                  }
                                 }}
                                 className="text-[#cf2d56] focus:text-[#cf2d56] focus:bg-[#cf2d56]/10 cursor-pointer flex items-center gap-2"
                               >
@@ -551,16 +568,29 @@ const OrderTable: React.FC<OrderTableProps> = ({
                               </DropdownMenuItem>
                             </>
                           ) : order?.isManualTransport ? (
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (onDeleteTransportOrder) onDeleteTransportOrder(order?._id);
-                              }}
-                              className="text-[#cf2d56] focus:text-[#cf2d56] focus:bg-[#cf2d56]/10 cursor-pointer flex items-center gap-2"
-                            >
-                              <Trash2 size={14} />
-                              <span>Remove History</span>
-                            </DropdownMenuItem>
+                            <>
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (onEditTransportOrder) onEditTransportOrder(order);
+                                }}
+                                className="cursor-pointer flex items-center gap-2"
+                              >
+                                <Edit size={14} className="text-muted-foreground" />
+                                <span>Edit History</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator className="bg-border" />
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (onTrashTransportOrder) onTrashTransportOrder(order?._id);
+                                }}
+                                className="text-[#cf2d56] focus:text-[#cf2d56] focus:bg-[#cf2d56]/10 cursor-pointer flex items-center gap-2"
+                              >
+                                <Trash2 size={14} />
+                                <span>Move to Trash</span>
+                              </DropdownMenuItem>
+                            </>
                           ) : (
                             <>
                               <DropdownMenuItem

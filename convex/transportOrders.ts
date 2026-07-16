@@ -18,6 +18,7 @@ function generateDisplayOrderId(dateMs: number): string {
 export const listByEmployee = query({
   args: {
     transportEmployeeId: v.id("transportEmployees"),
+    isTrash: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const rows = await ctx.db
@@ -27,8 +28,11 @@ export const listByEmployee = query({
       )
       .collect();
 
+    const isTrashMode = args.isTrash === true;
+    const filtered = rows.filter((r) => (r.isTrash === true) === isTrashMode);
+
     // Newest first
-    return rows.sort((a, b) => (b.date ?? 0) - (a.date ?? 0) || b.createdAt - a.createdAt);
+    return filtered.sort((a, b) => (b.date ?? 0) - (a.date ?? 0) || b.createdAt - a.createdAt);
   },
 });
 
@@ -137,6 +141,26 @@ export const remove = mutation({
     const existing = await ctx.db.get(args.id);
     if (!existing) return null;
     await ctx.db.delete(args.id);
+    return args.id;
+  },
+});
+
+export const trash = mutation({
+  args: { id: v.id("transportOrders") },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db.get(args.id);
+    if (!existing) return null;
+    await ctx.db.patch(args.id, { isTrash: true });
+    return args.id;
+  },
+});
+
+export const restore = mutation({
+  args: { id: v.id("transportOrders") },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db.get(args.id);
+    if (!existing) return null;
+    await ctx.db.patch(args.id, { isTrash: false });
     return args.id;
   },
 });

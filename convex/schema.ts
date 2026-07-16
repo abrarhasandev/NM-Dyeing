@@ -168,6 +168,7 @@ export default defineSchema({
     note: v.optional(v.string()),
     /** Optional reference to a system dyeing order (display only / audit). */
     linkedOrderId: v.optional(v.string()),
+    isTrash: v.optional(v.boolean()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
