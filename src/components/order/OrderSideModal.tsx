@@ -11,6 +11,8 @@ import OrderStatus from "../OrderStatus/OrderStatus";
 import OrderInvoicePrint from "../Print/OrderInvoicePrint/OrderInvoicePrint";
 import { useDocumentTitle } from "@/hook/useDocumentTitle";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 
 interface OrderSideModalProps {
   isModalOpen: boolean;
@@ -37,6 +39,12 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
+  
+  const transportEmployees = useQuery(api.transportEmployees.list) || [];
+  
+  const ownTransporter = transportEmployees.find(
+    (emp: any) => emp.name === selectedOrder?.transporterName
+  );
 
   useEffect(() => {
     setIsClient(true);
@@ -265,7 +273,24 @@ const OrderSideModal: React.FC<OrderSideModalProps> = ({
                           </div>
                           <div className="flex flex-col">
                             <p className="text-[10px] font-semibold text-foreground/50 uppercase tracking-wider mb-0.5">Transporter</p>
-                            <p className="text-[12px] font-medium text-foreground">{selectedOrder?.transporterName || "N/A"}</p>
+                            {ownTransporter ? (
+                              <div className="flex items-center gap-2 mt-0.5">
+                                {ownTransporter.avatar ? (
+                                  <img 
+                                    src={ownTransporter.avatar} 
+                                    alt={ownTransporter.name} 
+                                    className="w-5 h-5 rounded-full object-cover border border-border shrink-0" 
+                                  />
+                                ) : (
+                                  <div className="w-5 h-5 rounded-full bg-accent border border-border shrink-0 flex items-center justify-center text-[9px] font-bold">
+                                    {ownTransporter.name.charAt(0)}
+                                  </div>
+                                )}
+                                <p className="text-[12px] font-medium text-foreground">{ownTransporter.name}</p>
+                              </div>
+                            ) : (
+                              <p className="text-[12px] font-medium text-foreground">{selectedOrder?.transporterName || "N/A"}</p>
+                            )}
                           </div>
                         </div>
                         

@@ -25,6 +25,8 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 
 
 
@@ -106,7 +108,34 @@ const renderStatusBadges = (order: any, orderId: string, handleOrderClick: any) 
 };
 
 // ─── Total Goj — exact Figma match ───────────────────────────────────────────
-const renderGojDetails = (order: any, orderId: string, totalGojVal: number, totalBundleVal: number, isTransportMode?: boolean) => {
+const renderGojDetails = (order: any, orderId: string, totalGojVal: number, totalBundleVal: number, isTransportMode?: boolean, transportEmployees?: any[]) => {
+  const ownTransporter = transportEmployees?.find((emp: any) => emp.name === order?.transporterName);
+
+  const TransporterEmployeeBadge = () => (
+    <div className="flex items-center gap-1">
+      {ownTransporter ? (
+        <>
+          {ownTransporter.avatar ? (
+            <img 
+              src={ownTransporter.avatar} 
+              alt={ownTransporter.name} 
+              className="w-3.5 h-3.5 rounded-full object-cover shrink-0 border border-border" 
+            />
+          ) : (
+            <div className="w-3.5 h-3.5 rounded-full bg-accent border border-border shrink-0 flex items-center justify-center text-[7px] font-bold text-foreground">
+              {ownTransporter.name.charAt(0)}
+            </div>
+          )}
+          <span className="text-[10px] text-muted-foreground font-medium truncate max-w-[80px]" title={ownTransporter.name}>
+            {ownTransporter.name}
+          </span>
+        </>
+      ) : (
+        <span className="text-[10px] text-muted-foreground/70 italic truncate max-w-[80px]" title="No specific transporter">No specific transporter</span>
+      )}
+    </div>
+  );
+
   if (isTransportMode) {
     const rows = [];
 
@@ -121,6 +150,7 @@ const renderGojDetails = (order: any, orderId: string, totalGojVal: number, tota
       rows.push({
         text: `Gry ${totalBundleVal}~${totalGojVal}`,
         cls: "font-semibold text-foreground text-[13px] leading-tight",
+        isTransporterBadge: true,
       });
 
       // Linked delivery manual order
@@ -134,10 +164,13 @@ const renderGojDetails = (order: any, orderId: string, totalGojVal: number, tota
 
     return (
       <div className="flex flex-col gap-1 py-0.5 select-none min-w-[120px]">
-        {rows.map((r, idx) => (
-          <span key={idx} className={r.cls}>
-            {r.text}
-          </span>
+        {rows.map((r: any, idx) => (
+          <div key={idx} className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+            <span className={r.cls}>
+              {r.text}
+            </span>
+            {r.isTransporterBadge && <TransporterEmployeeBadge />}
+          </div>
         ))}
       </div>
     );
@@ -204,9 +237,12 @@ const renderGojDetails = (order: any, orderId: string, totalGojVal: number, tota
 
   return (
     <div className="flex flex-col gap-1 py-0.5 select-none min-w-[120px]">
-      <span className="font-semibold text-foreground text-[13px] leading-tight">
-        Gry {totalBundleVal}~{totalGojVal}
-      </span>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+        <span className="font-semibold text-foreground text-[13px] leading-tight shrink-0">
+          Gry {totalBundleVal}~{totalGojVal}
+        </span>
+        <TransporterEmployeeBadge />
+      </div>
       {rows.length > 0 && (
         <div className="flex flex-col gap-0.5 mt-0.5">
           {rows.map((rec, i) => (
@@ -436,6 +472,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
   billedSystemOrderIds,
 }) => {
   const router = useRouter();
+  const transportEmployees = useQuery(api.transportEmployees.list) || [];
   const [sortConfig, setSortConfig] = useState<{ key: string | null; dir: "asc" | "desc" }>({ key: null, dir: "asc" });
   const [forceEditOrderId, setForceEditOrderId] = useState<string | null>(null);
 
@@ -571,7 +608,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                   </td>
 
                   <td className="px-5 py-3.5 whitespace-nowrap">
-                    {renderGojDetails(order, orderId, totalGojVal, totalBundleVal, isTransportMode)}
+                    {renderGojDetails(order, orderId, totalGojVal, totalBundleVal, isTransportMode, transportEmployees)}
                   </td>
 
                   <td className="px-5 py-3.5 whitespace-nowrap">
