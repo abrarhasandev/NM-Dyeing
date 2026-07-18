@@ -15,17 +15,13 @@ export async function GET(request, { params }) {
   if (__authError) return __authError;
 
   try {
-    await connectDB();
-
     const { id } = await params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return new Response(JSON.stringify({ error: "Invalid ID format" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    
+    // Use Convex fetchQuery instead of MongoDB
+    const { fetchQuery } = require("convex/nextjs");
+    const { api } = require("../../../../../convex/_generated/api");
 
-    const order = await Order.findById(id);
+    const order = await fetchQuery(api.orderQueries.getOrderById, { id });
 
     if (!order) {
       return new Response(JSON.stringify({ error: "Order not found" }), {

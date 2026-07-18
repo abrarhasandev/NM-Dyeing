@@ -77,7 +77,7 @@ export default function BatchCreator({
 
   const Dropdown = ({ label, options, selected, setSelected, optional }: { label: string, options: any[], selected: string, setSelected: any, optional?: boolean }) => (
     <div className="w-40 mb-1">
-      <label className="block mb-2 text-sm font-medium text-gray-700">
+      <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-muted-foreground">
         {label}
       </label>
       <select
@@ -90,7 +90,7 @@ export default function BatchCreator({
             setSelectedCalenderId(cal?._id || null);
           }
         }}
-        className="block w-full py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 cursor-pointer"
+        className="block w-full py-1 border border-gray-300 dark:border-border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-card text-gray-900 dark:text-foreground cursor-pointer"
       >
         <option value="">{optional ? "None" : "Select"}</option>
         {options?.map((opt) => (
@@ -113,14 +113,14 @@ export default function BatchCreator({
 
     return (
       <div className="w-40 mb-1">
-        <label className="block mb-2 text-sm font-medium text-gray-700">
+        <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-muted-foreground">
           {label}
         </label>
-        <div className="border border-gray-300 rounded-md p-1 bg-white">
+        <div className="border border-gray-300 dark:border-border rounded-md p-1 bg-white dark:bg-card">
           {options?.map((opt) => (
             <div
               key={opt._id}
-              className="flex items-center gap-2 cursor-pointer p-1 hover:bg-gray-100"
+              className="flex items-center gap-2 cursor-pointer p-1 hover:bg-gray-100 dark:hover:bg-accent/50 dark:text-foreground"
             >
               <input
                 type="checkbox"
@@ -258,9 +258,9 @@ export default function BatchCreator({
 
   return (
     <div className="mt-6">
-      <div className="p-4 border rounded-lg bg-gray-50 shadow-sm">
+      <div className="p-4 border rounded-lg bg-gray-50 dark:bg-card dark:border-border shadow-sm">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="font-semibold text-gray-700">Create Batch</h4>
+          <h4 className="font-semibold text-gray-700 dark:text-foreground">Create Batch</h4>
           <button
             onClick={confirmBatch}
             disabled={loading}
@@ -272,10 +272,10 @@ export default function BatchCreator({
 
         {/* Batch Table */}
         <table className="w-full text-sm border-collapse mt-4">
-          <thead className="bg-gray-100 text-gray-700">
+          <thead className="bg-gray-100 dark:bg-muted text-gray-700 dark:text-foreground">
             <tr>
               {keys?.map((key) => (
-                <th key={key} className="px-4 py-2 border text-left">
+                <th key={key} className="px-4 py-2 border dark:border-border text-left">
                   {key}
                 </th>
               ))}
@@ -283,15 +283,15 @@ export default function BatchCreator({
           </thead>
           <tbody>
             {batchData?.map((row, i) => (
-              <tr key={i} className="hover:bg-gray-50">
+              <tr key={i} className="hover:bg-gray-50 dark:hover:bg-accent/50">
                 {keys?.map((key, j) => (
-                  <td key={j} className="px-4 py-2 border">
+                  <td key={j} className="px-4 py-2 border dark:border-border dark:text-foreground">
                     {row[key] ?? "N/A"}
                   </td>
                 ))}
               </tr>
             ))}
-            <tr className="font-semibold bg-gray-200">
+            <tr className="font-semibold bg-gray-200 dark:bg-muted/80 dark:text-foreground">
               {keys.map((key, i) => {
                 let value: string | number = "";
                 if (key === "goj")
@@ -301,7 +301,7 @@ export default function BatchCreator({
                   );
                 if (key === "rollNo") value = batchData.length;
                 return (
-                  <td key={i} className="px-4 py-2 border">
+                  <td key={i} className="px-4 py-2 border dark:border-border">
                     Total: {value}
                   </td>
                 );
@@ -312,7 +312,7 @@ export default function BatchCreator({
       </div>
 
       {/* Dropdowns */}
-      <div className="flex justify-center gap-4 mt-4 flex-wrap py-4 border rounded-lg bg-gray-50 shadow-sm">
+      <div className="flex justify-center gap-4 mt-4 flex-wrap py-4 border rounded-lg bg-gray-50 dark:bg-card dark:border-border shadow-sm">
         <Dropdown
           label="Colour"
           options={data?.colours || []}

@@ -2,15 +2,16 @@
 /**
  * useOrders — adapter over order list/detail APIs.
  *
- * Phase D skeleton: still Mongo via `/api/order*`.
- * Later cutover can swap implementation without touching list UI.
+ * Migrated to Convex for real-time reads.
  */
 
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import dayjs from "dayjs";
 import { toast } from "sonner";
+import { useQuery, useConvex } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import type {
   OrderChartBucket,
   OrderKpiData,
@@ -49,7 +50,7 @@ const useOrders = (filters: OrderListFilters) => {
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrderListItem | null>(null);
 
-  const lastRequestId = useRef(0);
+  const convex = useConvex();
 
   const resolveDateRange = () => {
     let startDate = "";
@@ -96,64 +97,84 @@ const useOrders = (filters: OrderListFilters) => {
     return { startDate, endDate };
   };
 
+  const { startDate, endDate } = resolveDateRange();
+
+  const queryArgs = useMemo(() => {
+    return {
+      page: currentPage || 1,
+      limit: itemsPerPage || 12,
+      search: searchTerm || "",
+      startDate: startDate || "",
+      endDate: endDate || "",
+      exactDate: exactDate || "",
+      status: status || "",
+      clotheTypes: clotheType || "",
+      finishingType: finishingType || "",
+      colour: colour || "",
+      sillName: sillName || "",
+      quality: quality || "",
+      transporterName: transporterName || "",
+      isTrash: isTrash || false,
+    };
+  }, [
+    currentPage,
+    itemsPerPage,
+    searchTerm,
+    startDate,
+    endDate,
+    exactDate,
+    status,
+    clotheType,
+    finishingType,
+    colour,
+    sillName,
+    quality,
+    transporterName,
+    isTrash,
+  ]);
+
+  const convexData = useQuery(
+    api.orderQueries.listOrdersWithStats,
+    skip ? "skip" : queryArgs
+  );
+
+  useEffect(() => {
+    if (convexData !== undefined) {
+      setOrders(convexData.orders ?? []);
+      setKpiData(convexData.kpiData ?? null);
+      setPrevKpiData(convexData.prevKpiData ?? null);
+      setChartData(convexData.chartData ?? []);
+      setTotalPages(Math.ceil((convexData.totalCount || 0) / itemsPerPage) || 1);
+      setLoadingOrders(false);
+    } else if (!skip) {
+      setLoadingOrders(true);
+    }
+  }, [convexData, skip, itemsPerPage]);
+
   const fetchOrders = async (silent = false) => {
     if (skip) return;
     if (!silent) setLoadingOrders(true);
-    const requestId = ++lastRequestId.current;
-
-    const { startDate, endDate } = resolveDateRange();
-
     try {
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: itemsPerPage.toString(),
-        search: searchTerm || "",
-        startDate: startDate || "",
-        endDate: endDate || "",
-      });
-
-      if (exactDate) params.append("date", exactDate);
-      if (status) params.append("status", status);
-      if (clotheType) params.append("clotheTypes", clotheType);
-      if (finishingType) params.append("finishingType", finishingType);
-      if (colour) params.append("colour", colour);
-      if (sillName) params.append("sillName", sillName);
-      if (quality) params.append("quality", quality);
-      if (transporterName) params.append("transporterName", transporterName);
-      if (isTrash) params.append("isTrash", "true");
-
-      const res = await fetch(`/api/order?${params.toString()}`, {
-        cache: "no-store",
-      });
-      if (!res.ok) throw new Error("Failed to fetch orders");
-
-      const data: OrdersListResponse = await res.json();
-
-      if (requestId === lastRequestId.current) {
-        setOrders(data.orders ?? []);
-        setKpiData(data.kpiData ?? null);
-        setPrevKpiData(data.prevKpiData ?? null);
-        setChartData(data.chartData ?? []);
-        setTotalPages(Math.ceil((data.totalCount || 0) / itemsPerPage) || 1);
-      }
+      // Force a manual fetch if needed, though useQuery is reactive
+      const data = await convex.query(api.orderQueries.listOrdersWithStats, queryArgs);
+      setOrders(data.orders ?? []);
+      setKpiData(data.kpiData ?? null);
+      setPrevKpiData(data.prevKpiData ?? null);
+      setChartData(data.chartData ?? []);
+      setTotalPages(Math.ceil((data.totalCount || 0) / itemsPerPage) || 1);
     } catch (err) {
-      if (requestId === lastRequestId.current) {
-        console.error("Error fetching orders:", err);
-        toast.error("Error fetching orders. Please try again.");
-      }
+      console.error("Error fetching orders manually:", err);
+      toast.error("Error fetching orders. Please try again.");
     } finally {
-      if (requestId === lastRequestId.current) {
-        if (!silent) setLoadingOrders(false);
-      }
+      if (!silent) setLoadingOrders(false);
     }
   };
 
   const fetchSingleOrder = async (id: string) => {
     setLoadingOrder(true);
     try {
-      const res = await fetch(`/api/order/${id}`);
-      if (!res.ok) throw new Error("Failed to fetch order");
-      const data = await res.json();
+      const data = await convex.query(api.orderQueries.getOrderById, { id });
+      if (!data) throw new Error("Order not found");
       setSelectedOrder(data);
       return data;
     } catch (err) {
@@ -171,7 +192,8 @@ const useOrders = (filters: OrderListFilters) => {
         : `/api/order/${id}`;
       const res = await fetch(url, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete order");
-      await fetchOrders();
+      // Convex is real-time, no need to manually fetchOrders unless we want to be absolutely sure
+      // await fetchOrders(); 
       toast.success(
         permanent ? "Order permanently deleted." : "Order moved to trash."
       );
@@ -185,35 +207,13 @@ const useOrders = (filters: OrderListFilters) => {
     try {
       const res = await fetch(`/api/order/${id}/restore`, { method: "PATCH" });
       if (!res.ok) throw new Error("Failed to restore order");
-      await fetchOrders();
+      // await fetchOrders();
       toast.success("Order restored successfully.");
     } catch (err) {
       console.error(err);
       toast.error("Error restoring order. Please try again.");
     }
   };
-
-  useEffect(() => {
-    fetchOrders();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional filter deps
-  }, [
-    skip,
-    currentPage,
-    itemsPerPage,
-    searchTerm,
-    dateRange,
-    customStartDate,
-    customEndDate,
-    exactDate,
-    status,
-    clotheType,
-    finishingType,
-    colour,
-    sillName,
-    quality,
-    transporterName,
-    isTrash,
-  ]);
 
   return {
     orders,

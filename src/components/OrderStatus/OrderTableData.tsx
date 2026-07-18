@@ -144,7 +144,7 @@ export default function OrderTableData({
   if (tableData.length === 0) {
     return (
       <div className="mt-6">
-        <h3 className="font-semibold text-gray-700 mb-3">
+        <h3 className="font-semibold text-gray-700 dark:text-foreground mb-3">
           Processing Details
         </h3>
         <p className="text-sm text-gray-500 italic">
@@ -156,7 +156,7 @@ export default function OrderTableData({
 
   return (
     <div className="mt-6">
-      <h3 className="font-semibold text-gray-700 mb-3">
+      <h3 className="font-semibold text-gray-700 dark:text-foreground mb-3">
         Processing Details
       </h3>
 
@@ -166,11 +166,11 @@ export default function OrderTableData({
         </p>
       )}
 
-      <div className="overflow-x-auto border rounded-lg">
+      <div className="overflow-x-auto border dark:border-border rounded-lg">
         <table className="w-full text-sm border-collapse">
-          <thead className="bg-gray-100 text-gray-700">
+          <thead className="bg-gray-100 dark:bg-muted text-gray-700 dark:text-foreground">
             <tr>
-              <th className="px-3 py-2 border text-center">
+              <th className="px-3 py-2 border dark:border-border text-center">
                 {currentStep === 2 ? (
                   <button
                     onClick={handleSelectAll}
@@ -184,7 +184,7 @@ export default function OrderTableData({
                 )}
               </th>
               {keys?.map((key) => (
-                <th key={key} className="px-4 py-2 border text-left">
+                <th key={key} className="px-4 py-2 border dark:border-border text-left">
                   {key}
                 </th>
               ))}
@@ -202,13 +202,13 @@ export default function OrderTableData({
                   key={idx}
                   className={`${
                     isUsed
-                      ? "bg-gray-100 opacity-50 cursor-not-allowed"
+                      ? "bg-gray-100 dark:bg-muted opacity-50 cursor-not-allowed"
                       : isSelected
-                      ? "bg-blue-50"
-                      : "hover:bg-gray-50"
+                      ? "bg-blue-50 dark:bg-blue-900/30"
+                      : "hover:bg-gray-50 dark:hover:bg-accent/50"
                   }`}
                 >
-                  <td className="px-3 py-2 border text-center">
+                  <td className="px-3 py-2 border dark:border-border text-center">
                     <input
                       type="checkbox"
                       disabled={isUsed || currentStep !== 2}
@@ -217,7 +217,7 @@ export default function OrderTableData({
                     />
                   </td>
                   {keys.map((key, i) => (
-                    <td key={i} className="px-4 py-2 border">
+                    <td key={i} className="px-4 py-2 border dark:border-border">
                       {row[key] ?? "N/A"}
                     </td>
                   ))}
@@ -225,8 +225,8 @@ export default function OrderTableData({
               );
             })}
 
-            <tr className="font-semibold bg-gray-200">
-              <td className="px-3 py-2 border text-center">Total</td>
+            <tr className="font-semibold bg-gray-200 dark:bg-muted/80 dark:text-foreground">
+              <td className="px-3 py-2 border dark:border-border text-center">Total</td>
               {keys?.map((key, i) => {
                 if (key === "goj") {
                   const gojSum = tableData.reduce(
@@ -234,19 +234,19 @@ export default function OrderTableData({
                     0
                   );
                   return (
-                    <td key={i} className="px-4 py-2 border">
+                    <td key={i} className="px-4 py-2 border dark:border-border">
                       {gojSum}
                     </td>
                   );
                 }
                 if (key === "rollNo") {
                   return (
-                    <td key={i} className="px-4 py-2 border">
+                    <td key={i} className="px-4 py-2 border dark:border-border">
                       {tableData.length}
                     </td>
                   );
                 }
-                return <td key={i} className="px-4 py-2 border"></td>;
+                return <td key={i} className="px-4 py-2 border dark:border-border"></td>;
               })}
             </tr>
           </tbody>

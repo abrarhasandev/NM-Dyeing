@@ -2,7 +2,7 @@
 export default function Stepper({ steps, currentStep, activeTab, onStepClick }) {
     return (
       <div className="relative">
-        <div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-300 z-0 mx-[40px]">
+        <div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-300 dark:bg-muted z-0 mx-[40px]">
           <div
             className="h-0.5 bg-blue-500 transition-all duration-300"
             style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
@@ -29,14 +29,14 @@ export default function Stepper({ steps, currentStep, activeTab, onStepClick }) 
                       ? "bg-blue-600 text-white border-blue-600" // Current actual status
                       : isCompleted
                       ? "bg-blue-500 text-white border-blue-500" // Completed steps
-                      : "bg-white border-gray-300 text-gray-500" // Future steps
+                      : "bg-white dark:bg-card border-gray-300 dark:border-border text-gray-500 dark:text-muted-foreground" // Future steps
                     }`}
                 >
                   {step.id}
                 </div>
                 <p
                   className={`mt-2 text-sm font-medium ${
-                    isActiveView || isCompleted || isCurrentStatus ? "text-blue-600" : "text-gray-500"
+                    isActiveView || isCompleted || isCurrentStatus ? "text-blue-600 dark:text-blue-500" : "text-gray-500 dark:text-muted-foreground"
                   }`}
                 >
                   {step?.title}

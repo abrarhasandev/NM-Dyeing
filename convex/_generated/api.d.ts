@@ -18,6 +18,7 @@ import type * as invoices from "../invoices.js";
 import type * as ledgerSnapshots from "../ledgerSnapshots.js";
 import type * as lib_mirrorAuth from "../lib/mirrorAuth.js";
 import type * as menu from "../menu.js";
+import type * as orderQueries from "../orderQueries.js";
 import type * as orders from "../orders.js";
 import type * as payments from "../payments.js";
 import type * as savedInvoices from "../savedInvoices.js";
@@ -43,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   ledgerSnapshots: typeof ledgerSnapshots;
   "lib/mirrorAuth": typeof lib_mirrorAuth;
   menu: typeof menu;
+  orderQueries: typeof orderQueries;
   orders: typeof orders;
   payments: typeof payments;
   savedInvoices: typeof savedInvoices;
