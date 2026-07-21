@@ -13,8 +13,13 @@ function useChart() {
   return context
 }
 
-const ChartContainer = React.forwardRef(
-  ({ id, className, config, children, ...props }, ref) => {
+const ChartContainer = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div"> & {
+    config: ChartConfig
+    children: React.ReactNode
+  }
+>(({ id, className, config, children, ...props }, ref) => {
     const uniqueId = React.useId()
     const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`
 
@@ -69,7 +74,21 @@ const ChartStyle = ({ id, config }) => {
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
-const ChartTooltipContent = React.forwardRef(
+const ChartTooltipContent = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div"> & {
+    active?: boolean
+    payload?: any[]
+    indicator?: "line" | "dot" | "dashed"
+    hideLabel?: boolean
+    hideIndicator?: boolean
+    label?: React.ReactNode
+    labelFormatter?: (value: any, payload: any[]) => React.ReactNode
+    labelClassName?: string
+    formatter?: (value: any, name: any, item: any, index: number, payload: any) => React.ReactNode
+    color?: string
+  }
+>(
   (
     {
       active,
@@ -189,7 +208,15 @@ ChartTooltipContent.displayName = "ChartTooltip"
 
 const ChartLegend = RechartsPrimitive.Legend
 
-const ChartLegendContent = React.forwardRef(
+const ChartLegendContent = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div"> & {
+    align?: string
+    verticalAlign?: string
+    payload?: any[]
+    iconType?: string
+  }
+>(
   ({ className, align = "left", verticalAlign = "top", payload, iconType }, ref) => {
     const { config } = useChart()
 
@@ -231,6 +258,15 @@ const ChartLegendContent = React.forwardRef(
   }
 )
 ChartLegendContent.displayName = "ChartLegend"
+
+export type ChartConfig = {
+  [k in string]: {
+    label?: React.ReactNode
+    icon?: React.ComponentType
+    color?: string
+    theme?: Record<"light" | "dark", string>
+  }
+}
 
 export {
   ChartContainer,
