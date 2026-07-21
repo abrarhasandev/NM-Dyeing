@@ -119,7 +119,10 @@ export default function OrderStatus({
 
   const handleStepClick = async (step) => {
     // 1. Update the URL to reflect the new tab, for easily copy-pasting
-    router.push(`/dashboard/order?id=${orderId}&tab=${step.title}`, { scroll: false });
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("id", orderId);
+    params.set("tab", step.title);
+    router.push(`/dashboard/order?${params.toString()}`, { scroll: false });
 
     // 2. We only allow updating the status if they click a step DIFFERENT from the actual current status
     // But wait, the user's main requirement was: "when I shift between each status, say from 1 to 7, there is no change in the route. This means that if you try to go directly to any status through the route, it is not possible. For this reason, when you click on the current dispatch button, it is not opening. I want each status to have a separate number and a route or url endpoint so that the specified status can be opened very easily using them."

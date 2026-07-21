@@ -24,6 +24,13 @@ export const getDistricts = query({
   },
 });
 
+export const getAllDistrictsRaw = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("bdDistricts").collect();
+  }
+});
+
 export const getUpazilas = query({
   args: { districtName: v.string() },
   handler: async (ctx, args) => {
@@ -88,7 +95,10 @@ export const seedUnions = internalMutation({
   }
 });
 
-// --- Seeding Action ---
+// --- Utility for batching Promises ---
+const chunkArray = <T>(arr: T[], size: number): T[][] => {
+  return arr.length ? [arr.slice(0, size), ...chunkArray(arr.slice(size), size)] : [];
+};
 
 export const seedAllAddressData = action({
   args: {},
@@ -112,29 +122,43 @@ export const seedAllAddressData = action({
          data: districts.map((d: any) => ({ divisionName: div.name, name: d.name, bn_name: d.bn_name }))
        });
 
+       const upazilasByDistrict: Record<string, any[]> = {};
+
+       // Fetch upazilas concurrently
+       const distChunks = chunkArray(districts, 10);
+       for (const chunk of distChunks) {
+         await Promise.all(chunk.map(async (dist: any) => {
+            const upaRes = await fetch(`${API_BASE}/upazilas/${dist.id}`);
+            if (upaRes.ok) {
+              const upaData = await upaRes.json();
+              upazilasByDistrict[dist.name] = upaData.data || [];
+            }
+         }));
+       }
+
        for (const dist of districts) {
-          console.log(`Seeding Upazilas for ${dist.name}...`);
-          const upaRes = await fetch(`${API_BASE}/upazilas/${dist.id}`);
-          const upaData = await upaRes.json();
-          const upazilas = upaData.data || [];
+          const upazilas = upazilasByDistrict[dist.name] || [];
+          if (upazilas.length > 0) {
+            await ctx.runMutation(internal.addresses.seedUpazilas, {
+              data: upazilas.map((u: any) => ({ districtName: dist.name, name: u.name, bn_name: u.bn_name }))
+            });
+          }
 
-          await ctx.runMutation(internal.addresses.seedUpazilas, {
-            data: upazilas.map((u: any) => ({ districtName: dist.name, name: u.name, bn_name: u.bn_name }))
-          });
-
-          // Seed unions - Note: this makes a lot of API calls (around 495 upazilas)
-          // Doing it in sequence to respect potential rate limits of bdapis.pro.bd
-          for (const upa of upazilas) {
-             const unionRes = await fetch(`${API_BASE}/unions/${upa.id}`);
-             if (unionRes.ok) {
-                 const unionData = await unionRes.json();
-                 const unions = unionData.data || [];
-                 if (unions.length > 0) {
-                     await ctx.runMutation(internal.addresses.seedUnions, {
-                         data: unions.map((u: any) => ({ upazilaName: upa.name, name: u.name, bn_name: u.bn_name }))
-                     });
-                 }
-             }
+          // Fetch unions concurrently for these upazilas
+          const upaChunks = chunkArray(upazilas, 10);
+          for (const chunk of upaChunks) {
+            await Promise.all(chunk.map(async (upa: any) => {
+               const unionRes = await fetch(`${API_BASE}/unions/${upa.id}`);
+               if (unionRes.ok) {
+                   const unionData = await unionRes.json();
+                   const unions = unionData.data || [];
+                   if (unions.length > 0) {
+                       await ctx.runMutation(internal.addresses.seedUnions, {
+                           data: unions.map((u: any) => ({ upazilaName: upa.name, name: u.name, bn_name: u.bn_name }))
+                       });
+                   }
+               }
+            }));
           }
        }
     }

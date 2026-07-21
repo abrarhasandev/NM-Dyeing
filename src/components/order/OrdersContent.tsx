@@ -241,14 +241,26 @@ export const OrdersContent = ({
   // Handlers
   const handleOrderClick = (id, tab) => {
     const basePath = activeTrashMode ? "/dashboard/order/trash" : "/dashboard/order";
-    const url = tab ? `${basePath}?id=${id}&tab=${tab}` : `${basePath}?id=${id}`;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("id", id);
+    if (tab) {
+      params.set("tab", tab);
+    } else {
+      params.delete("tab");
+    }
+    const url = `${basePath}?${params.toString()}`;
     router.push(url, { scroll: false });
   };
 
   const closeModal = () => {
     setSelectedOrder(null);
     const basePath = activeTrashMode ? "/dashboard/order/trash" : "/dashboard/order";
-    router.push(basePath, { scroll: false });
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("id");
+    params.delete("tab");
+    const queryString = params.toString();
+    const url = queryString ? `${basePath}?${queryString}` : basePath;
+    router.push(url, { scroll: false });
   };
 
   const confirmDelete = (id) => {
