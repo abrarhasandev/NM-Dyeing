@@ -4,6 +4,10 @@ import useAppData from "@/hook/useAppData";
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { createBatchAction } from "@/app/actions/batchActions";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { SopChecklistModal } from "../ERP/Execution/SopChecklistModal";
+import { CompleteBatchModal } from "../ERP/Execution/CompleteBatchModal";
 
 interface BatchCreatorProps {
   orderId: string;
@@ -38,6 +42,11 @@ export default function BatchCreator({
   const [selectedCalender, setSelectedCalender] = useState("");
   const [selectedCalenderId, setSelectedCalenderId] = useState(null);
   const [selectedProcesses, setSelectedProcesses] = useState([]);
+  
+  // ERP States
+  const [selectedRecipeId, setSelectedRecipeId] = useState("");
+  const recipes = useQuery(api.recipes.getRecipes) || [];
+  const startBatch = useMutation(api.executionEngine.startBatch);
 
   // helper: OrderTableData এর সাথে same logic রাখব
   const makeRowKey = (row) => {
@@ -245,6 +254,23 @@ export default function BatchCreator({
 
         setBatchData([]);
         if (fetchOrders) fetchOrders();
+
+        // [ERP Execution] Reserve Stock
+        if (selectedRecipeId) {
+          try {
+            await startBatch({
+              batchId: newBatch._id || orderId, // Fallback to orderId if _id is missing
+              recipeId: selectedRecipeId as any,
+              fabricWeightKg: 100, // Hardcoded for demo, normally derived from batch goj/weight
+              liquorVolumeLiters: 1000, 
+              machineCapacityKg: 200,
+            });
+            toast.success("Inventory Reserved Successfully!");
+          } catch (erpError: any) {
+            console.error(erpError);
+            toast.error("Batch created, but failed to reserve inventory: " + erpError.message);
+          }
+        }
       } else {
         toast.error(res.error || "Batch creation failed");
       }
@@ -261,13 +287,14 @@ export default function BatchCreator({
       <div className="p-4 border rounded-lg bg-gray-50 dark:bg-card dark:border-border shadow-sm">
         <div className="flex items-center justify-between mb-3">
           <h4 className="font-semibold text-gray-700 dark:text-foreground">Create Batch</h4>
-          <button
-            onClick={confirmBatch}
-            disabled={loading}
-            className="px-4 py-1 text-sm bg-green-600 cursor-pointer text-white rounded hover:bg-green-700 disabled:opacity-50"
-          >
-            {loading ? "Saving..." : "Create Batch"}
-          </button>
+          <div className="flex gap-2">
+            <CompleteBatchModal batchId={orderId} recipeId={selectedRecipeId} disabled={!selectedRecipeId} />
+            <SopChecklistModal 
+              processName="Dyeing" 
+              onConfirm={confirmBatch} 
+              buttonDisabled={loading || !selectedRecipeId}
+            />
+          </div>
         </div>
 
         {/* Batch Table */}
@@ -336,6 +363,18 @@ export default function BatchCreator({
           options={data?.dyeings || []}
           selected={selectedDyeing}
           setSelected={setSelectedDyeing}
+        />
+
+        {/* ERP Recipe Selector */}
+        <Dropdown
+          label="Dyeing Recipe (BOM)"
+          options={recipes.map(r => ({ _id: r._id, name: r.name })) || []}
+          selected={recipes.find(r => r._id === selectedRecipeId)?.name || ""}
+          setSelected={(name: string) => {
+            const r = recipes.find(rec => rec.name === name);
+            if (r) setSelectedRecipeId(r._id);
+            else setSelectedRecipeId("");
+          }}
         />
 
         <MultiSelectDropdown

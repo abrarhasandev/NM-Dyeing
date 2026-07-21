@@ -474,4 +474,298 @@ export default defineSchema({
   })
     .index("by_upazila", ["upazilaName"])
     .index("by_name", ["name"]),
+
+  // ==========================================
+  // ERP: INVENTORY & STATEFUL STOCK MANAGEMENT
+  // ==========================================
+  inventoryItems: defineTable({
+    itemCode: v.string(),
+    name: v.string(),
+    itemGroup: v.string(),
+    category: v.optional(v.union(v.literal("DYE"), v.literal("CHEMICAL"), v.literal("AUXILIARY"))),
+    defaultUom: v.string(),
+    purchasingUoM: v.optional(v.string()),
+    consumingUoM: v.optional(v.string()),
+    conversionRate: v.optional(v.number()),
+    maintainStock: v.boolean(),
+    isFixedAsset: v.boolean(),
+    currentStock: v.number(),
+    reservedStock: v.number(),
+    availableStock: v.number(),
+    movingAveragePrice: v.number(),
+    reorderLevel: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_category", ["category"]).index("by_itemCode", ["itemCode"]),
+
+  inventoryLedger: defineTable({
+    itemId: v.id("inventoryItems"),
+    transactionType: v.union(
+      v.literal("PURCHASE_IN"), 
+      v.literal("RESERVE"), 
+      v.literal("RELEASE_RESERVE"),
+      v.literal("CONSUME_ACTUAL"), 
+      v.literal("AUDIT_ADJUSTMENT")
+    ),
+    quantity: v.number(),
+    unitCostAtTransaction: v.optional(v.number()),
+    batchId: v.optional(v.string()), 
+    auditId: v.optional(v.id("stockAudits")),
+    note: v.optional(v.string()),
+    createdAt: v.number(),
+  }).index("by_item", ["itemId"]).index("by_batch", ["batchId"]),
+
+  // ==========================================
+  // ERP: AUDIT & RECONCILIATION
+  // ==========================================
+  stockAudits: defineTable({
+    auditMonth: v.string(),
+    status: v.union(v.literal("DRAFT"), v.literal("COMPLETED")),
+    completedBy: v.optional(v.string()),
+    completedAt: v.optional(v.number()),
+    totalFinancialImpact: v.optional(v.number()),
+  }).index("by_status", ["status"]),
+
+  stockAuditItems: defineTable({
+    auditId: v.id("stockAudits"),
+    itemId: v.id("inventoryItems"),
+    systemStock: v.number(),
+    physicalStock: v.number(),
+    variance: v.number(),
+    discrepancyReason: v.optional(v.string()),
+    financialImpact: v.number(),
+  }).index("by_audit", ["auditId"]),
+
+  // ==========================================
+  // ERP: NON-LINEAR RECIPES (BOM)
+  // ==========================================
+  recipes: defineTable({
+    name: v.string(),
+    colourId: v.string(),
+    clothTypeId: v.string(),
+    active: v.boolean(),
+  }).index("by_colour_cloth", ["colourId", "clothTypeId"]),
+
+  recipeIngredients: defineTable({
+    recipeId: v.id("recipes"),
+    itemId: v.id("inventoryItems"),
+    calculationBase: v.union(
+      v.literal("FABRIC_WEIGHT"),
+      v.literal("LIQUOR_RATIO"),
+      v.literal("MACHINE_CAPACITY"),
+      v.literal("FIXED")
+    ),
+    quantityPerBase: v.number(),
+  }).index("by_recipe", ["recipeId"]),
+
+  // ==========================================
+  // ERP: SOP & COMPLIANCE EXECUTION
+  // ==========================================
+  sops: defineTable({
+    processName: v.string(),
+    title: v.string(),
+    description: v.optional(v.string()),
+    isMandatory: v.boolean(),
+  }).index("by_process", ["processName"]),
+
+  sopExecutionLogs: defineTable({
+    batchId: v.string(),
+    sopId: v.id("sops"),
+    operatorId: v.string(),
+    status: v.union(v.literal("CHECKED"), v.literal("FAILED"), v.literal("SKIPPED")),
+    timestamp: v.number(),
+  }).index("by_batch", ["batchId"]),
+  // ==========================================
+  // ERP: EXTENDED STOCK MODULE (ERPNext Style)
+  // ==========================================
+  
+  // Core Transactions
+  stockEntries: defineTable({
+    entryType: v.string(),
+    postingDate: v.number(),
+    status: v.string(),
+    items: v.array(v.object({ itemId: v.id("inventoryItems"), qty: v.number(), sourceWarehouse: v.optional(v.string()), targetWarehouse: v.optional(v.string()) })),
+    totalAmount: v.optional(v.number()),
+  }).index("by_postingDate", ["postingDate"]).index("by_status", ["status"]),
+  
+  purchaseReceipts: defineTable({
+    receiptNo: v.string(),
+    postingDate: v.number(),
+    supplier: v.string(),
+    status: v.string(),
+    items: v.array(v.object({ itemId: v.id("inventoryItems"), qty: v.number(), acceptedQty: v.number(), rate: v.number(), amount: v.number() })),
+    grandTotal: v.number(),
+  }).index("by_receiptNo", ["receiptNo"]).index("by_postingDate", ["postingDate"]),
+  
+  deliveryNotes: defineTable({
+    deliveryNo: v.string(),
+    customer: v.string(),
+    postingDate: v.number(),
+    status: v.string(),
+    items: v.array(v.object({ itemId: v.id("inventoryItems"), qty: v.number(), rate: v.number(), amount: v.number() })),
+    grandTotal: v.number(),
+  }).index("by_deliveryNo", ["deliveryNo"]),
+
+  materialRequests: defineTable({
+    requestNo: v.string(),
+    transactionDate: v.number(),
+    requestType: v.string(), // Purchase, Material Transfer, Material Issue
+    status: v.string(),
+    items: v.array(v.object({ itemId: v.id("inventoryItems"), qty: v.number(), uom: v.string() })),
+  }).index("by_requestNo", ["requestNo"]),
+
+  pickLists: defineTable({
+    pickListNo: v.string(),
+    date: v.number(),
+    purpose: v.string(),
+    status: v.string(),
+    items: v.array(v.object({ itemId: v.id("inventoryItems"), qty: v.number(), warehouse: v.string() })),
+  }),
+
+  // Tools
+  stockReconciliations: defineTable({
+    postingDate: v.number(),
+    postingTime: v.string(),
+    purpose: v.string(),
+    items: v.array(v.object({ itemId: v.id("inventoryItems"), warehouse: v.string(), qty: v.number(), valuationRate: v.number() })),
+  }),
+  
+  landedCostVouchers: defineTable({
+    company: v.string(),
+    postingDate: v.number(),
+    receiptDocumentType: v.string(), // Purchase Receipt, Purchase Invoice
+    receiptDocument: v.string(),
+    taxesAndCharges: v.array(v.object({ description: v.string(), amount: v.number() })),
+  }),
+  
+  repostItemValuations: defineTable({
+    itemId: v.id("inventoryItems"),
+    warehouse: v.optional(v.string()),
+    postingDate: v.number(),
+    postingTime: v.string(),
+    status: v.string(),
+  }),
+  
+  packingSlips: defineTable({
+    deliveryNote: v.string(),
+    customer: v.string(),
+    items: v.array(v.object({ itemId: v.id("inventoryItems"), qty: v.number(), netWeight: v.number() })),
+  }),
+  
+  qualityInspections: defineTable({
+    inspectionType: v.string(),
+    referenceType: v.string(),
+    referenceName: v.string(),
+    itemId: v.id("inventoryItems"),
+    status: v.string(),
+    readings: v.array(v.object({ parameter: v.string(), readingValue: v.string(), accepted: v.boolean() })),
+  }),
+
+  // Setup Entities (Items already covered by inventoryItems, but adding extended variants)
+  itemGroups: defineTable({
+    name: v.string(),
+    parentItemGroup: v.optional(v.string()),
+    isGroup: v.boolean(),
+  }),
+  
+  itemAttributes: defineTable({
+    name: v.string(),
+    numericValues: v.boolean(),
+    values: v.array(v.object({ value: v.string(), abbr: v.optional(v.string()) })),
+  }),
+  
+  brands: defineTable({
+    name: v.string(),
+    description: v.optional(v.string()),
+  }),
+  
+  warehouses: defineTable({
+    name: v.string(),
+    isGroup: v.boolean(),
+    parentWarehouse: v.optional(v.string()),
+    account: v.optional(v.string()),
+  }),
+  
+  uoms: defineTable({
+    name: v.string(),
+    mustBeWholeNumber: v.boolean(),
+  }),
+  
+  uomConversionFactors: defineTable({
+    fromUom: v.string(),
+    toUom: v.string(),
+    value: v.number(),
+  }),
+  
+  serialNos: defineTable({
+    serialNo: v.string(),
+    itemId: v.id("inventoryItems"),
+    warehouse: v.optional(v.string()),
+    status: v.string(),
+  }),
+  
+  batchNos: defineTable({
+    batchNo: v.string(),
+    itemId: v.id("inventoryItems"),
+    expiryDate: v.optional(v.number()),
+  }),
+  
+  serialAndBatchBundles: defineTable({
+    voucherType: v.string(),
+    voucherNo: v.string(),
+    itemId: v.id("inventoryItems"),
+    entries: v.array(v.object({ serialNo: v.optional(v.string()), batchNo: v.optional(v.string()), qty: v.number() })),
+  }),
+  
+  inventoryDimensions: defineTable({
+    name: v.string(),
+    documentType: v.string(),
+    mandatory: v.boolean(),
+  }),
+  
+  shippingRules: defineTable({
+    name: v.string(),
+    shippingRuleType: v.string(),
+    account: v.string(),
+    conditions: v.array(v.object({ fromValue: v.number(), toValue: v.number(), shippingAmount: v.number() })),
+  }),
+  
+  itemAlternatives: defineTable({
+    itemId: v.id("inventoryItems"),
+    alternativeItemId: v.id("inventoryItems"),
+    twoWay: v.boolean(),
+  }),
+  
+  qualityInspectionTemplates: defineTable({
+    name: v.string(),
+    parameters: v.array(v.object({ parameter: v.string(), acceptanceCriteria: v.string() })),
+  }),
+  
+  deliveryTrips: defineTable({
+    tripName: v.string(),
+    driver: v.string(),
+    vehicle: v.string(),
+    date: v.number(),
+    stops: v.array(v.object({ customer: v.string(), deliveryNote: v.string() })),
+  }),
+
+  // Settings
+  stockSettings: defineTable({
+    itemNamingBy: v.string(),
+    defaultValueWarehouse: v.optional(v.string()),
+    showBarcodeField: v.boolean(),
+    autoInsertPriceListRate: v.boolean(),
+  }),
+  
+  itemVariantSettings: defineTable({
+    allowFieldsToBeChanged: v.array(v.string()),
+  }),
+  
+  stockRepostingSettings: defineTable({
+    repostItemValuationOn: v.string(),
+  }),
+  
+  deliverySettings: defineTable({
+    dispatchLocation: v.string(),
+  }),
 });
