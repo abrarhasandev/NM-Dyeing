@@ -246,9 +246,9 @@ export default function BillingBatch({ orderId, fetchOrders }) {
         quality: batch.quality || orderInfo?.quality || "",
         sillName: batch.sillName,
         finishingType: batch.finishingType,
-        customerId: batch.customerId,
+        customerId: batch.customerId || orderInfo?.customerId?._id || orderInfo?.customerId || null,
         dyeing: batch.dyeing,
-        dyeingId: batch.dyeingId,
+        dyeingId: batch.dyeingId || orderInfo?.dyeingId?._id || orderInfo?.dyeingId || null,
 
         calender: batch.calender,
         calenderId: batch.calenderId,

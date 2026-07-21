@@ -14,6 +14,7 @@ import type * as batches from "../batches.js";
 import type * as billingSummaries from "../billingSummaries.js";
 import type * as calenders from "../calenders.js";
 import type * as customers from "../customers.js";
+import type * as dashboardQueries from "../dashboardQueries.js";
 import type * as dyeings from "../dyeings.js";
 import type * as executionEngine from "../executionEngine.js";
 import type * as inventory from "../inventory.js";
@@ -45,6 +46,7 @@ declare const fullApi: ApiFromModules<{
   billingSummaries: typeof billingSummaries;
   calenders: typeof calenders;
   customers: typeof customers;
+  dashboardQueries: typeof dashboardQueries;
   dyeings: typeof dyeings;
   executionEngine: typeof executionEngine;
   inventory: typeof inventory;
