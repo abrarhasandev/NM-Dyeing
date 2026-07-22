@@ -15,7 +15,7 @@ import {
   emptyCustomerAddress,
 } from "@/types/customer";
 import { AddressSelector } from "@/components/transport/AddressSelector";
-
+import { BankAccountItem } from "@/components/customer/BankAccountItem";
 const ACCOUNT_TYPES = [
   { id: "WhatsApp", label: "WhatsApp" },
   { id: "Imo", label: "Imo" },
@@ -141,8 +141,8 @@ const CreateCustomerPage = () => {
     }
   };
 
-  const inputClass = "w-full rounded-lg border border-border bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all";
-  const sectionClass = "bg-card p-6 rounded-xl border border-border shadow-sm space-y-4 mb-6";
+  const inputClass = "w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-all placeholder:text-muted-foreground shadow-sm";
+  const sectionClass = "bg-card p-6 rounded-lg border border-border shadow-sm space-y-4 mb-6";
   const sectionTitleClass = "text-lg font-semibold border-b border-border pb-2 mb-4 text-foreground/90";
 
   return (
@@ -205,7 +205,7 @@ const CreateCustomerPage = () => {
             </div>
             
             {ownerFields.map((field, index) => (
-              <div key={field.id} className="flex gap-4 items-end bg-accent/30 p-3 rounded-lg border border-border/50 relative group">
+              <div key={field.id} className="flex gap-4 items-end bg-accent/20 p-3 rounded-md border border-border/50 relative group">
                 <div className="flex-1">
                   <label className="mb-1 block font-medium text-sm text-muted-foreground">Name *</label>
                   <input type="text" {...register(`owners.${index}.name`)} className={inputClass} placeholder="Owner name" />
@@ -215,7 +215,7 @@ const CreateCustomerPage = () => {
                   <input type="text" {...register(`owners.${index}.phone`)} className={inputClass} placeholder="Phone (Optional)" />
                 </div>
                 {ownerFields.length > 1 && (
-                  <button type="button" onClick={() => removeOwner(index)} className="p-2.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-transparent">
+                  <button type="button" onClick={() => removeOwner(index)} className="p-2.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-md transition-colors border border-transparent">
                     <Trash2 size={18} />
                   </button>
                 )}
@@ -233,11 +233,11 @@ const CreateCustomerPage = () => {
             </div>
 
             {addressFields.map((field, index) => (
-              <div key={field.id} className="bg-accent/30 p-4 rounded-lg border border-border/50 relative mb-4">
+              <div key={field.id} className="bg-accent/20 p-4 rounded-md border border-border/50 relative mb-4">
                 <div className="flex justify-between items-center mb-3">
                   <div className="flex items-center gap-2">
                     <label className="font-medium text-sm">Address Type:</label>
-                    <select {...register(`address.${index}.type`)} className="rounded-md border border-border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+                    <select {...register(`address.${index}.type`)} className="rounded-md border border-border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring">
                       <option value="Office">Office</option>
                       <option value="Warehouse">Warehouse</option>
                       <option value="Godown">Godown</option>
@@ -270,7 +270,7 @@ const CreateCustomerPage = () => {
             </div>
 
             {phoneFields.map((field, index) => (
-              <div key={field.id} className="bg-accent/30 p-4 rounded-lg border border-border/50 relative mb-4">
+              <div key={field.id} className="bg-accent/20 p-4 rounded-md border border-border/50 relative mb-4">
                 <div className="flex justify-between items-start mb-3">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -333,33 +333,15 @@ const CreateCustomerPage = () => {
               </div>
               {bankFields.length === 0 && <p className="text-xs text-muted-foreground">No bank accounts added.</p>}
               {bankFields.map((field, index) => (
-                <div key={field.id} className="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-3 items-end bg-accent/20 p-3 rounded border border-border/50">
-                  <div className="sm:col-span-1">
-                    <label className="mb-1 block text-xs">Bank Name *</label>
-                    <input type="text" {...register(`bankAccounts.${index}.bankName`)} className={inputClass} />
-                  </div>
-                  <div className="sm:col-span-1">
-                    <label className="mb-1 block text-xs">Account Name *</label>
-                    <input type="text" {...register(`bankAccounts.${index}.accountName`)} className={inputClass} />
-                  </div>
-                  <div className="sm:col-span-1">
-                    <label className="mb-1 block text-xs">Account Number *</label>
-                    <input type="text" {...register(`bankAccounts.${index}.accountNumber`)} className={inputClass} />
-                  </div>
-                  <div className="sm:col-span-1">
-                    <label className="mb-1 block text-xs">Branch (Opt)</label>
-                    <input type="text" {...register(`bankAccounts.${index}.branchName`)} className={inputClass} />
-                  </div>
-                  <div className="sm:col-span-1 flex gap-2">
-                    <div className="flex-1">
-                      <label className="mb-1 block text-xs">Routing (Opt)</label>
-                      <input type="text" {...register(`bankAccounts.${index}.routingNumber`)} className={inputClass} />
-                    </div>
-                    <button type="button" onClick={() => removeBank(index)} className="p-2 mb-0.5 text-red-500 hover:bg-red-50 rounded border border-transparent self-end">
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
+                <BankAccountItem
+                  key={field.id}
+                  index={index}
+                  register={register}
+                  control={control}
+                  setValue={setValue}
+                  removeBank={removeBank}
+                  inputClass={inputClass}
+                />
               ))}
             </div>
 
@@ -405,7 +387,7 @@ const CreateCustomerPage = () => {
             {employeeFields.length === 0 && <p className="text-sm text-muted-foreground mb-2">No employees added. Click 'Add Employee' to insert one.</p>}
             
             {employeeFields.map((field, index) => (
-              <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3 items-end bg-accent/30 p-4 rounded-lg border border-border/50 relative">
+              <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3 items-end bg-accent/20 p-4 rounded-md border border-border/50 relative">
                 <div>
                   <label className="mb-1 block text-xs">Name *</label>
                   <input type="text" {...register(`employeeList.${index}.name`)} className={inputClass} />
@@ -423,7 +405,7 @@ const CreateCustomerPage = () => {
                     <label className="mb-1 block text-xs">Address (Optional)</label>
                     <input type="text" {...register(`employeeList.${index}.address`)} className={inputClass} />
                   </div>
-                  <button type="button" onClick={() => removeEmployee(index)} className="p-2.5 mb-0.5 text-red-500 hover:bg-red-50 rounded-lg border border-transparent self-end">
+                  <button type="button" onClick={() => removeEmployee(index)} className="p-2.5 mb-0.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-md border border-transparent self-end">
                     <Trash2 size={16} />
                   </button>
                 </div>
@@ -436,14 +418,14 @@ const CreateCustomerPage = () => {
               type="button"
               onClick={() => router.back()}
               disabled={isSubmitting}
-              className="px-6 py-2.5 rounded-lg border border-border bg-background hover:bg-accent text-foreground font-medium transition-colors"
+              className="px-6 py-2.5 rounded-md border border-border bg-background hover:bg-accent text-foreground font-medium transition-colors shadow-sm"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-sm transition-all disabled:opacity-50"
+              className="px-6 py-2.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 font-medium shadow-sm transition-all disabled:opacity-50"
             >
               {isSubmitting ? "Creating..." : "Create Customer"}
             </button>

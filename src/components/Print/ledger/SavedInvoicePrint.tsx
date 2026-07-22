@@ -134,7 +134,21 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
             {companyAddress && (
               <p className="p-0">
                 Address:{" "}
-                <span className="">{companyAddress}</span>
+                <span className="">
+                  {typeof companyAddress === "object"
+                    ? [
+                        companyAddress.street,
+                        companyAddress.union,
+                        companyAddress.upazila,
+                        companyAddress.thana,
+                        companyAddress.paurashava,
+                        companyAddress.district,
+                        companyAddress.division,
+                      ]
+                        .filter(Boolean)
+                        .join(", ")
+                    : companyAddress}
+                </span>
               </p>
             )}
           </div>

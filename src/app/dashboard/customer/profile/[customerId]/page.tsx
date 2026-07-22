@@ -21,7 +21,22 @@ import LedgerTable from "@/components/customer/LedgerTable";
 import SummaryFooter from "@/components/customer/SummaryFooter";
 import { buildLedger, fmtDate } from "@/components/customer/ledgerUtils";
 import LedgerPrint from "@/components/Print/ledger/LedgerPrint";
-import { ArrowLeft, CheckCircle, ChevronDown, Lock, Pencil, Printer } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle,
+  ChevronDown,
+  Lock,
+  Pencil,
+  Printer,
+  MoreVertical,
+  BookOpen,
+  Receipt,
+  Building2,
+  Phone,
+  MapPin,
+  User,
+  BadgeCheck,
+} from "lucide-react";
 
 export default function CustomerProfileLedger({ params }) {
   const resolvedParams = use(params);
@@ -30,6 +45,7 @@ export default function CustomerProfileLedger({ params }) {
 
   const [selectedView, setSelectedView] = useState("current");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const [showCloseModal, setShowCloseModal] = useState(false);
   const [closeLoading, setCloseLoading] = useState(false);
   const [showInitialModal, setShowInitialModal] = useState(false);
@@ -128,7 +144,7 @@ export default function CustomerProfileLedger({ params }) {
   const handleSaveSelected = async (title, saveMode) => {
     if (!selectedRows.length) return;
 
-    let payloadRecords = selectedRows.map(row => ({
+    let payloadRecords = selectedRows.map((row) => ({
       ...row,
       clothType: row.clothType || "—",
       quality: row.quality || "—",
@@ -249,7 +265,7 @@ export default function CustomerProfileLedger({ params }) {
       );
       const result = await res.json();
       if (result.success) {
-        toast.success("Invoice সফলভাবে সেভ হয়েছে!");
+        toast.success("Invoice সফলভাবে সেভ হয়েছে!");
         setSelectedRows([]);
         setShowSaveModal(false);
         await fetchCurrentLedger();
@@ -373,15 +389,38 @@ export default function CustomerProfileLedger({ params }) {
     [displayOpeningBalance, totalPayment, totalCharge]
   );
   const selectedLabel = isCurrentView
-    ? "📂 Current Ledger"
+    ? "Current Ledger"
     : snapshots.find((s) => s._id === selectedView)?.title ?? "Closed Ledger";
+
+  // ── Helpers for customer info ──────────────────────────────────────────────
+  const ownerDisplay = Array.isArray(customer?.owners) && customer.owners.length > 0
+    ? customer.owners.map((o) => `${o?.name || ""}${o?.phone ? ` (${o.phone})` : ""}`).join(" • ")
+    : typeof customer?.owners === "object" && customer?.owners !== null
+    ? customer.owners.name || JSON.stringify(customer.owners)
+    : customer?.ownerName || "—";
+
+  const phoneDisplay = Array.isArray(customer?.phoneNumber)
+    ? customer.phoneNumber.map((p) => p?.number || p).join(", ")
+    : typeof customer?.phoneNumber === "object" && customer?.phoneNumber !== null
+    ? customer.phoneNumber.number || JSON.stringify(customer.phoneNumber)
+    : customer?.phoneNumber || "—";
+
+  // ── Loading State ──────────────────────────────────────────────────────────
   if (pageLoading)
     return (
-      <div className="p-10 text-center font-bold text-gray-500 animate-pulse uppercase">
-        Generating Statement...
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#050503]">
+        <div className="flex flex-col items-center gap-5">
+          <div className="relative">
+            <div className="w-12 h-12 border-2 border-gray-200 dark:border-gray-800 rounded-full" />
+            <div className="w-12 h-12 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin absolute inset-0" />
+          </div>
+          <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest animate-pulse">
+            Generating Statement...
+          </p>
+        </div>
       </div>
     );
-  console.log(selectedRows);
+
   return (
     <>
       {showCloseModal && (
@@ -408,237 +447,315 @@ export default function CustomerProfileLedger({ params }) {
           loading={isSavingSelected}
         />
       )}
-      <div className="mt-10 md:mt-8 lg:mt-1 max-w-6xl mx-auto p-3 sm:p-6 min-h-screen ">
+
+      {/* ── Page Shell ──────────────────────────────────────────────────────── */}
+      <div className="mt-10 md:mt-8 lg:mt-1 w-full min-h-screen bg-[#FAFAFA] dark:bg-[#050503] transition-colors px-4 sm:px-6 py-6">
+
+        {/* ── Back Button ──────────────────────────────────────────────────── */}
         <button
           onClick={() => router.back()}
-          className=" flex items-center gap-2 bg-blue-100 px-2 py-1 rounded text-gray-600 hover:text-blue-600 font-bold text-sm mb-4 print:hidden cursor-pointer"
+          className="print:hidden group flex items-center gap-2 mb-4 px-3.5 py-2 rounded-xl text-[11px] font-black text-gray-600 dark:text-gray-400 bg-white dark:bg-[#141414] border border-gray-200 dark:border-gray-800 hover:border-indigo-300 dark:hover:border-indigo-700 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 transition-all shadow-sm cursor-pointer uppercase tracking-widest"
         >
-          <ArrowLeft size={14} /> BACK
+          <ArrowLeft size={13} className="transition-transform group-hover:-translate-x-0.5" />
+          Back
         </button>
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden print:border-none print:shadow-none">
-          <div className="border-b border-gray-100 bg-gray-50 flex print:hidden">
+
+        {/* ── Main Card ─────────────────────────────────────────────────────── */}
+        <div className="bg-[#FFFFFF] dark:bg-[#111111] rounded-xl border border-[#E8E8EC] dark:border-gray-800 overflow-hidden print:border-none transition-colors">
+
+          {/* ── Tab Bar ───────────────────────────────────────────────────── */}
+          <div className="print:hidden flex border-b border-[#E8E8EC] dark:border-gray-800 bg-[#FAFAFA] dark:bg-[#0d0d0d] transition-colors">
             <button
               onClick={() => setActiveTab("ledger")}
-              className={`cursor-pointer flex-1 py-4 text-sm font-black uppercase tracking-wider transition-colors ${activeTab === "ledger"
-                ? "text-indigo-600 border-b-2 border-indigo-600 bg-white"
-                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                }`}
+              className={`cursor-pointer flex-1 py-3 text-[13px] font-medium tracking-wide flex items-center justify-center gap-2 transition-all ${
+                activeTab === "ledger"
+                  ? "text-[#6366F1] dark:text-indigo-400 border-b-2 border-[#6366F1] bg-[#FFFFFF] dark:bg-[#111111]"
+                  : "text-[#6B6B6B] dark:text-gray-500 hover:text-[#0A0A0A] dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/40"
+              }`}
             >
+              <BookOpen size={16} />
               Ledger Statement
             </button>
             <button
               onClick={() => setActiveTab("saved-bills")}
-              className={`flex-1 cursor-pointer py-4 text-sm font-black uppercase tracking-wider transition-colors ${activeTab === "saved-bills"
-                ? "text-purple-600 border-b-2 border-purple-600 bg-white"
-                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                }`}
+              className={`flex-1 cursor-pointer py-3 text-[13px] font-medium tracking-wide flex items-center justify-center gap-2 transition-all ${
+                activeTab === "saved-bills"
+                  ? "text-[#6366F1] dark:text-indigo-400 border-b-2 border-[#6366F1] bg-[#FFFFFF] dark:bg-[#111111]"
+                  : "text-[#6B6B6B] dark:text-gray-500 hover:text-[#0A0A0A] dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/40"
+              }`}
             >
+              <Receipt size={16} />
               Billing Invoices
             </button>
           </div>
 
-          <div className="p-5 sm:p-8 border-b border-gray-100 bg-white">
-            <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-black text-gray-900 uppercase">
-                  {activeTab === "ledger"
-                    ? "Ledger Statement"
-                    : "Saved Bills / Invoices"}
-                </h1>
-                  <p className="font-bold text-blue-600 text-lg flex items-center gap-2">
+          {/* ── Customer Info Header ──────────────────────────────────────── */}
+          <div className="px-6 py-6 border-b border-[#E8E8EC] dark:border-gray-800/80 bg-[#FFFFFF] dark:bg-[#111111] transition-colors">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-6">
+
+              {/* Customer Details */}
+              <div className="flex-1 min-w-0">
+                {/* Name + Type Badge */}
+                <div className="flex items-center gap-3 flex-wrap mb-4">
+                  <h1 className="text-[32px] font-bold text-[#0A0A0A] dark:text-white tracking-tight leading-none">
                     {customer?.companyName || "Individual Customer"}
-                    {customer?.customerType === "Individual" && (
-                      <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Individual</span>
-                    )}
-                  </p>
-                  <p className="text-xs text-gray-500 uppercase font-bold mt-1">
-                    Owner: {
-                      Array.isArray(customer?.owners) && customer.owners.length > 0 
-                        ? customer.owners.map(o => `${o?.name || ''}${o?.phone ? ` (${o.phone})` : ''}`).join(' • ')
-                        : (typeof customer?.owners === 'object' && customer?.owners !== null
-                            ? customer.owners.name || JSON.stringify(customer.owners)
-                            : (customer?.ownerName || "—"))
-                    } 
-                    {" | "}Phone: {
-                      Array.isArray(customer?.phoneNumber)
-                        ? customer.phoneNumber.map(p => p?.number || p).join(', ')
-                        : (typeof customer?.phoneNumber === 'object' && customer?.phoneNumber !== null
-                            ? customer.phoneNumber.number || JSON.stringify(customer.phoneNumber)
-                            : (customer?.phoneNumber || "—"))
-                    }
-                  </p>
-                  <div className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">
-                    {Array.isArray(customer?.address) ? (
-                      <div className="flex flex-col gap-0.5">
-                        {customer.address.map((addr, idx) => (
-                          <span key={idx}>
-                            {typeof addr === 'object' && addr !== null ? (
-                              <><strong className="text-gray-500">{addr.type || 'Address'}:</strong> {addr.street ? addr.street + ', ' : ''}{addr.union ? addr.union + ', ' : ''}{addr.upazila ? addr.upazila + ', ' : ''}{addr.district || ''}</>
-                            ) : addr}
-                          </span>
-                        ))}
+                  </h1>
+                  {customer?.customerType === "Individual" && (
+                    <span className="inline-flex items-center gap-1 text-[12px] bg-gray-100 dark:bg-blue-950/40 text-[#6B6B6B] dark:text-blue-400 px-3 py-1 rounded-full font-medium">
+                      <BadgeCheck size={14} />
+                      Individual
+                    </span>
+                  )}
+                </div>
+
+                {/* Info rows */}
+                <div className="grid grid-cols-1 gap-3">
+                  {/* Owner */}
+                  <div className="flex items-start gap-3">
+                    <div className="flex items-center gap-2 shrink-0 mt-0.5">
+                      <div className="w-6 h-6 rounded flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                        <User size={14} className="text-[#6B6B6B] dark:text-gray-500" />
                       </div>
-                    ) : (typeof customer?.address === 'object' && customer?.address !== null ? (
-                      <span>{customer.address.street || ''}, {customer.address.district || ''}</span>
-                    ) : (
-                      <span>{customer?.address || "—"}</span>
-                    ))}
+                      <span className="text-[13px] font-medium text-[#6B6B6B] dark:text-gray-500 w-16">Owner</span>
+                    </div>
+                    <span className="text-[14px] font-medium text-[#0A0A0A] dark:text-gray-300 pt-0.5">
+                      {ownerDisplay}
+                    </span>
                   </div>
+
+                  {/* Phone */}
+                  <div className="flex items-start gap-3">
+                    <div className="flex items-center gap-2 shrink-0 mt-0.5">
+                      <div className="w-6 h-6 rounded flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                        <Phone size={14} className="text-[#6B6B6B] dark:text-gray-500" />
+                      </div>
+                      <span className="text-[13px] font-medium text-[#6B6B6B] dark:text-gray-500 w-16">Phone</span>
+                    </div>
+                    <span className="text-[14px] font-medium text-[#0A0A0A] dark:text-gray-300 font-mono pt-0.5">
+                      {phoneDisplay}
+                    </span>
+                  </div>
+
+                  {/* Address */}
+                  <div className="flex items-start gap-3">
+                    <div className="flex items-center gap-2 shrink-0 mt-0.5">
+                      <div className="w-6 h-6 rounded flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                        <MapPin size={14} className="text-[#6B6B6B] dark:text-gray-500" />
+                      </div>
+                      <span className="text-[13px] font-medium text-[#6B6B6B] dark:text-gray-500 w-16">Address</span>
+                    </div>
+                    <div className="text-[14px] font-medium text-[#0A0A0A] dark:text-gray-400 pt-0.5">
+                      {Array.isArray(customer?.address) ? (
+                        <div className="flex flex-col gap-1">
+                          {customer.address.map((addr, idx) => (
+                            <span key={idx}>
+                              {typeof addr === "object" && addr !== null ? (
+                                <>
+                                  <span className="text-[#6B6B6B] dark:text-gray-400 font-medium text-[13px]">
+                                    {addr.type || "Address"}:{" "}
+                                  </span>
+                                  {[addr.street, addr.union, addr.upazila, addr.district]
+                                    .filter(Boolean)
+                                    .join(", ")}
+                                </>
+                              ) : (
+                                addr
+                              )}
+                            </span>
+                          ))}
+                        </div>
+                      ) : typeof customer?.address === "object" && customer?.address !== null ? (
+                        <span>
+                          {[customer.address.street, customer.address.district]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </span>
+                      ) : (
+                        <span>{customer?.address || "—"}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto print:hidden flex-wrap">
-                {activeTab === "ledger" &&
-                  isCurrentView &&
-                  selectedRows.length > 0 && (
-                    <button
-                      onClick={() => setShowSaveModal(true)}
-                      disabled={isSavingSelected}
-                      className="flex cursor-pointer items-center gap-2 bg-indigo-600 text-white border border-indigo-700 rounded-xl px-4 py-2.5 text-xs font-bold hover:bg-indigo-700 transition w-full sm:w-auto whitespace-nowrap disabled:opacity-50 shadow-sm"
-                    >
-                      {isSavingSelected
-                        ? "Saving..."
-                        : `Save Selected (${selectedRows.length})`}
-                    </button>
-                  )}
-                {activeTab === "ledger" && (
-                  <div className="relative">
-                    <button
-                      onClick={() => setDropdownOpen((p) => !p)}
-                      className="flex cursor-pointer items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition w-full sm:w-auto whitespace-nowrap"
-                    >
-                      {selectedLabel}
-                      <ChevronDown
-                        size={10}
-                        className={`transition-transform ${dropdownOpen ? "rotate-180" : ""
-                          }`}
-                      />
-                    </button>
-                    {dropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-40 py-1 overflow-hidden ">
-                        <button
-                          onClick={() => {
-                            setSelectedView("current");
-                            setDropdownOpen(false);
-                          }}
-                          className={`w-full text-left cursor-pointer px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${isCurrentView
-                            ? "text-blue-600 bg-blue-50"
-                            : "text-gray-700"
+
+              {/* ── Action Buttons ─────────────────────────────────────────── */}
+              <div className="print:hidden flex flex-col gap-3 items-end shrink-0">
+                {/* Save Selected */}
+                {activeTab === "ledger" && isCurrentView && selectedRows.length > 0 && (
+                  <button
+                    onClick={() => setShowSaveModal(true)}
+                    disabled={isSavingSelected}
+                    className="flex cursor-pointer items-center gap-2 bg-[#6366F1] dark:bg-indigo-500 text-white rounded-md px-4 h-[38px] text-[14px] font-medium hover:bg-[#4F46E5] hover:shadow-[0_4px_12px_rgba(99,102,241,0.35)] -translate-y-px transition-all disabled:opacity-50"
+                  >
+                    {isSavingSelected ? "Saving..." : `Save Selected (${selectedRows.length})`}
+                  </button>
+                )}
+
+                <div className="flex items-center gap-3">
+                  {/* Ledger Selector Dropdown */}
+                  {activeTab === "ledger" && (
+                    <div className="relative">
+                      <button
+                        onClick={() => setDropdownOpen((p) => !p)}
+                        className="flex cursor-pointer items-center gap-2 border border-[#E8E8EC] dark:border-gray-700 bg-transparent dark:bg-[#1a1a1a] rounded-md px-4 h-[38px] text-[14px] font-medium text-[#0A0A0A] dark:text-gray-300 hover:bg-[#FAFAFA] dark:hover:bg-[#222] transition-colors"
+                      >
+                        <span className="text-sm leading-none">{isCurrentView ? "📂" : "🔒"}</span>
+                        <span className="max-w-[120px] truncate">{selectedLabel}</span>
+                        <ChevronDown
+                          size={16}
+                          className={`shrink-0 transition-transform duration-150 ${dropdownOpen ? "rotate-180" : ""}`}
+                        />
+                      </button>
+
+                      {dropdownOpen && (
+                        <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-[#1a1a1a] rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 z-40 py-1 overflow-hidden">
+                          <button
+                            onClick={() => {
+                              setSelectedView("current");
+                              setDropdownOpen(false);
+                            }}
+                            className={`w-full text-left cursor-pointer px-4 py-2.5 text-[11px] font-bold hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-2.5 transition-colors ${
+                              isCurrentView
+                                ? "text-blue-600 dark:text-blue-400 bg-blue-50/60 dark:bg-blue-900/10"
+                                : "text-gray-700 dark:text-gray-300"
                             }`}
-                        >
-                          📂 Current Ledger{" "}
-                          {isCurrentView && (
-                            <CheckCircle
-                              size={10}
-                              className="ml-auto text-blue-500"
-                            />
-                          )}
-                        </button>
-                        {snapshots.length > 0 && (
-                          <>
-                            <div className="border-t border-gray-100 my-1" />
-                            <p className="px-4 py-1 text-[9px] text-gray-400 font-black uppercase tracking-widest cursor-pointer">
-                              Closed Ledgers
-                            </p>
-                            {snapshots.map((snap) => (
-                              <button
-                                key={snap._id}
-                                onClick={() => {
-                                  setSelectedView(snap._id);
-                                  setDropdownOpen(false);
-                                }}
-                                className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition cursor-pointer flex items-start gap-2 ${selectedView === snap._id ? "bg-gray-50" : ""
+                          >
+                            <span>📂</span>
+                            <span>Current Ledger</span>
+                            {isCurrentView && (
+                              <CheckCircle size={10} className="ml-auto text-blue-500 shrink-0" />
+                            )}
+                          </button>
+
+                          {snapshots.length > 0 && (
+                            <>
+                              <div className="border-t border-gray-100 dark:border-gray-800 my-1" />
+                              <p className="px-4 py-1.5 text-[9px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest">
+                                Closed Ledgers
+                              </p>
+                              {snapshots.map((snap) => (
+                                <button
+                                  key={snap._id}
+                                  onClick={() => {
+                                    setSelectedView(snap._id);
+                                    setDropdownOpen(false);
+                                  }}
+                                  className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-[#222] transition-colors cursor-pointer flex items-start gap-2.5 ${
+                                    selectedView === snap._id ? "bg-gray-50 dark:bg-[#222]" : ""
                                   }`}
-                              >
-                                <Lock
-                                  size={9}
-                                  className="text-gray-400 mt-0.5 shrink-0"
-                                />
-                                <div>
-                                  <p className="text-xs font-bold text-gray-800">
-                                    {snap.title}
-                                  </p>
-                                  <p className="text-[10px] text-gray-400">
-                                    {fmtDate(snap.closedAt)}
-                                  </p>
-                                </div>
-                                {selectedView === snap._id && (
-                                  <CheckCircle
-                                    size={10}
-                                    className="ml-auto text-blue-500 mt-0.5 shrink-0"
-                                  />
-                                )}
-                              </button>
-                            ))}
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-                {activeTab === "ledger" && isCurrentView && (
-                  <button
-                    onClick={() => setShowInitialModal(true)}
-                    className="flex cursor-pointer items-center gap-2 bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-indigo-600 transition whitespace-nowrap"
-                  >
-                    <Pencil size={10} />{" "}
-                    {initialCharge > 0 || initialPayment > 0
-                      ? "Edit Initial"
-                      : "Set Initial"}
-                  </button>
-                )}
-                {activeTab === "ledger" &&
-                  isCurrentView &&
-                  currentLedger.length > 0 && (
+                                >
+                                  <Lock size={9} className="text-gray-400 mt-1 shrink-0" />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-[11px] font-bold text-gray-800 dark:text-gray-200 truncate">
+                                      {snap.title}
+                                    </p>
+                                    <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+                                      {fmtDate(snap.closedAt)}
+                                    </p>
+                                  </div>
+                                  {selectedView === snap._id && (
+                                    <CheckCircle size={10} className="ml-auto text-blue-500 mt-1 shrink-0" />
+                                  )}
+                                </button>
+                              ))}
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Print Button */}
+                  {activeTab === "ledger" && (
                     <button
-                      onClick={() => setShowCloseModal(true)}
-                      className="flex items-center gap-2 bg-red-500 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-red-600 transition whitespace-nowrap"
+                      onClick={handlePrint}
+                      className="cursor-pointer bg-[#FFFFFF] border border-[#E8E8EC] hover:bg-[#FAFAFA] dark:bg-gray-800 dark:border-gray-700 text-[#0A0A0A] dark:text-white px-4 h-[38px] rounded-md text-[14px] font-medium transition-colors flex items-center gap-2"
                     >
-                      <Lock size={10} /> Close Ledger
+                      <Printer size={16} className="text-[#6B6B6B]" />
+                      Print
                     </button>
                   )}
-                {activeTab === "ledger" && (
-                  <button
-                    onClick={handlePrint}
-                    className="cursor-pointer bg-blue-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap"
-                  >
-                    <Printer size={14} />
-                  </button>
-                )}
+
+                  {/* More Actions */}
+                  {activeTab === "ledger" && isCurrentView && (
+                    <div className="relative">
+                      <button
+                        onClick={() => setActionsMenuOpen((p) => !p)}
+                        className="cursor-pointer border border-[#E8E8EC] dark:border-gray-700 bg-transparent hover:bg-[#FAFAFA] dark:bg-[#1a1a1a] dark:hover:bg-[#222] text-[#6B6B6B] dark:text-gray-400 rounded-md w-[38px] h-[38px] transition-colors flex items-center justify-center"
+                      >
+                        <MoreVertical size={16} />
+                      </button>
+
+                      {actionsMenuOpen && (
+                        <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-[#1a1a1a] rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 z-50 py-1 overflow-hidden">
+                          <button
+                            onClick={() => {
+                              setShowInitialModal(true);
+                              setActionsMenuOpen(false);
+                            }}
+                            className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#222] transition-colors flex items-center gap-2.5"
+                          >
+                            <Pencil size={11} className="text-indigo-500" />
+                            {initialCharge > 0 || initialPayment > 0
+                              ? "Edit Initial Amount"
+                              : "Set Initial Amount"}
+                          </button>
+                          {currentLedger.length > 0 && (
+                            <button
+                              onClick={() => {
+                                setShowCloseModal(true);
+                                setActionsMenuOpen(false);
+                              }}
+                              className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors flex items-center gap-2.5"
+                            >
+                              <Lock size={11} />
+                              Close Ledger
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
+
+            {/* Closed Ledger Warning Banner */}
             {!isCurrentView && activeSnapshot && (
-              <div className="mt-4 inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-lg">
-                <Lock size={10} /> Closed Ledger — {activeSnapshot.title}{" "}
-                &nbsp;|&nbsp; Closed on {fmtDate(activeSnapshot.closedAt)}
+              <div className="mt-4 inline-flex items-center gap-2 bg-amber-50 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-800/40 text-amber-700 dark:text-amber-400 text-[11px] font-bold px-4 py-2.5 rounded-xl transition-colors">
+                <Lock size={11} />
+                <span>
+                  Closed Ledger — <strong>{activeSnapshot.title}</strong>
+                  &nbsp;·&nbsp;Closed on {fmtDate(activeSnapshot.closedAt)}
+                </span>
               </div>
             )}
           </div>
 
+          {/* ── Content Area ──────────────────────────────────────────────── */}
           {activeTab === "ledger" ? (
             <>
               {!isCurrentView && !activeSnapshot ? (
-                <div className="py-20 text-center animate-pulse">
-                  <p className="text-gray-400 font-bold text-sm">
-                    Loading snapshot...
-                  </p>
+                <div className="py-20 text-center">
+                  <div className="inline-flex flex-col items-center gap-3">
+                    <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                    <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest animate-pulse">
+                      Loading snapshot...
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <LedgerTable
                   rows={displayRows}
                   openingBalance={displayOpeningBalance}
                   initialCharge={
-                    isCurrentView
-                      ? initialCharge
-                      : activeSnapshot?.initialCharge ?? 0
+                    isCurrentView ? initialCharge : activeSnapshot?.initialCharge ?? 0
                   }
                   initialPayment={
-                    isCurrentView
-                      ? initialPayment
-                      : activeSnapshot?.initialPayment ?? 0
+                    isCurrentView ? initialPayment : activeSnapshot?.initialPayment ?? 0
                   }
                   initialDate={
-                    isCurrentView
-                      ? initialDate
-                      : activeSnapshot?.initialDate ?? null
+                    isCurrentView ? initialDate : activeSnapshot?.initialDate ?? null
                   }
                   isCurrentView={isCurrentView}
                   selectedRows={selectedRows}
@@ -654,7 +771,7 @@ export default function CustomerProfileLedger({ params }) {
               />
             </>
           ) : (
-            <div className="p-5 sm:p-8">
+            <div className="p-4 sm:p-6">
               <CustomerSavedBillsTab
                 customerId={customerId}
                 selectedView={selectedView}
@@ -669,17 +786,14 @@ export default function CustomerProfileLedger({ params }) {
             </div>
           )}
 
-          <div className="p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-center gap-8 bg-white">
-            <div className="text-[10px] text-gray-400 font-medium order-2 sm:order-1 uppercase">
-              OFFICIAL STATEMENT • {new Date().toLocaleString()}
-            </div>
-            <div className="text-center order-1 sm:order-2">
-              <div className="w-40 h-px bg-gray-200 mb-2"></div>
-              <p className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">
-                Authorized Signature
-              </p>
+          {/* ── Document Footer ────────────────────────────────────────────── */}
+          <div className="px-6 py-4 flex justify-between items-center bg-[#FAFAFA] dark:bg-[#0a0a0a] border-t border-[#E8E8EC] dark:border-gray-800 transition-colors">
+            <div className="text-[13px] text-[#6B6B6B] dark:text-gray-500 font-medium">
+              Statement generated at {new Date().toLocaleString()}
             </div>
           </div>
+
+          {/* ── Hidden Print Area ─────────────────────────────────────────── */}
           <div className="absolute opacity-0 pointer-events-none w-0 h-0 overflow-hidden">
             <div ref={printRef}>
               <LedgerPrint

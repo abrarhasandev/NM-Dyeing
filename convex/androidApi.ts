@@ -25,14 +25,14 @@ export const getProfile = query({
   args: { token: v.string() },
   handler: async (ctx, args) => {
     const employeeId = await getEmployeeIdFromToken(ctx, args.token);
-    const employee = await ctx.db.get(employeeId);
+    const employee = (await ctx.db.get(employeeId)) as any;
     
     if (!employee) {
       throw new Error("Employee not found");
     }
 
     // Exclude password and sensitive info from the response
-    const { password, ...safeProfile } = employee;
+    const { password, ...safeProfile } = employee as any;
     return safeProfile;
   },
 });
@@ -44,7 +44,7 @@ export const getMyOrders = query({
   args: { token: v.string() },
   handler: async (ctx, args) => {
     const employeeId = await getEmployeeIdFromToken(ctx, args.token);
-    const employee = await ctx.db.get(employeeId);
+    const employee = (await ctx.db.get(employeeId)) as any;
     if (!employee) throw new Error("Employee not found");
 
     // 5 months ago timestamp

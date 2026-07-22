@@ -20,271 +20,316 @@ function LedgerTable({
   if (!rows.length && !hasInitial && openingBalance === 0) {
     return (
       <div className="py-20 text-center">
-        <p className="text-gray-400 font-bold text-sm uppercase">
-          কোনো data নেই
-        </p>
-        <p className="text-gray-300 text-xs mt-1">
-          নতুন bill যোগ হলে এখানে দেখাবে
-        </p>
+        <div className="inline-flex flex-col items-center gap-4">
+          <div className="w-16 h-16 rounded-[12px] bg-[#FAFAFA] dark:bg-gray-800/50 flex items-center justify-center border border-[#E8E8EC] dark:border-gray-700">
+            <svg className="w-7 h-7 text-[#6B6B6B] dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div className="space-y-1">
+            <p className="text-[13px] font-bold text-[#0A0A0A] dark:text-gray-200 tracking-tight">
+              কোনো লেনদেন নেই
+            </p>
+            <p className="text-[13px] text-[#6B6B6B] dark:text-gray-500 font-medium">
+              নতুন bill যোগ হলে এখানে দেখাবে
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
+
   return (
-    <div className="overflow-x-auto w-full">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
+    <div className="w-full overflow-x-auto">
+      <table className="w-full border-collapse min-w-[1000px]">
+        {/* ── Table Head ──────────────────────────────────────────────────── */}
+        <thead>
+          <tr className="bg-[#FAFAFA] dark:bg-[#0a0a0a] border-b border-[#E8E8EC] dark:border-gray-800">
             {isCurrentView && (
-              <th className="px-4 py-4 w-10">
+              <th className="px-4 py-3 w-[56px] text-center">
                 <input
                   type="checkbox"
-                  className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  className="rounded w-5 h-5 border-[#E8E8EC] dark:border-gray-600 bg-white dark:bg-[#1a1a1a] text-[#6366F1] dark:text-indigo-500 focus:ring-2 focus:ring-[#6366F1]/12 dark:focus:ring-indigo-600/30 cursor-pointer"
                   checked={
                     rows.length > 0 &&
-                    selectedRows.length ===
-                      rows.filter((r) => !r.isSaved).length &&
+                    selectedRows.length === rows.filter((r) => !r.isSaved).length &&
                     rows.filter((r) => !r.isSaved).length > 0
                   }
                   onChange={(e) => {
-                    if (e.target.checked)
-                      setSelectedRows(rows.filter((r) => !r.isSaved));
+                    if (e.target.checked) setSelectedRows(rows.filter((r) => !r.isSaved));
                     else setSelectedRows([]);
                   }}
                 />
               </th>
             )}
             {[
-              "Date",
-              "Order ID",
-              "Company",
-              "Method",
-              "Description",
-              "Charge (+)",
-              "Payment (-)",
-              "Balance",
-            ].map((h, i) => (
+              { label: "Date", align: "left" },
+              { label: "Order ID", align: "left" },
+              { label: "Method", align: "left" },
+              { label: "Description", align: "left" },
+              { label: "Charge (+)", align: "right" },
+              { label: "Payment (−)", align: "right" },
+              { label: "Balance", align: "right", extraCls: "pr-4" },
+            ].map((col) => (
               <th
-                key={h}
-                className={`px-4 py-4 font-black text-gray-500 uppercase text-[10px] ${
-                  i >= 5 ? "text-right" : "text-left"
-                }`}
+                key={col.label}
+                className={`px-4 py-3 text-[13px] font-medium text-[#6B6B6B] dark:text-gray-500 tracking-wide whitespace-nowrap ${col.align === "right" ? "text-right" : "text-left"} ${col.extraCls || ""}`}
               >
-                {h}
+                {col.label}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-100">
+
+        {/* ── Table Body ──────────────────────────────────────────────────── */}
+        <tbody className="divide-y divide-[#E8E8EC] dark:divide-gray-800/50 bg-[#FFFFFF] dark:bg-[#111]">
+
+          {/* Opening Balance Row */}
           {openingBalance !== 0 && (
-            <tr className="bg-blue-50/60">
-              {isCurrentView && <td className="px-4 py-3"></td>}
-              <td className="px-4 py-3 whitespace-nowrap text-[11px] font-medium text-blue-600">
-                —
-              </td>
-              <td className="px-4 py-3 whitespace-nowrap text-[11px] font-bold">
-                —
-              </td>
-              <td className="px-4 py-3 text-[11px] font-semibold">—</td>
-              <td className="px-4 py-3 whitespace-nowrap">
-                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-blue-100 text-blue-700">
+            <tr className="hover:bg-[#FAFAFA] dark:hover:bg-[#161616] transition-colors">
+              {isCurrentView && <td className="px-4 py-4" />}
+              <td className="px-4 py-4 whitespace-nowrap text-[13px] text-[#6B6B6B] dark:text-gray-400">—</td>
+              <td className="px-4 py-4 whitespace-nowrap text-[13px] text-[#6B6B6B] dark:text-gray-400">—</td>
+              <td className="px-4 py-4 whitespace-nowrap">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-[12px] font-medium bg-gray-100 dark:bg-gray-800 text-[#6B6B6B] dark:text-gray-300">
                   CARRY FWD
                 </span>
               </td>
-              <td className="px-4 py-3 text-xs font-bold text-blue-700">
+              <td className="px-4 py-4 text-[14px] font-medium text-[#0A0A0A] dark:text-gray-200">
                 Opening Balance (Previous Period)
               </td>
-              <td className="px-4 py-3 text-right text-[11px]">—</td>
-              <td className="px-4 py-3 text-right text-[11px]">—</td>
-              <td className="px-4 py-3 text-right">
-                <div
-                  className={`text-xs font-black px-2 py-1 rounded ${
+              <td className="px-4 py-4 text-right text-[13px] text-[#6B6B6B] dark:text-gray-400">—</td>
+              <td className="px-4 py-4 text-right text-[13px] text-[#6B6B6B] dark:text-gray-400">—</td>
+              <td className="px-4 py-4 text-right pr-4">
+                <span
+                  className={`inline-flex items-center justify-end text-[13px] font-bold px-3 py-1 rounded-full tabular-nums ${
                     openingBalance < 0
-                      ? "text-red-600 bg-red-50"
-                      : "text-teal-600 bg-teal-50"
+                      ? "text-[#EF4444] bg-[#EF4444]/10 dark:bg-red-950/30 dark:text-red-400"
+                      : "text-[#10B981] bg-[#10B981]/10 dark:bg-teal-950/30 dark:text-teal-400"
                   }`}
                 >
                   {openingBalance < 0
-                    ? `- ৳${Math.abs(openingBalance).toLocaleString()}`
+                    ? `− ৳${Math.abs(openingBalance).toLocaleString()}`
                     : `+ ৳${openingBalance.toLocaleString()}`}
-                </div>
+                </span>
               </td>
             </tr>
           )}
+
+          {/* Initial Amount Row */}
           {hasInitial && (
-            <tr className="bg-indigo-50/60">
-              {isCurrentView && <td className="px-4 py-3"></td>}
-              <td className="px-4 py-3 whitespace-nowrap text-[11px] font-medium text-indigo-600">
+            <tr className="hover:bg-[#FAFAFA] dark:hover:bg-[#161616] transition-colors">
+              {isCurrentView && <td className="px-4 py-4" />}
+              <td className="px-4 py-4 whitespace-nowrap text-[13px] font-medium text-[#6B6B6B] dark:text-gray-400">
                 {initialDate ? fmtDate(initialDate) : "—"}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-[11px] font-bold">
-                —
-              </td>
-              <td className="px-4 py-3 text-[11px] font-semibold">—</td>
-              <td className="px-4 py-3 whitespace-nowrap">
+              <td className="px-4 py-4 whitespace-nowrap text-[13px] text-[#6B6B6B] dark:text-gray-600">—</td>
+              <td className="px-4 py-4 whitespace-nowrap">
                 <span
-                  className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-medium ${
                     initialPayment > 0 && initialCharge === 0
-                      ? "bg-green-100 text-green-700"
-                      : "initialCharge > 0 && initialPayment === 0"
-                      ? "bg-red-100 text-red-700"
-                      : "bg-indigo-100 text-indigo-700"
+                      ? "bg-[#10B981]/10 text-[#10B981] dark:bg-emerald-950/40 dark:text-emerald-300"
+                      : initialCharge > 0 && initialPayment === 0
+                      ? "bg-[#EF4444]/10 text-[#EF4444] dark:bg-red-950/40 dark:text-red-300"
+                      : "bg-[#6366F1]/10 text-[#6366F1] dark:bg-indigo-950/40 dark:text-indigo-300"
                   }`}
                 >
                   INITIAL
                 </span>
               </td>
-              <td className="px-4 py-3 text-xs font-bold text-indigo-700">
+              <td className="px-4 py-4 text-[14px] font-medium text-[#0A0A0A] dark:text-gray-200">
                 Opening Balance (শুরুর পুরনো হিসাব)
               </td>
-              <td className="px-4 py-3 text-right text-[11px] font-bold text-gray-700">
+              <td className="px-4 py-4 text-right text-[14px] font-bold text-[#0A0A0A] dark:text-gray-200 tabular-nums">
                 {initialCharge > 0 ? `৳${initialCharge.toLocaleString()}` : "—"}
               </td>
-              <td className="px-4 py-3 text-right text-[11px] font-bold text-green-600">
-                {initialPayment > 0
-                  ? `৳${initialPayment.toLocaleString()}`
-                  : "—"}
+              <td className="px-4 py-4 text-right text-[14px] font-bold text-[#10B981] dark:text-emerald-400 tabular-nums">
+                {initialPayment > 0 ? `৳${initialPayment.toLocaleString()}` : "—"}
               </td>
-              <td className="px-4 py-3 text-right">
-                <div
-                  className={`text-xs font-black px-2 py-1 rounded ${
+              <td className="px-4 py-4 text-right pr-4">
+                <span
+                  className={`inline-flex items-center justify-end text-[13px] font-bold px-3 py-1 rounded-full tabular-nums ${
                     effectiveOpening < 0
-                      ? "text-red-600 bg-red-50"
-                      : "text-teal-600 bg-teal-50"
+                      ? "text-[#EF4444] bg-[#EF4444]/10 dark:bg-red-950/30 dark:text-red-400"
+                      : "text-[#10B981] bg-[#10B981]/10 dark:bg-teal-950/30 dark:text-teal-400"
                   }`}
                 >
                   {effectiveOpening < 0
-                    ? `- ৳${Math.abs(effectiveOpening).toLocaleString()}`
+                    ? `− ৳${Math.abs(effectiveOpening).toLocaleString()}`
                     : `+ ৳${effectiveOpening.toLocaleString()}`}
-                </div>
+                </span>
               </td>
             </tr>
           )}
+
+          {/* Data Rows */}
           {rows.map((row, idx) => {
             const isSelected = selectedRows.some(
-              (r) =>
-                r.recordId === row.recordId && r.modelType === row.modelType
+              (r) => r.recordId === row.recordId && r.modelType === row.modelType
             );
+            const isCredit = row.type === "credit";
+            const isEven = idx % 2 === 0;
+
             return (
               <tr
                 key={idx}
-                className={`transition-colors ${
-                  isSelected ? "bg-indigo-50/50" : "hover:bg-blue-50/30"
+                className={`transition-colors duration-200 group ${
+                  isSelected
+                    ? "bg-[#6366F1]/5 dark:bg-indigo-950/25"
+                    : "hover:bg-[#FAFAFA] dark:hover:bg-[#161616]"
                 } ${row.isSaved ? "opacity-60" : ""}`}
               >
+                {/* Checkbox */}
                 {isCurrentView && (
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <input
-                      type="checkbox"
-                      disabled={row.isSaved}
-                      checked={row.isSaved || isSelected}
-                      onChange={(e) => {
-                        if (e.target.checked)
-                          setSelectedRows([...selectedRows, row]);
-                        else
-                          setSelectedRows(
-                            selectedRows.filter(
-                              (r) =>
-                                !(
-                                  r.recordId === row.recordId &&
-                                  r.modelType === row.modelType
-                                )
-                            )
-                          );
-                      }}
-                      className={`rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 ${
-                        row.isSaved
-                          ? "cursor-not-allowed grayscale"
-                          : "cursor-pointer"
-                      }`}
-                    />
-                    {row.isSaved && (
-                      <span className="ml-2 px-1.5 py-0.5 rounded text-[8px] font-black uppercase bg-gray-200 text-gray-500">
-                        Saved
-                      </span>
-                    )}
+                  <td className="px-4 py-4 whitespace-nowrap align-top text-center">
+                    <div className="flex items-start justify-center gap-1.5 pt-0.5">
+                      <input
+                        type="checkbox"
+                        disabled={row.isSaved}
+                        checked={row.isSaved || isSelected}
+                        onChange={(e) => {
+                          if (e.target.checked) setSelectedRows([...selectedRows, row]);
+                          else
+                            setSelectedRows(
+                              selectedRows.filter(
+                                (r) => !(r.recordId === row.recordId && r.modelType === row.modelType)
+                              )
+                            );
+                        }}
+                        className={`rounded w-5 h-5 border-[#E8E8EC] dark:border-gray-600 bg-white dark:bg-[#1a1a1a] text-[#6366F1] dark:text-indigo-500 focus:ring-2 focus:ring-[#6366F1]/12 dark:focus:ring-indigo-600/30 ${
+                          row.isSaved ? "cursor-not-allowed grayscale opacity-50" : "cursor-pointer"
+                        }`}
+                      />
+                      {row.isSaved && (
+                        <span className="hidden">Saved</span>
+                      )}
+                    </div>
                   </td>
                 )}
-                <td className="px-4 py-4 whitespace-nowrap text-gray-600 text-[11px] font-medium">
-                  {fmtDate(row.date)}
+
+                {/* Date */}
+                <td className="px-4 py-4 whitespace-nowrap align-top">
+                  <span className="text-[13px] font-medium text-[#6B6B6B] dark:text-gray-400 tabular-nums">
+                    {fmtDate(row.date)}
+                  </span>
                 </td>
-                <td className="px-4 py-4 whitespace-nowrap text-[11px] font-bold text-indigo-600">
-                  {row.displayOrderId || "—"}
+
+                {/* Order ID */}
+                <td className="px-4 py-4 whitespace-nowrap align-top">
+                  {row.displayOrderId ? (
+                    <span className="text-[13px] font-mono font-medium text-[#6366F1] dark:text-indigo-400">
+                      {row.displayOrderId}
+                    </span>
+                  ) : (
+                    <span className="text-[#6B6B6B] dark:text-gray-500 text-[13px]">—</span>
+                  )}
                 </td>
-                <td className="px-4 py-4 text-[11px] font-semibold text-gray-700 max-w-[150px] truncate">
-                  {row.companyName || "—"}
-                </td>
-                <td className="px-4 py-4 whitespace-nowrap">
+
+                {/* Method Badge */}
+                <td className="px-4 py-4 whitespace-nowrap align-top">
                   <span
-                    className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
-                      row.type === "credit"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-600"
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-medium ${
+                      isCredit
+                        ? "bg-[#10B981]/10 text-[#10B981] dark:bg-emerald-950/40 dark:text-emerald-300"
+                        : row.provider === "BILLING"
+                        ? "bg-gray-100 text-[#6B6B6B] dark:bg-gray-800 dark:text-gray-300"
+                        : "bg-gray-100 text-[#6B6B6B] dark:bg-gray-800 dark:text-gray-300"
                     }`}
                   >
                     {row.provider}
                   </span>
                 </td>
-                
-                {/* Description Column updated with Cloth details */}
-                <td className="px-4 py-4 text-gray-700 text-xs min-w-[200px]">
-                  <div className="font-bold text-gray-900">
+
+                {/* Description + Attribute Tags */}
+                <td className="px-4 py-4 align-top">
+                  <div className="font-medium text-[#0A0A0A] dark:text-gray-200 text-[14px]">
                     {row.description}
                   </div>
-                  
-                  {/* Dynamic Metadata Tags */}
-                  <div className="flex flex-wrap gap-1 mt-1.5 max-w-[280px]">
-                    {row.clothType && (
-                      <span className="bg-gray-100 text-gray-800 text-[9px] px-1.5 py-0.5 rounded font-medium border border-gray-200">
-                        Type: {row.clothType}
-                      </span>
-                    )}
-                    {row.quality && (
-                      <span className="bg-blue-50 text-blue-700 text-[9px] px-1.5 py-0.5 rounded font-medium border border-blue-100">
-                        Quality: {row.quality}
-                      </span>
-                    )}
-                    {row.sillName && (
-                      <span className="bg-purple-50 text-purple-700 text-[9px] px-1.5 py-0.5 rounded font-medium border border-purple-100">
-                        Sill: {row.sillName}
-                      </span>
-                    )}
-                    {row.colour && (
-                      <span className="bg-pink-50 text-pink-700 text-[9px] px-1.5 py-0.5 rounded font-medium border border-pink-100">
-                        Color: {row.colour}
-                      </span>
-                    )}
-                    {row.finishingType && (
-                      <span className="bg-amber-50 text-amber-800 text-[9px] px-1.5 py-0.5 rounded font-medium border border-amber-100">
-                        Finish: {row.finishingType}
-                      </span>
-                    )}
-                  </div>
-                </td>
-
-                <td className="px-4 py-4 text-right whitespace-nowrap">
-                  {row.charge > 0 ? (
-                    <div className="text-gray-900 font-bold text-[11px]">
-                      ({row.qty} × {row.price}) = ৳{row.charge.toLocaleString()}
+                  {(row.clothType || row.quality || row.sillName || row.colour || row.finishingType) && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {row.clothType && (
+                        <span className="inline-flex items-center gap-1 bg-gray-100 dark:bg-gray-800 text-[#6B6B6B] dark:text-gray-400 text-[12px] px-3 py-1 rounded-full font-medium">
+                          <span className="opacity-60">Type</span>
+                          <span className="opacity-40">·</span>
+                          {row.clothType}
+                        </span>
+                      )}
+                      {row.quality && (
+                        <span className="inline-flex items-center gap-1 bg-gray-100 dark:bg-gray-800 text-[#6B6B6B] dark:text-gray-400 text-[12px] px-3 py-1 rounded-full font-medium">
+                          <span className="opacity-60">Qty</span>
+                          <span className="opacity-40">·</span>
+                          {row.quality}
+                        </span>
+                      )}
+                      {row.sillName && (
+                        <span className="inline-flex items-center gap-1 bg-gray-100 dark:bg-gray-800 text-[#6B6B6B] dark:text-gray-400 text-[12px] px-3 py-1 rounded-full font-medium">
+                          <span className="opacity-60">Sill</span>
+                          <span className="opacity-40">·</span>
+                          {row.sillName}
+                        </span>
+                      )}
+                      {row.colour && (
+                        <span className="inline-flex items-center gap-1 bg-gray-100 dark:bg-gray-800 text-[#6B6B6B] dark:text-gray-400 text-[12px] px-3 py-1 rounded-full font-medium">
+                          <span className="opacity-60">Color</span>
+                          <span className="opacity-40">·</span>
+                          {row.colour}
+                        </span>
+                      )}
+                      {row.finishingType && (
+                        <span className="inline-flex items-center gap-1 bg-gray-100 dark:bg-gray-800 text-[#6B6B6B] dark:text-gray-400 text-[12px] px-3 py-1 rounded-full font-medium">
+                          <span className="opacity-60">Finish</span>
+                          <span className="opacity-40">·</span>
+                          {row.finishingType}
+                        </span>
+                      )}
                     </div>
-                  ) : (
-                    "—"
                   )}
                 </td>
-                <td className="px-4 py-4 text-right text-green-600 font-black text-xs whitespace-nowrap">
-                  {row.payment > 0 ? `৳${row.payment.toLocaleString()}` : "—"}
+
+                {/* Charge */}
+                <td className="px-4 py-4 text-right whitespace-nowrap align-top">
+                  {row.charge > 0 ? (
+                    <div>
+                      <div className="text-[#0A0A0A] dark:text-gray-200 font-bold text-[14px] tabular-nums">
+                        ৳{row.charge.toLocaleString()}
+                      </div>
+                      <div className="text-[#6B6B6B] dark:text-gray-500 text-[13px] mt-1 font-medium tabular-nums">
+                        {row.qty} × {row.price}
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-[#E8E8EC] dark:text-gray-700 text-[14px]">—</span>
+                  )}
                 </td>
-                <td className="px-4 py-4 text-right whitespace-nowrap">
-                  <div
-                    className={`text-xs font-black px-2 py-1 rounded ${
+
+                {/* Payment */}
+                <td className="px-4 py-4 text-right align-top">
+                  {row.payment > 0 ? (
+                    <span className="text-[#10B981] dark:text-emerald-400 font-bold text-[14px] whitespace-nowrap tabular-nums">
+                      ৳{row.payment.toLocaleString()}
+                    </span>
+                  ) : (
+                    <span className="text-[#E8E8EC] dark:text-gray-700 text-[14px]">—</span>
+                  )}
+                </td>
+
+                {/* Balance */}
+                <td className="px-4 py-4 text-right whitespace-nowrap align-top pr-4">
+                  <span
+                    className={`inline-flex items-center justify-end text-[13px] font-bold px-3 py-1 rounded-full tabular-nums ${
                       row.balance < 0
-                        ? "text-red-600 bg-red-50"
-                        : "text-teal-600 bg-teal-50"
+                        ? "text-[#EF4444] bg-[#EF4444]/10 dark:bg-red-950/30 dark:text-red-400"
+                        : row.balance === 0
+                        ? "text-[#6B6B6B] bg-gray-100 dark:bg-gray-800 dark:text-gray-400"
+                        : "text-[#10B981] bg-[#10B981]/10 dark:bg-teal-950/30 dark:text-teal-400"
                     }`}
                   >
                     {row.balance < 0
-                      ? `- ৳${Math.abs(row.balance).toLocaleString()}`
+                      ? `− ৳${Math.abs(row.balance).toLocaleString()}`
+                      : row.balance === 0
+                      ? "৳0"
                       : `+ ৳${row.balance.toLocaleString()}`}
-                  </div>
+                  </span>
                 </td>
               </tr>
             );

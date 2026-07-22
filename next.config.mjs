@@ -1,15 +1,7 @@
-import { SECURITY_HEADERS } from "./security-headers.mjs";
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react", "recharts"],
-  },
-  async headers() {
-    return [
-      { source: "/(.*)", headers: SECURITY_HEADERS },
-      { source: "/:path*", headers: SECURITY_HEADERS },
-    ];
   },
   typescript: {
     ignoreBuildErrors: false,

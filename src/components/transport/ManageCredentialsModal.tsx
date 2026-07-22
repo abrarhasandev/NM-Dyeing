@@ -13,7 +13,7 @@ import {
 import { toast } from "sonner";
 import { Key } from "lucide-react";
 import type { TransportEmployeeDoc } from "@/types/transport";
-import type { Id } from "../../../../convex/_generated/dataModel";
+import type { Id } from "../../../convex/_generated/dataModel";
 
 type Props = {
   employee: TransportEmployeeDoc | null;

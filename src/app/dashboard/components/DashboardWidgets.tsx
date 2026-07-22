@@ -121,7 +121,11 @@ export function TopDebtorsWidget({ debtors }: { debtors: any[] }) {
                 </Avatar>
                 <div>
                   <p className="text-sm font-medium text-[#26251e] leading-none">{debtor.companyName}</p>
-                  <p className="text-xs text-[#26251e]/60 mt-1">{debtor.phoneNumber}</p>
+                  <p className="text-xs text-[#26251e]/60 mt-1">
+                    {Array.isArray(debtor.phoneNumber) 
+                      ? debtor.phoneNumber.map((p: any) => p.number).join(', ') 
+                      : (typeof debtor.phoneNumber === 'string' ? debtor.phoneNumber : "—")}
+                  </p>
                 </div>
               </div>
               <div className="font-semibold text-[#f54e00] text-sm">

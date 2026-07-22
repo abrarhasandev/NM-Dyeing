@@ -5,7 +5,14 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useDocumentTitle } from "@/hook/useDocumentTitle";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Plus,
   Search,
@@ -15,7 +22,9 @@ import {
   Users,
   TrendingUp,
   Building2,
-  Briefcase
+  Briefcase,
+  MoreVertical,
+  FileText
 } from "lucide-react";
 import { useCustomers } from "@/hooks/useCustomers";
 
@@ -34,6 +43,7 @@ const itemVariants = {
 };
 
 const CustomerPage = () => {
+  const router = useRouter();
   const { customers, isLoading: loading } = useCustomers();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -200,10 +210,17 @@ const CustomerPage = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.2, delay: Math.min(idx * 0.05, 0.5) }}
+                        onClick={() => router.push(`/dashboard/customer/profile/${c.mongoId || c._id}`)}
                         className="hover:bg-accent/50 transition-colors group cursor-pointer"
                       >
                         <td className="px-6 py-4">
-                          <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                          <div 
+                            className="text-sm font-semibold text-foreground flex items-center gap-2 hover:text-primary transition-colors inline-flex"
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              router.push(`/dashboard/customer/info/${c.mongoId || c._id}`); 
+                            }}
+                          >
                             {c.companyName || (c.customerType === "Individual" ? "Individual" : "—")}
                             {c.customerType === "Individual" && (
                               <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Ind.</span>
@@ -232,28 +249,58 @@ const CustomerPage = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Link
-                              href={`/dashboard/customer/profile/${c?._id}`}
-                              className="p-2 text-muted-foreground hover:text-foreground hover:bg-background rounded-md transition-all border border-transparent hover:border-border shadow-sm hover:shadow"
-                              title="View Profile"
-                            >
-                              <Eye size={16} />
-                            </Link>
-                            <Link
-                              href={`/dashboard/customer/edit/${c.mongoId || c._id}`}
-                              className="p-2 text-muted-foreground hover:text-foreground hover:bg-background rounded-md transition-all border border-transparent hover:border-border shadow-sm hover:shadow"
-                              title="Edit Customer"
-                            >
-                              <Pencil size={16} />
-                            </Link>
-                            <button
-                              onClick={() => handleDelete(c.mongoId || c._id)}
-                              className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-all border border-transparent hover:border-destructive/20 shadow-sm hover:shadow cursor-pointer"
-                              title="Delete Customer"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                          <div
+                            className="flex justify-end"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <DropdownMenu>
+                              <DropdownMenuTrigger className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-all outline-none">
+                                <MoreVertical size={16} />
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent
+                                align="end"
+                                className="w-48 border-border bg-card"
+                              >
+                                <DropdownMenuItem asChild>
+                                  <Link
+                                    href={`/dashboard/customer/info/${c.mongoId || c._id}`}
+                                    className="cursor-pointer flex items-center gap-2"
+                                  >
+                                    <Eye size={14} />
+                                    <span>Profile Section</span>
+                                  </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                  <Link
+                                    href={`/dashboard/customer/edit/${c.mongoId || c._id}`}
+                                    className="cursor-pointer flex items-center gap-2"
+                                  >
+                                    <Pencil size={14} />
+                                    <span>Edit Section</span>
+                                  </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                  <Link
+                                    href={`/dashboard/customer/profile/${c.mongoId || c._id}?tab=ledger`}
+                                    className="cursor-pointer flex items-center gap-2"
+                                  >
+                                    <FileText size={14} />
+                                    <span>Ledger Statement</span>
+                                  </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    toast.error("Delete action is temporarily disabled.");
+                                  }}
+                                  disabled={true}
+                                  className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10 flex items-center gap-2 opacity-50"
+                                >
+                                  <Trash2 size={14} />
+                                  <span>Delete Customer</span>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </td>
                       </motion.tr>
