@@ -141,10 +141,14 @@ export default defineSchema({
     vehicleWheels: v.number(),
     clothCapacityYards: v.number(),
     avatar: v.optional(v.string()),
+    loginId: v.optional(v.string()),
+    password: v.optional(v.string()),
+    fcmToken: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_name", ["name"])
     .index("by_vehicleType", ["vehicleType"])
+    .index("by_loginId", ["loginId"])
     .searchIndex("search_name", { searchField: "name" }),
 
   /**
@@ -197,6 +201,19 @@ export default defineSchema({
     .index("by_employee", ["transportEmployeeId"])
     .index("by_status", ["status"])
     .index("by_employee_date", ["transportEmployeeId", "date"]),
+
+  /**
+   * Sessions for the Android App backend authentication
+   */
+  transportEmployeeSessions: defineTable({
+    employeeId: v.id("transportEmployees"),
+    token: v.string(),
+    deviceInfo: v.optional(v.string()),
+    createdAt: v.number(),
+    expiresAt: v.number(),
+  })
+    .index("by_token", ["token"])
+    .index("by_employee", ["employeeId"]),
 
   /**
    * Orders mirror.

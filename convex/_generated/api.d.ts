@@ -9,6 +9,8 @@
  */
 
 import type * as addresses from "../addresses.js";
+import type * as androidApi from "../androidApi.js";
+import type * as androidAuth from "../androidAuth.js";
 import type * as auditing from "../auditing.js";
 import type * as batches from "../batches.js";
 import type * as billingSummaries from "../billingSummaries.js";
@@ -29,6 +31,8 @@ import type * as payments from "../payments.js";
 import type * as recipes from "../recipes.js";
 import type * as savedInvoices from "../savedInvoices.js";
 import type * as sops from "../sops.js";
+import type * as testCheck from "../testCheck.js";
+import type * as testCheckId from "../testCheckId.js";
 import type * as transportBills from "../transportBills.js";
 import type * as transportEmployees from "../transportEmployees.js";
 import type * as transportOrders from "../transportOrders.js";
@@ -42,6 +46,8 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   addresses: typeof addresses;
+  androidApi: typeof androidApi;
+  androidAuth: typeof androidAuth;
   auditing: typeof auditing;
   batches: typeof batches;
   billingSummaries: typeof billingSummaries;
@@ -62,6 +68,8 @@ declare const fullApi: ApiFromModules<{
   recipes: typeof recipes;
   savedInvoices: typeof savedInvoices;
   sops: typeof sops;
+  testCheck: typeof testCheck;
+  testCheckId: typeof testCheckId;
   transportBills: typeof transportBills;
   transportEmployees: typeof transportEmployees;
   transportOrders: typeof transportOrders;

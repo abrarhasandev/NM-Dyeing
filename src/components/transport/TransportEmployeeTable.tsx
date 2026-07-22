@@ -1,6 +1,7 @@
 // @ts-nocheck
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -19,12 +20,14 @@ import {
   MapPin,
   ChevronRight,
   MoreVertical,
+  Key,
 } from "lucide-react";
 import {
   getAddressDisplay,
   getPhoneDisplay,
   type TransportEmployeeDoc,
 } from "@/types/transport";
+import { ManageCredentialsModal } from "./ManageCredentialsModal";
 
 type Props = {
   employees: TransportEmployeeDoc[];
@@ -75,6 +78,7 @@ export function TransportEmployeeTable({
   onLoadMore,
 }: Props) {
   const router = useRouter();
+  const [managingEmployee, setManagingEmployee] = useState<TransportEmployeeDoc | null>(null);
 
   return (
     <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
@@ -229,6 +233,16 @@ export function TransportEmployeeTable({
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setManagingEmployee(emp);
+                            }}
+                            className="cursor-pointer flex items-center gap-2"
+                          >
+                            <Key size={14} />
+                            <span>Manage Login</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
                             onClick={() => onDelete(emp._id)}
                             disabled={deletingId === emp._id}
                             className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10 flex items-center gap-2"
@@ -289,6 +303,12 @@ export function TransportEmployeeTable({
           </div>
         </div>
       )}
+
+      <ManageCredentialsModal
+        employee={managingEmployee}
+        isOpen={!!managingEmployee}
+        onClose={() => setManagingEmployee(null)}
+      />
     </div>
   );
 }

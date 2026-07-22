@@ -1,5 +1,5 @@
 import { query, mutation } from "./_generated/server";
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import { paginationOptsValidator } from "convex/server";
 
 /**
@@ -190,5 +190,38 @@ export const remove = mutation({
     if (!existing) return null;
     await ctx.db.delete(args.id);
     return args.id;
+  },
+});
+
+/** Allows the admin to set or update mobile app login credentials for an employee. */
+export const setCredentials = mutation({
+  args: {
+    id: v.id("transportEmployees"),
+    loginId: v.string(),
+    password: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db.get(args.id);
+    if (!existing) throw new Error("Transport employee not found");
+
+    // Ensure loginId is unique
+    const duplicate = await ctx.db
+      .query("transportEmployees")
+      .withIndex("by_loginId", (q) => q.eq("loginId", args.loginId))
+      .first();
+      
+    if (duplicate && duplicate._id !== args.id) {
+      return { 
+        success: false, 
+        message: "Login ID is already in use by another employee. Please choose a unique ID." 
+      };
+    }
+
+    await ctx.db.patch(args.id, {
+      loginId: args.loginId,
+      password: args.password, // Admin-set password
+    });
+    
+    return { success: true };
   },
 });
