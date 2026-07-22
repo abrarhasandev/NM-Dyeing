@@ -60,15 +60,19 @@ export function mongoCustomerToConvexDoc(doc: Record<string, unknown>) {
     mongoId,
     companyName,
     ownerName: String(doc.ownerName || ""),
-    address: String(doc.address || ""),
-    phoneNumber: String(doc.phoneNumber || ""),
-    employeeList: Array.isArray(doc.employeeList)
-      ? doc.employeeList.map((e) => String(e ?? ""))
-      : [],
+    address: doc.address ?? "",
+    phoneNumber: doc.phoneNumber ?? "",
+    employeeList: Array.isArray(doc.employeeList) ? doc.employeeList : [],
     initialCharge: toNum(doc.initialCharge) ?? 0,
     initialPayment: toNum(doc.initialPayment) ?? 0,
     ...timestamps(doc),
   };
+  
+  if (doc.customerType) out.customerType = doc.customerType;
+  if (doc.owners) out.owners = doc.owners;
+  if (doc.bankAccounts) out.bankAccounts = doc.bankAccounts;
+  if (doc.mobileBanking) out.mobileBanking = doc.mobileBanking;
+
   const searchText = optStr(doc.searchText);
   if (searchText !== undefined) out.searchText = searchText;
   const initialDate = toDateMs(doc.initialDate);

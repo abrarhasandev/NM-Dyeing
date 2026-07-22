@@ -44,15 +44,78 @@ export const getMyOrders = query({
   args: { token: v.string() },
   handler: async (ctx, args) => {
     const employeeId = await getEmployeeIdFromToken(ctx, args.token);
+    const employee = await ctx.db.get(employeeId);
+    if (!employee) throw new Error("Employee not found");
 
-    // Fetch orders assigned to this employee, ordered by date or creation (newest first)
-    const orders = await ctx.db
+    // 5 months ago timestamp
+    const fiveMonthsAgo = Date.now() - 5 * 30 * 24 * 60 * 60 * 1000;
+
+    // Fetch manual transport orders assigned to this employee (last 5 months)
+    const manualOrders = await ctx.db
       .query("transportOrders")
-      .withIndex("by_transportEmployeeId", (q: any) => q.eq("transportEmployeeId", employeeId))
+      .withIndex("by_transportEmployeeId_date", (q: any) => 
+        q.eq("transportEmployeeId", employeeId).gte("date", fiveMonthsAgo)
+      )
       .order("desc")
       .collect();
 
-    return orders;
+    // Fetch system production orders assigned to this employee
+    const systemOrdersRaw = await ctx.db
+      .query("orders")
+      .withIndex("by_transporterName", (q: any) => q.eq("transporterName", employee.name))
+      .order("desc")
+      .collect();
+
+    // Filter system orders for last 5 months and exclude trashed orders
+    const systemOrdersFiltered = systemOrdersRaw.filter((o: any) => {
+      const orderDate = o.date || o.createdAt || 0;
+      return orderDate >= fiveMonthsAgo && !o.isTrash;
+    });
+
+    // To determine billing status for system orders, fetch the employee's bills
+    const bills = await ctx.db
+      .query("transportEmployeeBills")
+      .withIndex("by_employee", (q: any) => q.eq("transportEmployeeId", employeeId))
+      .collect();
+
+    // Collect all billed system order mongoIds
+    const billedMongoIds = new Set<string>();
+    for (const bill of bills) {
+      for (const oId of bill.orderIds) {
+        // If the bill is paid, the order is paid. Otherwise it's unpaid.
+        if (bill.status === "paid") {
+          billedMongoIds.add(oId);
+        }
+      }
+    }
+
+    // Map system orders to match transportOrders format for the Android app
+    const systemOrdersMapped = systemOrdersFiltered.map((o: any) => ({
+      _id: o._id,
+      _creationTime: o._creationTime,
+      transportEmployeeId: employeeId,
+      transporterName: o.transporterName,
+      displayOrderId: o.orderId,
+      companyName: o.companyName || "",
+      clotheType: o.clotheType,
+      quality: o.quality,
+      colour: o.colour,
+      finishingType: o.finishingType,
+      totalGoj: o.totalGoj || 0,
+      totalBundle: o.totalBundle || 0,
+      status: o.status,
+      date: o.date || o.createdAt || o._creationTime,
+      isTrash: o.isTrash,
+      // Map billed status based on whether it exists in a paid bill
+      billingStatus: billedMongoIds.has(o.mongoId) ? "paid" : "unpaid",
+    }));
+
+    // Combine and sort by date descending
+    const combinedOrders = [...manualOrders, ...systemOrdersMapped].sort(
+      (a: any, b: any) => (b.date || 0) - (a.date || 0)
+    );
+
+    return combinedOrders;
   },
 });
 

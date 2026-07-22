@@ -12,6 +12,7 @@ import type * as addresses from "../addresses.js";
 import type * as androidApi from "../androidApi.js";
 import type * as androidAuth from "../androidAuth.js";
 import type * as auditing from "../auditing.js";
+import type * as banks from "../banks.js";
 import type * as batches from "../batches.js";
 import type * as billingSummaries from "../billingSummaries.js";
 import type * as calenders from "../calenders.js";
@@ -49,6 +50,7 @@ declare const fullApi: ApiFromModules<{
   androidApi: typeof androidApi;
   androidAuth: typeof androidAuth;
   auditing: typeof auditing;
+  banks: typeof banks;
   batches: typeof batches;
   billingSummaries: typeof billingSummaries;
   calenders: typeof calenders;

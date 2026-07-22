@@ -445,18 +445,45 @@ export default function CustomerProfileLedger({ params }) {
                     ? "Ledger Statement"
                     : "Saved Bills / Invoices"}
                 </h1>
-                <div className="mt-4 space-y-1">
-                  <p className="font-bold text-blue-600 text-lg">
-                    {customer?.companyName}
+                  <p className="font-bold text-blue-600 text-lg flex items-center gap-2">
+                    {customer?.companyName || "Individual Customer"}
+                    {customer?.customerType === "Individual" && (
+                      <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Individual</span>
+                    )}
                   </p>
-                  <p className="text-xs text-gray-500 uppercase font-bold">
-                    Owner: {customer?.ownerName} | Phone:{" "}
-                    {customer?.phoneNumber}
+                  <p className="text-xs text-gray-500 uppercase font-bold mt-1">
+                    Owner: {
+                      Array.isArray(customer?.owners) && customer.owners.length > 0 
+                        ? customer.owners.map(o => `${o?.name || ''}${o?.phone ? ` (${o.phone})` : ''}`).join(' • ')
+                        : (typeof customer?.owners === 'object' && customer?.owners !== null
+                            ? customer.owners.name || JSON.stringify(customer.owners)
+                            : (customer?.ownerName || "—"))
+                    } 
+                    {" | "}Phone: {
+                      Array.isArray(customer?.phoneNumber)
+                        ? customer.phoneNumber.map(p => p?.number || p).join(', ')
+                        : (typeof customer?.phoneNumber === 'object' && customer?.phoneNumber !== null
+                            ? customer.phoneNumber.number || JSON.stringify(customer.phoneNumber)
+                            : (customer?.phoneNumber || "—"))
+                    }
                   </p>
-                  <p className="text-[10px] text-gray-400 uppercase tracking-widest">
-                    {customer?.address}
-                  </p>
-                </div>
+                  <div className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">
+                    {Array.isArray(customer?.address) ? (
+                      <div className="flex flex-col gap-0.5">
+                        {customer.address.map((addr, idx) => (
+                          <span key={idx}>
+                            {typeof addr === 'object' && addr !== null ? (
+                              <><strong className="text-gray-500">{addr.type || 'Address'}:</strong> {addr.street ? addr.street + ', ' : ''}{addr.union ? addr.union + ', ' : ''}{addr.upazila ? addr.upazila + ', ' : ''}{addr.district || ''}</>
+                            ) : addr}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (typeof customer?.address === 'object' && customer?.address !== null ? (
+                      <span>{customer.address.street || ''}, {customer.address.district || ''}</span>
+                    ) : (
+                      <span>{customer?.address || "—"}</span>
+                    ))}
+                  </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto print:hidden flex-wrap">
                 {activeTab === "ledger" &&

@@ -7,7 +7,9 @@ export const AddressNidSchema = z.object({
   division: z.string().min(1, "Division is required"),
   district: z.string().min(1, "District is required"),
   upazila: z.string().min(1, "Upazila is required"),
+  thana: z.string().optional(),
   union: z.string().optional(),
+  paurashava: z.string().optional(),
   street: z.string().optional(),
 });
 
@@ -83,7 +85,9 @@ export const emptyAddressLine = (): IAddressNid => ({
   division: "",
   district: "",
   upazila: "",
+  thana: "",
   union: "",
+  paurashava: "",
   street: "",
 });
 

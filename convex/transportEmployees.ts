@@ -26,7 +26,9 @@ const addressLineValidator = v.object({
   division: v.string(),
   district: v.string(),
   upazila: v.string(),
+  thana: v.optional(v.string()),
   union: v.optional(v.string()),
+  paurashava: v.optional(v.string()),
   street: v.optional(v.string()),
 });
 

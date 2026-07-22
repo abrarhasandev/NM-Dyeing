@@ -164,14 +164,26 @@ export default function LedgerPrint({
             <p className="m-0 p-0">
               Phone:{" "}
               <span className="font-medium">
-                {customer?.phoneNumber || "—"}
+                {Array.isArray(customer?.phoneNumber)
+                  ? customer.phoneNumber.map(p => p?.number || p).join(', ')
+                  : (typeof customer?.phoneNumber === 'object' && customer?.phoneNumber !== null
+                      ? customer.phoneNumber.number || JSON.stringify(customer.phoneNumber)
+                      : (customer?.phoneNumber || "—"))}
               </span>
             </p>
 
-            <p className="m-0 p-0">
-              Address:{" "}
-              <span className="font-normal uppercase text-[9px]">
-                {customer?.address || "—"}
+            <p className="m-0 p-0 flex gap-1 items-start mt-0.5">
+              <span>Address:</span>{" "}
+              <span className="font-normal uppercase text-[9px] flex flex-col gap-0.5">
+                {Array.isArray(customer?.address)
+                  ? customer.address.map((addr, idx) => (
+                      <span key={idx}>
+                        {typeof addr === 'object' && addr !== null ? `${addr.street ? addr.street + ', ' : ''}${addr.union ? addr.union + ', ' : ''}${addr.upazila ? addr.upazila + ', ' : ''}${addr.district || ''}` : addr}
+                      </span>
+                    ))
+                  : (typeof customer?.address === 'object' && customer?.address !== null
+                      ? `${customer.address.street || ''}, ${customer.address.district || ''}`
+                      : (customer?.address || "—"))}
               </span>
             </p>
 

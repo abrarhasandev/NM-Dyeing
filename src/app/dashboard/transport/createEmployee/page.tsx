@@ -117,12 +117,17 @@ export default function CreateTransportEmployee() {
     if (field === "division") {
       updated.district = "";
       updated.upazila = "";
+      updated.thana = "";
       updated.union = "";
+      updated.paurashava = "";
     } else if (field === "district") {
       updated.upazila = "";
+      updated.thana = "";
       updated.union = "";
+      updated.paurashava = "";
     } else if (field === "upazila") {
       updated.union = "";
+      updated.paurashava = "";
     }
 
     setValue(`address.${type}`, updated);

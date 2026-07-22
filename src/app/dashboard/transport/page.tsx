@@ -130,9 +130,6 @@ export default function TransportPage() {
                 <h1 className="text-3xl font-bold tracking-tight text-foreground">
                   Transport Management
                 </h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Manage transporters, vehicles, and capacity
-                </p>
               </div>
             </div>
           </div>

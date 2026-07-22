@@ -116,21 +116,27 @@ export default defineSchema({
           division: v.string(),
           district: v.string(),
           upazila: v.string(),
+          thana: v.optional(v.string()),
           union: v.optional(v.string()),
+          paurashava: v.optional(v.string()),
           street: v.optional(v.string()),
         }),
         permanent: v.object({
           division: v.string(),
           district: v.string(),
           upazila: v.string(),
+          thana: v.optional(v.string()),
           union: v.optional(v.string()),
+          paurashava: v.optional(v.string()),
           street: v.optional(v.string()),
         }),
         current: v.object({
           division: v.string(),
           district: v.string(),
           upazila: v.string(),
+          thana: v.optional(v.string()),
           union: v.optional(v.string()),
+          paurashava: v.optional(v.string()),
           street: v.optional(v.string()),
         }),
       })
@@ -287,11 +293,72 @@ export default defineSchema({
 
   customers: defineTable({
     mongoId: v.string(),
-    companyName: v.string(),
-    ownerName: v.string(),
-    address: v.string(),
-    phoneNumber: v.string(),
-    employeeList: v.array(v.string()),
+    customerType: v.optional(v.union(v.literal("Company"), v.literal("Individual"))),
+    companyName: v.optional(v.string()),
+    ownerName: v.optional(v.string()),
+    owners: v.optional(v.array(
+      v.object({
+        name: v.string(),
+        phone: v.optional(v.string()),
+      })
+    )),
+    address: v.union(
+      v.string(),
+      v.array(
+        v.object({
+          type: v.union(v.literal("Office"), v.literal("Warehouse"), v.literal("Godown"), v.literal("Other")),
+          division: v.string(),
+          district: v.string(),
+          upazila: v.string(),
+          thana: v.optional(v.string()),
+          union: v.optional(v.string()),
+          paurashava: v.optional(v.string()),
+          street: v.optional(v.string()),
+        })
+      )
+    ),
+    phoneNumber: v.union(
+      v.string(),
+      v.array(
+        v.object({
+          number: v.string(),
+          isPrimary: v.boolean(),
+          ownerName: v.optional(v.string()),
+          accounts: v.array(v.string()),
+          description: v.optional(v.string()),
+        })
+      )
+    ),
+    employeeList: v.union(
+      v.array(v.string()),
+      v.array(
+        v.object({
+          name: v.string(),
+          designation: v.string(),
+          phone: v.optional(v.string()),
+          address: v.optional(v.string()),
+        })
+      )
+    ),
+    bankAccounts: v.optional(
+      v.array(
+        v.object({
+          bankName: v.string(),
+          accountName: v.string(),
+          accountNumber: v.string(),
+          branchName: v.optional(v.string()),
+          routingNumber: v.optional(v.string()),
+        })
+      )
+    ),
+    mobileBanking: v.optional(
+      v.array(
+        v.object({
+          provider: v.string(),
+          number: v.string(),
+        })
+      )
+    ),
     searchText: v.optional(v.string()),
     initialCharge: v.number(),
     initialPayment: v.number(),
@@ -491,6 +558,43 @@ export default defineSchema({
   })
     .index("by_upazila", ["upazilaName"])
     .index("by_name", ["name"]),
+
+  bdThanas: defineTable({
+    districtName: v.optional(v.string()),
+    name: v.string(),
+    bn_name: v.string(),
+  })
+    .index("by_district", ["districtName"])
+    .index("by_name", ["name"]),
+
+  bdPaurashavas: defineTable({
+    districtName: v.optional(v.string()),
+    upazilaName: v.optional(v.string()),
+    name: v.string(),
+    bn_name: v.string(),
+  })
+    .index("by_district", ["districtName"])
+    .index("by_upazila", ["upazilaName"])
+    .index("by_name", ["name"]),
+
+  bdBanks: defineTable({
+    name: v.string(),
+    shortName: v.optional(v.string()),
+    type: v.optional(v.string()),
+  }).index("by_name", ["name"]),
+
+  bdBankBranches: defineTable({
+    bankId: v.id("bdBanks"),
+    bankName: v.string(),
+    branchName: v.string(),
+    routingNumber: v.optional(v.string()),
+    district: v.optional(v.string()),
+    address: v.optional(v.string()),
+  })
+    .index("by_bankId", ["bankId"])
+    .index("by_bankName", ["bankName"])
+    .index("by_routingNumber", ["routingNumber"])
+    .searchIndex("search_branchName", { searchField: "branchName" }),
 
   // ==========================================
   // ERP: INVENTORY & STATEFUL STOCK MANAGEMENT

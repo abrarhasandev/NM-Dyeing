@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   Plus,
@@ -75,6 +75,7 @@ export const OrdersContent = ({
   const { data } = useAppData();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const orderIdFromUrl = searchParams.get("id");
   const tabFromUrl = searchParams.get("tab");
 
@@ -240,7 +241,9 @@ export const OrdersContent = ({
 
   // Handlers
   const handleOrderClick = (id, tab) => {
-    const basePath = activeTrashMode ? "/dashboard/order/trash" : "/dashboard/order";
+    const basePath = isTransportMode 
+      ? pathname 
+      : (activeTrashMode ? "/dashboard/order/trash" : "/dashboard/order");
     const params = new URLSearchParams(searchParams.toString());
     params.set("id", id);
     if (tab) {
@@ -254,7 +257,9 @@ export const OrdersContent = ({
 
   const closeModal = () => {
     setSelectedOrder(null);
-    const basePath = activeTrashMode ? "/dashboard/order/trash" : "/dashboard/order";
+    const basePath = isTransportMode 
+      ? pathname 
+      : (activeTrashMode ? "/dashboard/order/trash" : "/dashboard/order");
     const params = new URLSearchParams(searchParams.toString());
     params.delete("id");
     params.delete("tab");

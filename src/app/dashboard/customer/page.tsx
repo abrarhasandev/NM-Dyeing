@@ -51,10 +51,14 @@ const CustomerPage = () => {
     }
   };
 
-  const filteredData = customers.filter(c =>
-    c.companyName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.ownerName?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredData = customers.filter(c => {
+    const searchLower = searchQuery.toLowerCase();
+    const companyMatch = c.companyName?.toLowerCase().includes(searchLower) || (c.customerType === "Individual" && "individual".includes(searchLower));
+    const oldOwnerMatch = c.ownerName?.toLowerCase().includes(searchLower);
+    const newOwnerMatch = Array.isArray(c.owners) && c.owners.some(o => o.name.toLowerCase().includes(searchLower));
+    const phoneMatch = Array.isArray(c.phoneNumber) ? c.phoneNumber.some(p => p.number.includes(searchLower)) : c.phoneNumber?.includes(searchLower);
+    return companyMatch || oldOwnerMatch || newOwnerMatch || phoneMatch;
+  });
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 md:p-8 font-sans">
@@ -199,17 +203,32 @@ const CustomerPage = () => {
                         className="hover:bg-accent/50 transition-colors group cursor-pointer"
                       >
                         <td className="px-6 py-4">
-                          <div className="text-sm font-semibold text-foreground">{c.companyName}</div>
+                          <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                            {c.companyName || (c.customerType === "Individual" ? "Individual" : "—")}
+                            {c.customerType === "Individual" && (
+                              <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Ind.</span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm font-medium text-muted-foreground">{c.ownerName}</div>
+                          <div className="text-sm font-medium text-muted-foreground">
+                            {Array.isArray(c.owners) && c.owners.length > 0 
+                              ? c.owners.map(o => o.name).join(', ')
+                              : (c.ownerName || "—")}
+                          </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-xs font-mono text-muted-foreground bg-secondary/50 px-2.5 py-1 rounded-md border border-border inline-block">{c.phoneNumber}</div>
+                          <div className="text-xs font-mono text-muted-foreground bg-secondary/50 px-2.5 py-1 rounded-md border border-border inline-block max-w-[200px] truncate">
+                            {Array.isArray(c.phoneNumber) && c.phoneNumber.length > 0
+                              ? c.phoneNumber.map(p => p.number).join(', ')
+                              : (c.phoneNumber || "—")}
+                          </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="max-w-[150px] truncate text-xs text-muted-foreground bg-secondary px-2.5 py-1 rounded-full inline-block border border-border font-medium">
-                            {c.employeeList?.length ? c.employeeList.join(", ") : "N/A"}
+                            {Array.isArray(c.employeeList) && c.employeeList.length > 0
+                              ? (typeof c.employeeList[0] === 'object' ? `${c.employeeList.length} Employees` : c.employeeList.join(", "))
+                              : "N/A"}
                           </div>
                         </td>
                         <td className="px-6 py-4 text-right">

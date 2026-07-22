@@ -44,6 +44,16 @@ export function AddressSelector({
     api.addresses.getUnions,
     addressData.upazila ? { upazilaName: addressData.upazila } : "skip"
   ) ?? []) as AddressRow[];
+  const thanas = (useQuery(
+    api.addresses.getThanas,
+    addressData.district ? { districtName: addressData.district } : "skip"
+  ) ?? []) as AddressRow[];
+  const paurashavas = (useQuery(
+    api.addresses.getPaurashavas,
+    addressData.upazila 
+      ? { upazilaName: addressData.upazila } 
+      : (addressData.district ? { districtName: addressData.district } : "skip")
+  ) ?? []) as AddressRow[];
 
   const selectClass =
     "w-full px-3 py-2 bg-background text-foreground border border-border rounded-md focus:outline-none focus:border-ring text-sm disabled:opacity-50";
@@ -119,14 +129,58 @@ export function AddressSelector({
 
         <div>
           <select
-            disabled={!addressData.upazila || isSameAsNid}
+            disabled={!addressData.district || isSameAsNid}
+            value={addressData.thana || ""}
+            onChange={(e) => onChange("thana", e.target.value)}
+            className={selectClass}
+            aria-label={`${title} thana`}
+          >
+            <option value="">Select Thana (Optional)</option>
+            {thanas.map((d) => (
+              <option key={d._id} value={d.name}>
+                {d.name} ({d.bn_name})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <select
+            disabled={(!addressData.upazila && !addressData.district) || isSameAsNid}
             value={addressData.union || ""}
-            onChange={(e) => onChange("union", e.target.value)}
+            onChange={(e) => {
+              onChange("union", e.target.value);
+              if (e.target.value) {
+                onChange("paurashava", "");
+              }
+            }}
             className={selectClass}
             aria-label={`${title} union`}
           >
             <option value="">Select Union (Optional)</option>
             {unions.map((d) => (
+              <option key={d._id} value={d.name}>
+                {d.name} ({d.bn_name})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <select
+            disabled={(!addressData.upazila && !addressData.district) || isSameAsNid}
+            value={addressData.paurashava || ""}
+            onChange={(e) => {
+              onChange("paurashava", e.target.value);
+              if (e.target.value) {
+                onChange("union", "");
+              }
+            }}
+            className={selectClass}
+            aria-label={`${title} paurashava`}
+          >
+            <option value="">Select Paurashava (Optional)</option>
+            {paurashavas.map((d) => (
               <option key={d._id} value={d.name}>
                 {d.name} ({d.bn_name})
               </option>
