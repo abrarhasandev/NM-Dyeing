@@ -23,7 +23,7 @@ export function CompleteBatchModal({ batchId, recipeId, disabled }: { batchId: s
   const [open, setOpen] = useState(false);
   
   // We need to fetch the recipe ingredients to know what was reserved
-  const ingredients = useQuery(api.recipes.getRecipeIngredients, { recipeId: recipeId as any }) || [];
+  const ingredients = useQuery(api.recipes.getRecipeIngredients, recipeId ? { recipeId: recipeId as any } : "skip") || [];
   const inventoryItems = useQuery(api.inventory.getItems, {}) || [];
   
   const completeBatch = useMutation(api.executionEngine.completeBatch);

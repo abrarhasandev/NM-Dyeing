@@ -46,7 +46,10 @@ export function NavMain({
             <SidebarMenu>
                 {items.map((item) => {
                     const hasSubItems = item.items && item.items.length > 0
-                    const isLinkActive = pathname === item.url || pathname?.startsWith(item.url + "/")
+                    const exactPaths = ['/dashboard/stock', '/dashboard/manufacturing', '/dashboard/order', '/dashboard/customer', '/dashboard/dyeing', '/dashboard/transport', '/dashboard/calender', '/dashboard/accounts', '/dashboard/menu', '/dashboard/admins']
+                    const isLinkActive = exactPaths.includes(item.url)
+                        ? pathname === item.url
+                        : pathname === item.url || pathname?.startsWith(item.url + "/")
 
                     if (!hasSubItems) {
                         return (

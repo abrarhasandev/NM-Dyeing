@@ -449,16 +449,8 @@ export default function CustomerProfileLedger({ params }) {
       )}
 
       {/* ── Page Shell ──────────────────────────────────────────────────────── */}
-      <div className="mt-10 md:mt-8 lg:mt-1 w-full min-h-screen bg-[#FAFAFA] dark:bg-[#050503] transition-colors px-4 sm:px-6 py-6">
+      <div className="w-full min-h-screen bg-[#FAFAFA] dark:bg-[#050503] transition-colors px-4 sm:px-6 py-6">
 
-        {/* ── Back Button ──────────────────────────────────────────────────── */}
-        <button
-          onClick={() => router.back()}
-          className="print:hidden group flex items-center gap-2 mb-4 px-3.5 py-2 rounded-xl text-[11px] font-black text-gray-600 dark:text-gray-400 bg-white dark:bg-[#141414] border border-gray-200 dark:border-gray-800 hover:border-indigo-300 dark:hover:border-indigo-700 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 transition-all shadow-sm cursor-pointer uppercase tracking-widest"
-        >
-          <ArrowLeft size={13} className="transition-transform group-hover:-translate-x-0.5" />
-          Back
-        </button>
 
         {/* ── Main Card ─────────────────────────────────────────────────────── */}
         <div className="bg-[#FFFFFF] dark:bg-[#111111] rounded-xl border border-[#E8E8EC] dark:border-gray-800 overflow-hidden print:border-none transition-colors">

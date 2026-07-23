@@ -32,13 +32,24 @@ function DashboardHeader() {
         )}
         {segments.map((segment, index) => {
           const isLast = index === segments.length - 1;
-          const href = "/" + segments.slice(0, index + 1).join("/");
+          let href = "/" + segments.slice(0, index + 1).join("/");
+          
+          if (segment.toLowerCase() === "profile" && index + 1 < segments.length) {
+            if (segments[index - 1] === "customer") {
+              href = `/dashboard/customer/info/${segments[index + 1]}`;
+            } else {
+              href = "/" + segments.slice(0, index + 2).join("/");
+            }
+          }
+
           const title =
             segment.charAt(0).toUpperCase() +
             segment.slice(1).replace(/([A-Z])/g, " $1");
 
+          const uniqueKey = "/" + segments.slice(0, index + 1).join("/");
+
           return (
-            <React.Fragment key={href}>
+            <React.Fragment key={uniqueKey}>
               {index > 0 && (
                 <ChevronRight
                   size={14}

@@ -21,9 +21,7 @@ import {
     BarChart3,
     Settings,
     PlayCircle,
-    ArrowLeft,
-    Factory,
-    ClipboardList
+    ArrowLeft
 } from "lucide-react"
 
 import { NavMain } from "@/components/Sidebar/nav-main"
@@ -59,7 +57,6 @@ const mainNavigationItems = [
     },
     { title: "Administration", url: "/dashboard/admins", icon: ShieldCheck },
     { title: "Stock", url: "/dashboard/stock", icon: Package },
-    { title: "Manufacturing", url: "/dashboard/manufacturing", icon: Factory },
 ]
 
 const stockNavigationItems = [
@@ -140,58 +137,15 @@ const stockNavigationItems = [
     }
 ]
 
-const manufacturingNavigationItems = [
-    {
-        title: "Back to Main",
-        url: "/dashboard/order",
-        icon: ArrowLeft,
-    },
-    {
-        title: "Manufacturing Dashboard",
-        url: "/dashboard/manufacturing",
-        icon: Factory,
-    },
-    {
-        title: "Production Planning",
-        url: "/dashboard/manufacturing/planning",
-        icon: ClipboardList,
-        items: [
-            { title: "Recipes", url: "/dashboard/manufacturing/recipes" },
-            { title: "Bill of Materials (BOM)", url: "/dashboard/manufacturing/bom" },
-        ]
-    },
-    {
-        title: "Operations",
-        url: "/dashboard/manufacturing/operations",
-        icon: Settings,
-        items: [
-            { title: "SOP", url: "/dashboard/manufacturing/sop" },
-            { title: "Machine Programs", url: "/dashboard/manufacturing/machine-programs" },
-        ]
-    },
-    {
-        title: "Standards & QC",
-        url: "/dashboard/manufacturing/standards-qc",
-        icon: ShieldCheck,
-        items: [
-            { title: "Quality Control", url: "/dashboard/manufacturing/quality-control" },
-            { title: "Chemical Standards", url: "/dashboard/manufacturing/chemical-standards" },
-            { title: "Fabric Standards", url: "/dashboard/manufacturing/fabric-standards" },
-
-        ]
-    }
-]
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { data: session } = useSession()
     const pathname = usePathname()
     const { state, toggleSidebar } = useSidebar()
     const isCollapsed = state === "collapsed"
-
+    
     const isStockApp = pathname?.startsWith("/dashboard/stock")
-    const isManufacturingApp = pathname?.startsWith("/dashboard/manufacturing")
-    const currentNavItems = isStockApp ? stockNavigationItems : isManufacturingApp ? manufacturingNavigationItems : mainNavigationItems
-
+    const currentNavItems = isStockApp ? stockNavigationItems : mainNavigationItems
+    
     const user = {
         name: session?.user?.name || "Guest",
         email: session?.user?.email || "admin@nmdyeing.com",
@@ -231,7 +185,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 NM-Dyeing
                             </p>
                             <p className="text-[9px] font-semibold uppercase tracking-wider text-sidebar-foreground/50 mt-0.5">
-                                {isStockApp ? "Stock Workspace" : isManufacturingApp ? "Manufacturing Workspace" : "Management"}
+                                {isStockApp ? "Stock Workspace" : "Management"}
                             </p>
                         </div>
                     )}

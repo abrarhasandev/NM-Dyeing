@@ -1,0 +1,11 @@
+--- app-sidebar.tsx
++++ app-sidebar.tsx
+@@ -21,6 +21,8 @@
+     Settings,
+     PlayCircle,
+     ArrowLeft,
++    Factory,
++    ClipboardList
+ } from "lucide-react"
+ 
+ import { NavMain } from "@/components/Sidebar/nav-main"

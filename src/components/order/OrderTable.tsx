@@ -34,78 +34,56 @@ import { api } from "../../../convex/_generated/api";
 // ─── Status Badges — exact Figma match ───────────────────────────────────────
 const renderStatusBadges = (order: any, orderId: string, handleOrderClick: any) => {
   const status = order?.status?.toLowerCase() || "pending";
-  const batchCount = order?.batchSummary?.batchCount || 0;
-  const dispatchCount = order?.batchSummary?.dispatchCount || 0;
 
-  if (status === "pending") {
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[#f54e00]/20 bg-[#f54e00]/10 text-[#f54e00] select-none">
-        <Clock size={12} className="shrink-0 text-[#f54e00]" />
-        pending
+  const getBadgeStyle = (s: string) => {
+    switch (s) {
+      case "pending":
+        return { label: "pending", color: "text-[#f54e00]", bg: "bg-[#f54e00]/10", border: "border-[#f54e00]/20", Icon: Clock };
+      case "batch":
+        return { label: "Batching", color: "text-[#6049b3]", bg: "bg-[#6049b3]/10", border: "border-[#6049b3]/20", Icon: Clock };
+      case "inprocess":
+        return { label: "in process", color: "text-[#3a6a9f]", bg: "bg-[#3a6a9f]/10", border: "border-[#3a6a9f]/20", Icon: Clock };
+      case "completedprocess":
+        return { label: "Completed Process", color: "text-[#1f8a65]", bg: "bg-[#1f8a65]/10", border: "border-[#1f8a65]/20", Icon: CheckCircle2 };
+      case "delivered":
+        return { label: "Dispatch", color: "text-[#1f8a65]", bg: "bg-[#1f8a65]/10", border: "border-[#1f8a65]/20", Icon: Truck };
+      case "billing":
+        return { label: "Billing", color: "text-[#d97706]", bg: "bg-[#d97706]/10", border: "border-[#d97706]/20", Icon: FileText };
+      case "completed":
+      case "done":
+      case "complete":
+        return { label: "complete", color: "text-[#1f8a65]", bg: "bg-[#1f8a65]/10", border: "border-[#1f8a65]/20", Icon: CheckCircle2 };
+      default:
+        return { label: s, color: "text-[#3a6a9f]", bg: "bg-[#3a6a9f]/10", border: "border-[#3a6a9f]/20", Icon: Clock };
+    }
+  };
+
+  const style = getBadgeStyle(status);
+  const { Icon } = style;
+
+  return (
+    <div className="flex flex-col gap-1 select-none items-start">
+      <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border ${style.border} ${style.bg} ${style.color}`}>
+        <Icon size={12} className={`shrink-0 ${style.color}`} />
+        {style.label}
       </span>
-    );
-  }
-
-  const isCompleted = ["done", "completed", "delivered", "completedprocess", "complete"].includes(status);
-
-  if (isCompleted) {
-    return (
-      <div className="flex flex-col gap-1 select-none items-start">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[#1f8a65]/20 bg-[#1f8a65]/10 text-[#1f8a65]">
-          <CheckCircle2 size={12} className="shrink-0 text-[#1f8a65]" />
-          complete
-        </span>
-        {order?.batchSummary?.invoiceCount > 0 && (
-          <span
-            className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground/70 cursor-pointer hover:bg-accent transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (handleOrderClick) handleOrderClick(orderId, "Billing");
-            }}
-          >
-            <Truck size={12} className="shrink-0 text-foreground/50" />
-            Dispatch
-            <span className="inline-flex items-center justify-center px-1.5 h-4 text-[11px] font-bold bg-accent text-foreground/70 rounded-full ml-0.5">
-              {order?.batchSummary?.invoiceCount}
-            </span>
+      {order?.batchSummary?.invoiceCount > 0 && status !== "pending" && (
+        <span
+          className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground/70 cursor-pointer hover:bg-accent transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (handleOrderClick) handleOrderClick(orderId, "Billing");
+          }}
+        >
+          <Truck size={12} className="shrink-0 text-foreground/50" />
+          Dispatch
+          <span className="inline-flex items-center justify-center px-1.5 h-4 text-[11px] font-bold bg-accent text-foreground/70 rounded-full ml-0.5">
+            {order?.batchSummary?.invoiceCount}
           </span>
-        )}
-      </div>
-    );
-  }
-
-  if (batchCount === 0) {
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[#6049b3]/20 bg-[#6049b3]/10 text-[#6049b3] select-none">
-        <Clock size={12} className="shrink-0 text-[#6049b3]" />
-        Batching
-      </span>
-    );
-  } else {
-    return (
-      <div className="flex flex-col gap-1 select-none items-start">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-[#3a6a9f]/20 bg-[#3a6a9f]/10 text-[#3a6a9f]">
-          <Clock size={12} className="shrink-0 text-[#3a6a9f]" />
-          in process
         </span>
-        {order?.batchSummary?.invoiceCount > 0 && (
-          <span
-            className="inline-flex items-center gap-1 px-2 py-0.5 text-[13px] font-medium rounded-full border border-border bg-background text-foreground/70 cursor-pointer hover:bg-accent transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (handleOrderClick) handleOrderClick(orderId, "Billing");
-            }}
-          >
-            <Truck size={12} className="shrink-0 text-foreground/50" />
-            Dispatch
-            <span className="inline-flex items-center justify-center px-1.5 h-4 text-[11px] font-bold bg-accent text-foreground/70 rounded-full ml-0.5">
-              {order?.batchSummary?.invoiceCount}
-            </span>
-          </span>
-        )}
-      </div>
-    );
-  }
+      )}
+    </div>
+  );
 };
 
 // ─── Total Goj — exact Figma match ───────────────────────────────────────────

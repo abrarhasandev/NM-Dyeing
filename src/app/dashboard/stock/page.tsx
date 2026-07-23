@@ -12,9 +12,6 @@ export default function StockModulePage() {
                     <Package className="h-8 w-8 text-primary" />
                     Stock Workspace
                 </h1>
-                <p className="text-muted-foreground max-w-3xl">
-                    Welcome to the Stock Workspace. Select an option from the sidebar to manage inventory, items, warehouses, transactions, and reports.
-                </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
@@ -26,7 +23,7 @@ export default function StockModulePage() {
                     <p className="text-3xl font-bold">$0.00</p>
                     <p className="text-sm text-muted-foreground">Total value of all items in stock</p>
                 </div>
-                
+
                 <div className="bg-background border rounded-xl p-6 flex flex-col gap-4 shadow-sm">
                     <div className="flex items-center gap-3 text-amber-500">
                         <AlertTriangle className="h-5 w-5" />
@@ -45,7 +42,7 @@ export default function StockModulePage() {
                     <p className="text-sm text-muted-foreground">Transactions in the last 30 days</p>
                 </div>
             </div>
-            
+
             {/* Quick Actions Placeholder */}
             <div className="mt-8 bg-background border rounded-xl p-6 shadow-sm">
                 <h3 className="font-semibold text-lg mb-4">Quick Actions</h3>
