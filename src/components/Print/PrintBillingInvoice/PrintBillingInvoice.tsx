@@ -6,6 +6,12 @@
 import Image from "next/image";
 import { Phone } from "lucide-react";
 
+const parseIdxValue = (val: any): number => {
+  if (val === null || val === undefined) return 0;
+  if (Array.isArray(val)) return Number(val[0]) || 0;
+  return Number(val) || 0;
+};
+
 export default function PrintBillingInvoice({ order }) {
   const orderInfo = order?.orderInfo;
   const batches = order?.batches || [];
@@ -23,7 +29,7 @@ export default function PrintBillingInvoice({ order }) {
   batches?.forEach((batch) => {
     const finishingRows =
       batch.rows?.map((r) => {
-        const idxValue = Number(r.idx?.[0] || 0);
+        const idxValue = parseIdxValue(r.idx);
 
         const extras = r.extraInputs
           ? r.extraInputs.map((v) => Number(v || 0))
@@ -56,6 +62,38 @@ export default function PrintBillingInvoice({ order }) {
         boxSizing: "border-box",
       }}
     >
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 0mm !important;
+          }
+          html, body {
+            width: 210mm !important;
+            min-height: 297mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .print-only {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 210mm !important;
+            margin: 0 auto !important;
+            padding: 10mm !important;
+            background: #ffffff !important;
+            box-sizing: border-box !important;
+            display: block !important;
+          }
+        }
+      `,
+        }}
+      />
       {/* header */}
       <div className="border-b-2 border-black pb-3 mb-4">
         <div className="flex flex-col items-center">
@@ -156,7 +194,7 @@ export default function PrintBillingInvoice({ order }) {
               // --- UPDATED FINISHING LOGIC ---
               const finishingRows =
                 batch.rows?.map((r) => {
-                  const idxValue = Number(r.idx?.[0] || 0);
+                  const idxValue = parseIdxValue(r.idx);
                   const extras = r.extraInputs
                     ? r.extraInputs.map((v) => Number(v || 0))
                     : [];
@@ -209,7 +247,7 @@ export default function PrintBillingInvoice({ order }) {
                     {/* GRAY TABLE */}
                     <div className="border-r border-black">
                       <div className="text-center font-semibold border-b border-black py-1 text-[11px]">
-                        গ্রে- বেচ ১
+                        গ্রে- {batch?.batchName || `বেচ ${index + 1}`}
                       </div>
 
                       <div className="grid grid-cols-2 text-[10px] font-semibold border-b border-black text-center">
@@ -240,7 +278,7 @@ export default function PrintBillingInvoice({ order }) {
                     {/* FINISHING TABLE */}
                     <div>
                       <div className="text-center font-semibold border-b border-black py-1 text-[11px]">
-                        ফিনিশিং- বেচ ১
+                        ফিনিশিং- {batch?.batchName || `বেচ ${index + 1}`}
                       </div>
 
                       <div className="grid grid-cols-2 text-[10px] font-semibold border-b border-black text-center">

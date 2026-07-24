@@ -7,11 +7,7 @@ import { Phone } from "lucide-react";
 
 
 export default function OrderInvoicePrint({ order }) {
-  const tableRows = order?.tableData || [
-    { _id: "1", rollNo: 1, goj: 10.5, extra: "1.2" },
-    { _id: "2", rollNo: 2, goj: 11.2, extra: "0.8" },
-    { _id: "3", rollNo: 3, goj: 9.8, extra: "0.5" },
-  ];
+  const tableRows = order?.tableData || [];
 
   const totalGoj = tableRows
     .reduce(
@@ -23,16 +19,18 @@ export default function OrderInvoicePrint({ order }) {
 
   const totalRoll = tableRows.length;
 
-  const invoiceNumber = order?.invoiceNumber || "N/A";
+  const invoiceNumber = order?.invoiceNumber || "—";
   const date = order?.updatedAt
     ? new Date(order.updatedAt).toLocaleDateString("en-BD")
-    : new Date().toLocaleDateString("en-BD");
+    : order?.createdAt
+    ? new Date(order.createdAt).toLocaleDateString("en-BD")
+    : "—";
 
-  const clotheType = order?.clotheType || "Polyster";
-  const finishingWidth = order?.finishingWidth || "58''";
-  const orderId = order?.orderId || "ORD-001";
-  const dyeingName = order?.dyeingName || "M/S Color Dyes";
-  const partyName = order?.companyName || "M/S Rahman Fabrics";
+  const clotheType = order?.clotheType || "—";
+  const finishingWidth = order?.finishingWidth || "—";
+  const orderId = order?.orderId || "—";
+  const dyeingName = order?.dyeingName || "—";
+  const partyName = order?.companyName || "—";
 
   return (
     <div className="print-area font-sans mt-12 text-gray-900 bg-white p-10 max-w-3xl mx-auto border border-gray-300 rounded-lg shadow-md print:shadow-none print:border-none print:p-0">
@@ -101,18 +99,21 @@ export default function OrderInvoicePrint({ order }) {
       <table className="w-full border border-gray-400 border-collapse text-sm mb-10">
         <thead>
           <tr className="bg-gray-100">
-            <th className="border border-gray-400 py-2 w-[25%]">রোল নং</th>
-            <th className="border border-gray-400 py-2 w-[25%]">গজ</th>
+            <th className="border border-gray-400 py-2 w-[50%]">রোল নং</th>
+            <th className="border border-gray-400 py-2 w-[50%]">গজ</th>
           </tr>
         </thead>
         <tbody>
           {tableRows?.map((row, i) => {
-            const totalRow =
-              (parseFloat(row.goj) || 0) + (parseFloat(row.extra) || 0);
+            const gojVal = parseFloat(row.goj) || 0;
+            const extraVal = parseFloat(row.extra) || 0;
+            const totalRow = gojVal + extraVal;
             return (
               <tr key={row._id || i} className="even:bg-gray-50 text-center">
-                <td className="border border-gray-400 py-1">{row.rollNo}</td>
-                <td className="border border-gray-400 py-1">{row.goj}</td>
+                <td className="border border-gray-400 py-1">{row.rollNo || i + 1}</td>
+                <td className="border border-gray-400 py-1">
+                  {extraVal > 0 ? `${gojVal} (+${extraVal}) = ${totalRow}` : gojVal}
+                </td>
               </tr>
             );
           })}
@@ -123,7 +124,7 @@ export default function OrderInvoicePrint({ order }) {
               মোট রোল: {totalRoll}
             </td>
             <td
-              colSpan={3}
+              colSpan={1}
               className="border border-gray-400 py-2 text-right pr-3"
             >
               মোট গজ: {totalGoj}

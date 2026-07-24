@@ -8,6 +8,16 @@ import { toast } from "sonner";
 
 import PrintBillingInvoice from "../Print/PrintBillingInvoice/PrintBillingInvoice";
 import { Check, Eye, Printer, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function BillingBatch({ orderId, fetchOrders }) {
   const [invoices, setInvoices] = useState([]);
@@ -20,6 +30,8 @@ export default function BillingBatch({ orderId, fetchOrders }) {
   // Price and total per invoice/type
   const [priceByInvoice, setPriceByInvoice] = useState({});
   // shape: { [invoiceNumber]: { client: "", dyeing: "", calender: "" } }
+
+  const [invoiceToDelete, setInvoiceToDelete] = useState(null);
 
   // Fetch invoices and order info
   const fetchBillingData = async () => {
@@ -117,7 +129,6 @@ export default function BillingBatch({ orderId, fetchOrders }) {
 
   // Delete invoice
   const handleDeleteInvoice = async (invoiceNumber) => {
-    if (!confirm("Are you sure you want to delete this invoice?")) return;
     try {
       const res = await fetch(`/api/batch/invoice/delete/${invoiceNumber}`, {
         method: "DELETE",
@@ -138,6 +149,8 @@ export default function BillingBatch({ orderId, fetchOrders }) {
     } catch (err) {
       console.error(err);
       toast.error("Server error while deleting invoice");
+    } finally {
+      setInvoiceToDelete(null);
     }
   };
 
@@ -153,8 +166,10 @@ export default function BillingBatch({ orderId, fetchOrders }) {
     // Give a tiny delay for React to render the component into printRef
     setTimeout(() => {
       if (!printRef.current) return;
+      document.querySelectorAll(".temp-print-container").forEach((el) => el.remove());
       const printArea = printRef.current.cloneNode(true);
       const tempDiv = document.createElement("div");
+      tempDiv.className = "temp-print-container print-only";
       tempDiv.style.position = "absolute";
       tempDiv.style.top = "0";
       tempDiv.style.left = "0";
@@ -176,7 +191,7 @@ export default function BillingBatch({ orderId, fetchOrders }) {
       Promise.all(promises).then(() => {
         window.print();
         setTimeout(() => {
-          document.body.removeChild(tempDiv);
+          tempDiv.remove();
           setSelectedInvoiceToPrint(null);
         }, 500);
       });
@@ -246,12 +261,12 @@ export default function BillingBatch({ orderId, fetchOrders }) {
         quality: batch.quality || orderInfo?.quality || "",
         sillName: batch.sillName,
         finishingType: batch.finishingType,
-        customerId: batch.customerId || orderInfo?.customerId?._id || orderInfo?.customerId || null,
-        dyeing: batch.dyeing,
-        dyeingId: batch.dyeingId || orderInfo?.dyeingId?._id || orderInfo?.dyeingId || null,
+        customerId: batch.customerId || orderInfo?.customerId?._id || orderInfo?.customerId || orderInfo?.customerMongoId || null,
+        dyeing: batch.dyeing || orderInfo?.dyeingName || "",
+        dyeingId: batch.dyeingId || orderInfo?.dyeingId?._id || orderInfo?.dyeingId || orderInfo?.dyeingMongoId || null,
 
-        calender: batch.calender,
-        calenderId: batch.calenderId,
+        calender: batch.calender || orderInfo?.calender || "",
+        calenderId: batch.calenderId || orderInfo?.calenderId || null,
       };
 
       const res = await fetch("/api/batch/billing/summary", {
@@ -335,7 +350,7 @@ export default function BillingBatch({ orderId, fetchOrders }) {
                 />
                 <Trash2
                   className="cursor-pointer text-red-500 hover:text-red-600"
-                  onClick={() => handleDeleteInvoice(inv.invoiceNumber)}
+                  onClick={() => setInvoiceToDelete(inv.invoiceNumber)}
                   title="Delete Invoice"
                 />
               </div>
@@ -541,12 +556,30 @@ export default function BillingBatch({ orderId, fetchOrders }) {
 
       {/* Hidden printable area */}
       <div className="absolute opacity-0 pointer-events-none w-0 h-0 overflow-hidden">
-        <div ref={printRef} className="print-only">
+        <div ref={printRef}>
           {selectedInvoiceToPrint && (
             <PrintBillingInvoice order={selectedInvoiceToPrint} />
           )}
         </div>
       </div>
+
+      <AlertDialog open={!!invoiceToDelete} onOpenChange={(open) => !open && setInvoiceToDelete(null)}>
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the delivery slip <b>{invoiceToDelete}</b>. 
+              Additionally, any billing summary created from this delivery slip and the corresponding client ledger statement entries will also be permanently deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => invoiceToDelete && handleDeleteInvoice(invoiceToDelete)} className="bg-red-600 hover:bg-red-700 text-white">
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -262,6 +262,10 @@ input[type="number"] {
 
 @media print {
   /* Hide everything except .print-only */
+  body > *:not(.print-only) {
+    display: none !important;
+  }
+
   body * {
     visibility: hidden !important;
   }
@@ -275,11 +279,14 @@ input[type="number"] {
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
     background: white !important;
     z-index: 999999 !important;
   }
 
   @page {
+    size: auto;
     margin: 0;
   }
 }

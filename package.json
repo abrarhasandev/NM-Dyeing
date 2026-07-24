@@ -56,13 +56,14 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "26.1.1",
-    "@types/react": "19.2.17",
+    "@types/node": "^20.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "figma-developer-mcp": "^0.13.2",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.6",
-    "typescript": "^5.7.2"
+    "typescript": "^5.0.0"
   }
 }

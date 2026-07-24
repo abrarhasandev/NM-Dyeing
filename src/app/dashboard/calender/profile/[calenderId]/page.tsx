@@ -318,9 +318,10 @@ export default function CalenderProfileLedger({ params }) {
   const handlePrint = () => {
     setTimeout(() => {
       if (!printRef.current) return;
+      document.querySelectorAll(".temp-print-container").forEach((el) => el.remove());
       const printArea = printRef.current.cloneNode(true);
       const tempDiv = document.createElement("div");
-      tempDiv.className = "print-only";
+      tempDiv.className = "temp-print-container print-only";
       tempDiv.appendChild(printArea);
       document.body.appendChild(tempDiv);
 
@@ -336,7 +337,7 @@ export default function CalenderProfileLedger({ params }) {
       Promise.all(promises).then(() => {
         window.print();
         setTimeout(() => {
-          document.body.removeChild(tempDiv);
+          tempDiv.remove();
         }, 500);
       });
     }, 100);

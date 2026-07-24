@@ -2,12 +2,14 @@
 import connectDB from "@/lib/db";
 import Batch from "@/models/Batch";
 import Invoice from "@/models/Invoice";
+import BillingSummary from "@/models/BillingSummary";
 import { NextResponse } from "next/server";
 import {
   mirrorBatchUpsert,
   mirrorInvoiceRemove,
+  mirrorBillingSummaryRemove,
 } from "@/lib/orders/convexServer";
-import { requireAdmin } from "@/lib/requireAuth";
+import { requireAuth, requireAdmin } from "@/lib/requireAuth";
 
 export async function DELETE(req, { params }) {
   const _authResult = await requireAuth({ roles: ["admin", "user", "moderator"] });
@@ -61,6 +63,14 @@ export async function DELETE(req, { params }) {
     await batchDoc.save();
     await mirrorBatchUpsert(batchDoc);
 
+    // 🗑️ Find and delete all associated BillingSummary docs
+    const billingSummaries = await BillingSummary.find({ invoiceNumber });
+    for (const bs of billingSummaries) {
+      const bsMongoId = bs._id?.toString?.() || String(bs._id);
+      await mirrorBillingSummaryRemove(bsMongoId);
+    }
+    await BillingSummary.deleteMany({ invoiceNumber });
+
     // 🗑️ Delete the invoice from database
     const invoiceMongoId = invoice._id?.toString?.() || String(invoice._id);
     await Invoice.deleteOne({ invoiceNumber });
@@ -68,7 +78,7 @@ export async function DELETE(req, { params }) {
 
     return NextResponse.json({
       success: true,
-      message: "Invoice deleted and batches reverted to Delivered.",
+      message: "Invoice deleted, batches reverted to Delivered, and associated billing statements removed.",
     });
   } catch (err) {
     console.error("Invoice Delete Error:", err);

@@ -66,8 +66,10 @@ const CompletedBatch = ({ orderId, fetchOrders }) => {
     
     setTimeout(() => {
       if (!printRef.current) return;
+      document.querySelectorAll(".temp-print-container").forEach((el) => el.remove());
       const printArea = printRef.current.cloneNode(true);
       const tempDiv = document.createElement("div");
+      tempDiv.className = "temp-print-container print-only";
       tempDiv.style.position = "absolute";
       tempDiv.style.top = "0";
       tempDiv.style.left = "0";
@@ -89,7 +91,7 @@ const CompletedBatch = ({ orderId, fetchOrders }) => {
       Promise.all(promises).then(() => {
         window.print();
         setTimeout(() => {
-          document.body.removeChild(tempDiv);
+          tempDiv.remove();
           setSelectedInvoiceToPrint(null);
         }, 500);
       });
@@ -273,7 +275,7 @@ const CompletedBatch = ({ orderId, fetchOrders }) => {
         )}
       </div>
       <div className="absolute opacity-0 pointer-events-none w-0 h-0 overflow-hidden">
-        <div ref={printRef} className="print-only">
+        <div ref={printRef}>
           {selectedInvoiceToPrint && (
             <PrintBillingInvoice order={selectedInvoiceToPrint} />
           )}
